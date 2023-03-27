@@ -9,54 +9,41 @@ namespace BierBockBackend.Data
 {
     public class OpenFoodFactsApi
     {
-        public static async Task InitializeQuery()
+        public static async Task GetBeerData()
         {
             var openFoodFactsApi = new OpenFoodFactsApi();
-            var allProducts = await openFoodFactsApi.GetAllProducts();
-            Console.WriteLine($"Alle Produkte: {allProducts.Count}");
-            var beers = FilterBeers(allProducts).ToList();
-            Console.WriteLine($"Nur Biere: {beers.Count}");
+            var beers = await openFoodFactsApi.GetAllBeers();
+            Console.WriteLine($"Alle Biere: {beers.Count}");
         }
 
-        private static IEnumerable<Product> FilterBeers(IEnumerable<Product> allProducts)
-        {
-            var searchStrings = new List<string>()
-            {
-                "pilsener",
-                "bier",
-                "hefeweizen",
-                "beer",
-            };
-
-            var categoryFilter = allProducts.Where(x => x.Categories != null && searchStrings.Any(y => x.Categories.ToLower().Contains(y)));
-
-            return categoryFilter;
-        }
-
-        private async Task<List<Product>> GetAllProducts()
+        private async Task<List<Product>> GetAllBeers()
         {
             var allProducts = new List<Product>();
             var page = 1;
-            const int pageSize = 500;
+            const int pageSize = 1000;
+            const string category = "beers";
 
             while (true)
             {
                 using var httpClient = new HttpClient();
-                var response = await httpClient.GetAsync($"https://world.openfoodfacts.org/cgi/search.pl?action=process&sort_by=unique_scans_n&page={page}&page_size={pageSize}&json=true");
+                var response = await httpClient.GetAsync($"https://world.openfoodfacts.org/cgi/search.pl?action=process&tagtype_0=categories&tag_contains_0=contains&tag_0={category}&page={page}&page_size={pageSize}&json=true");
 
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync();
-                    var products = JsonConvert.DeserializeObject<ProductList>(result);
+                    var products = JsonConvert.DeserializeObject<RootObject>(result);
 
-                    if (products?.Products == null) break; /* Keine weiteren Produkte existieren == alle Produkte abgefragt */
+                    if (products?.Products == null) break;
 
                     allProducts.AddRange(products.Products);
 
-                    if (products.Products.Count < pageSize) /* Weniger Ergebnisse als Seitengröße == keine weiteren Produkte existieren == alle Produkte abgefragt */
+                    if (products.Products.Count < pageSize) // check if it is the last page
                         break;
                     else
+                    {
                         page++;
+                        Console.WriteLine($"++500 -> Gesamt: {allProducts.Count}");
+                    }
                 }
                 else /* Kein erfolgreicher Request == Seite existiert nicht == alle Produkte abgefragt */
                 {
