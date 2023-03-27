@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenFoodDbAbfrage
+namespace BierBockBackend.Data
 {
     public class OpenFoodFactsApi
     {
@@ -13,27 +13,22 @@ namespace OpenFoodDbAbfrage
         {
             var openFoodFactsApi = new OpenFoodFactsApi();
             var allProducts = await openFoodFactsApi.GetAllProducts();
+            Console.WriteLine($"Alle Produkte: {allProducts.Count}");
             var beers = FilterBeers(allProducts).ToList();
-            Console.WriteLine(allProducts.Count);
-            Console.WriteLine(beers.Count);
+            Console.WriteLine($"Nur Biere: {beers.Count}");
         }
 
         private static IEnumerable<Product> FilterBeers(IEnumerable<Product> allProducts)
         {
             var searchStrings = new List<string>()
             {
-                "Bier",
-                "Pilsener",
+                "pilsener",
                 "bier",
-                "Hefeweizen",
-                "Beer",
-                "Weizen",
-                "Weißbier",
-                "Pilsener",
-                "beer", // ggf. mehr ausländische Namen
+                "hefeweizen",
+                "beer",
             };
 
-            var categoryFilter = allProducts.Where(x => x.Categories != null && searchStrings.Any(y => x.Categories.Contains(y)));
+            var categoryFilter = allProducts.Where(x => x.Categories != null && searchStrings.Any(y => x.Categories.ToLower().Contains(y)));
 
             return categoryFilter;
         }
@@ -42,7 +37,7 @@ namespace OpenFoodDbAbfrage
         {
             var allProducts = new List<Product>();
             var page = 1;
-            const int pageSize = 20;
+            const int pageSize = 500;
 
             while (true)
             {
@@ -52,14 +47,18 @@ namespace OpenFoodDbAbfrage
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync();
-                    var products = JsonConvert.DeserializeObject<RootObject>(result);
+                    var products = JsonConvert.DeserializeObject<ProductList>(result);
+
+                    if (products?.Products == null) break; /* Keine weiteren Produkte existieren == alle Produkte abgefragt */
+
                     allProducts.AddRange(products.Products);
-                    if (products.Products.Count < pageSize) // check if it is the last page
+
+                    if (products.Products.Count < pageSize) /* Weniger Ergebnisse als Seitengröße == keine weiteren Produkte existieren == alle Produkte abgefragt */
                         break;
                     else
                         page++;
                 }
-                else
+                else /* Kein erfolgreicher Request == Seite existiert nicht == alle Produkte abgefragt */
                 {
                     break;
                 }

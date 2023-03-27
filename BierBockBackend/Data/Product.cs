@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 
-namespace OpenFoodDbAbfrage;
+namespace BierBockBackend.Data;
 
 public class Product
 {
+    #region Allgemeine Infos
+
     [JsonProperty("code")]
     public string? Code { get; set; }
 
@@ -16,12 +18,6 @@ public class Product
     [JsonProperty("image_url")]
     public string? ImageUrl { get; set; }
 
-    [JsonProperty("ingredients_text")]
-    public string? IngredientsText { get; set; }
-
-    [JsonProperty("nutriscore_grade")]
-    public string? NutriscoreGrade { get; set; }
-
     [JsonProperty("categories")]
     public string? Categories { get; set; }
 
@@ -30,6 +26,17 @@ public class Product
 
     [JsonProperty("generic_name")]
     public string? GenericName { get; set; }
+
+    #endregion
+
+
+    #region Inhaltsstoffe
+
+    [JsonProperty("ingredients_text")]
+    public string? IngredientsText { get; set; }
+
+    [JsonProperty("nutriscore_grade")]
+    public string? NutriscoreGrade { get; set; }
 
     [JsonProperty("energy-kcal_100g")]
     public decimal? EnergyKcalPer100g { get; set; }
@@ -57,6 +64,11 @@ public class Product
 
     [JsonProperty("sodium_100g")]
     public decimal? SodiumPer100g { get; set; }
+
+    #endregion
+
+
+    #region Bierspezifisch
 
     [JsonProperty("alcohol_100g")]
     public decimal? AlcoholByVolume { get; set; }
@@ -93,9 +105,11 @@ public class Product
 
     [JsonProperty("taste")]
     public string? Taste { get; set; }
+
+    #endregion
 }
 
-public class RootObject
+public class ProductList
 {
     [JsonProperty("products")]
     public List<Product>? Products { get; set; }
