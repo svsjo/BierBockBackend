@@ -6,11 +6,12 @@ public class Product
 {
     #region Allgemeine Infos
 
+    /* Primärschlüssel */
     [JsonProperty("code")]
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
 
     [JsonProperty("product_name")]
-    public string? ProductName { get; set; }
+    public string ProductName { get; set; } = null!;
 
     [JsonProperty("brands")]
     public string? Brands { get; set; }
