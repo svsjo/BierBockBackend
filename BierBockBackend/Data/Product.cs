@@ -115,3 +115,8 @@ public class ProductList
     [JsonProperty("products")]
     public List<Product>? Products { get; set; }
 }
+
+public class RootObject
+{
+    public List<Product> Products { get; set; }
+}

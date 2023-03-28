@@ -1,4 +1,8 @@
-using OpenFoodDbAbfrage;
+//using OpenFoodDbAbfrage;
+
+using DataStorage;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +12,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<AppDatabaseContext>();//(options => options.UseSqlite("name=ConnectionStrings:DefaultConnection"));
+
 
 var app = builder.Build();
 
@@ -21,6 +28,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
 
 app.MapControllers();
 

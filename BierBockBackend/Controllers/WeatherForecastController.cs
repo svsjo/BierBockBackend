@@ -1,3 +1,4 @@
+using DataStorage;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BierBockBackend.Controllers
@@ -13,9 +14,12 @@ namespace BierBockBackend.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, AppDatabaseContext dbAppDatabaseContext)
         {
             _logger = logger;
+            var x = dbAppDatabaseContext.Demos;
+            dbAppDatabaseContext.Demos.Add(new DemoEntry() { Id = 12, Name = "jona" });
+            dbAppDatabaseContext.SaveChanges();
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
