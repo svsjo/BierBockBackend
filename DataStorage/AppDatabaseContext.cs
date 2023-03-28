@@ -26,10 +26,4 @@ namespace DataStorage
             => options.UseSqlite($"Data Source=ConnectionStrings:DefaultConnection");
         
     }
-
-    public class DemoEntry
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
 }
