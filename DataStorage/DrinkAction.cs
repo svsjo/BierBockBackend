@@ -11,6 +11,13 @@ namespace BierBockBackend.Data
 
         public DateTime Time { get; set; } = DateTime.Now;
 
-        public GeoCoordinate Location { get; set; }
+
+
+        public GeoCoordinate GetCoordinate => new GeoCoordinate(this.Latitude, this.Longitude, this.Altitude);
+
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public double Altitude { get; set; }
+
     }
 }

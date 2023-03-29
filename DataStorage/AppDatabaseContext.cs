@@ -1,6 +1,7 @@
 ﻿#region
 
 using BierBockBackend.Data;
+using DataStorage.HelpRelations;
 using Microsoft.EntityFrameworkCore;
 
 #endregion
@@ -9,74 +10,84 @@ namespace DataStorage;
 
 public class AppDatabaseContext : DbContext
 {
-    private DbSet<ChallengePart> _challengeParts;
-    private DbSet<Challenge> _challenges;
-    private DbSet<DrinkAction> _drinkActions;
+    public DbSet<ChallengePart> ChallengeParts { get; set; }
+    public DbSet<Challenge> Challenges { get; set; }
+    public DbSet<DrinkAction> DrinkActions { get; set; }
 
-    private DbSet<Product> _products;
+    public DbSet<Product> Products { get; set; }
     //Add-Migration Name
     //Update-Database
 
-    private DbSet<User> _users;
+    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<User>().HasMany<Challenge>().WithMany(x => x.User);
+
+        
+        modelBuilder.Entity<ChallengeUser>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.UserChallenges)
+            .HasForeignKey(x => x.ChallengeId);
+
+        modelBuilder.Entity<ChallengeUser>()
+            .HasOne(x => x.Challenge)
+            .WithMany(x => x.User)
+            .HasForeignKey(x => x.UserId);
     }
 
     public void AddUser(User entry)
     {
-        _users.Add(entry);
+        Users.Add(entry);
         SaveChanges();
     }
 
     public IQueryable<User> GetUsers()
     {
-        return _users.AsQueryable();
+        return Users.AsQueryable().Include(x=>x.UserChallenges).AsSplitQuery();
     }
 
     public IQueryable<Product> GetProducts()
     {
-        return _products.AsQueryable();
+        return Products.AsQueryable();
     }
 
     public void AddProduct(Product entry)
     {
-        _products.Add(entry);
+        Products.Add(entry);
         SaveChanges();
     }
 
     public IQueryable<Challenge> GetChallenge()
     {
-        return _challenges.AsQueryable();
+        return Challenges.AsQueryable();
     }
 
     public void AddChallenge(Challenge entry)
     {
-        _challenges.Add(entry);
+        Challenges.Add(entry);
         SaveChanges();
     }
 
     public IQueryable<DrinkAction> GetDrinkActions()
     {
-        return _drinkActions.AsQueryable();
+        return DrinkActions.AsQueryable();
     }
 
     public void AddDrinkAction(DrinkAction entry)
     {
-        _drinkActions.Add(entry);
+        DrinkActions.Add(entry);
         SaveChanges();
     }
 
     public IQueryable<ChallengePart> GetChallengeParts()
     {
-        return _challengeParts.AsQueryable();
+        return ChallengeParts.AsQueryable();
     }
 
     public void AddChallenge(ChallengePart entry)
     {
-        _challengeParts.Add(entry);
+        ChallengeParts.Add(entry);
         SaveChanges();
     }
 

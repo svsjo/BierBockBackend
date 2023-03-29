@@ -1,4 +1,6 @@
+using BierBockBackend.Data;
 using DataStorage;
+using DataStorage.HelpRelations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BierBockBackend.Controllers
@@ -17,9 +19,26 @@ namespace BierBockBackend.Controllers
         public WeatherForecastController(ILogger<WeatherForecastController> logger, AppDatabaseContext dbAppDatabaseContext)
         {
             _logger = logger;
-            var x = dbAppDatabaseContext.GetDemos();
-            dbAppDatabaseContext.AddDemo(new DemoEntry() { Id = 12, Name = "jona" });
-            dbAppDatabaseContext.SaveChanges();
+            //var x = dbAppDatabaseContext.GetDemos();
+            //dbAppDatabaseContext.AddDemo(new DemoEntry() { Id = 12, Name = "jona" });
+
+            var x = dbAppDatabaseContext.GetUsers().First();
+
+            var challenge = new Challenge
+            {
+                Description = "test"
+            };
+
+            dbAppDatabaseContext.AddChallenge(challenge);
+            dbAppDatabaseContext.AddUser(new User()
+            {
+                UserChallenges = new[] {new ChallengeUser()
+                {
+                    Challenge =challenge
+                    
+                }},
+                Name = "Fred",
+            });
         }
 
         [HttpGet(Name = "GetWeatherForecast")]

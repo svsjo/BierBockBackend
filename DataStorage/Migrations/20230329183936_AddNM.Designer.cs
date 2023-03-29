@@ -3,6 +3,7 @@ using System;
 using DataStorage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataStorage.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    partial class AppDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230329183936_AddNM")]
+    partial class AddNM
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.4");
@@ -35,7 +38,7 @@ namespace DataStorage.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Challenges");
+                    b.ToTable("Challenge");
                 });
 
             modelBuilder.Entity("BierBockBackend.Data.ChallengePart", b =>
@@ -53,7 +56,7 @@ namespace DataStorage.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ChallengeParts");
+                    b.ToTable("ChallengePart");
                 });
 
             modelBuilder.Entity("BierBockBackend.Data.DrinkAction", b =>
@@ -85,105 +88,7 @@ namespace DataStorage.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DrinkActions");
-                });
-
-            modelBuilder.Entity("BierBockBackend.Data.Product", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("AlcoholByVolume")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BeerStyle")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BeerType")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Brands")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BrewingMethod")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("CarbohydratesPer100g")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CarbonationLevel")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Categories")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Color")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("EnergyKcalPer100g")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("FatPer100g")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Fermentation")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("FiberPer100g")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("GenericName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Hops")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("IBU")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("IngredientsText")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Malt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NutriscoreGrade")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ProductName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("ProteinsPer100g")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Quantity")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("SaltPer100g")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("SaturatedFatPer100g")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("SodiumPer100g")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal?>("SugarsPer100g")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Taste")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Yeast")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Products");
+                    b.ToTable("DrinkAction");
                 });
 
             modelBuilder.Entity("BierBockBackend.Data.User", b =>
@@ -212,7 +117,7 @@ namespace DataStorage.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("ChallengeChallengePart", b =>

@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using DataStorage.HelpRelations;
 
 namespace BierBockBackend.Data;
 
@@ -16,7 +18,7 @@ public class User
 
     public int Points { get; set; } = 0;
 
-    public virtual IQueryable<Challenge> UserChallenges { get; set; }
+    public  ICollection<ChallengeUser> UserChallenges { get; set; }
 
     public virtual IQueryable<DrinkAction> AllTrinkingActions { get; set; }
 }

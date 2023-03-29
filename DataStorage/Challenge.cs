@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using DataStorage.HelpRelations;
 
 namespace BierBockBackend.Data;
 
@@ -8,11 +9,12 @@ public class Challenge
 
     public int PossiblePoints { get; set; }
 
+    
     public string Description { get; set; } = string.Empty;
 
-    public virtual IQueryable<ChallengePart> PartialChallenges { get; set; }
+    public virtual ICollection<ChallengePart> PartialChallenges { get; set; }
 
-    public virtual IQueryable<User> User { get; set; }
+    public virtual List<ChallengeUser> User { get; set; }
 
     public DateTime EndDate { get; set; }
 
