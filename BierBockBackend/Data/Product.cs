@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace BierBockBackend.Data;
 
@@ -8,10 +9,10 @@ public class Product
 
     /* Primärschlüssel */
     [JsonProperty("code")]
-    public string Code { get; set; } = null!;
+    [Key] public string Code { get; set; }
 
     [JsonProperty("product_name")]
-    public string ProductName { get; set; } = null!;
+    public string ProductName { get; set; }
 
     [JsonProperty("brands")]
     public string? Brands { get; set; }

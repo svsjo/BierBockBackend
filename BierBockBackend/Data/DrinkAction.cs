@@ -1,16 +1,13 @@
-﻿namespace BierBockBackend.Data
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BierBockBackend.Data
 {
     public class DrinkAction
     {
-        public DrinkAction(string beerCode)
-        {
-            BeerCode = beerCode;
-            DateTime = DateTime.Now;
-        }
+        [Key] public int Id { get; set; }
 
-        /* Fremdschlüssel: Primärschlüssel von Produkt */
-        public string BeerCode { get; }
+        public string BeerCode { get; set; }
 
-        public DateTime DateTime { get; }
+        public DateTime Time { get; set; } = DateTime.Now;
     }
 }
