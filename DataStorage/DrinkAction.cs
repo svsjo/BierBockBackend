@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using GeoCoordinatePortable;
 
 namespace BierBockBackend.Data
 {
@@ -9,5 +10,7 @@ namespace BierBockBackend.Data
         public string BeerCode { get; set; }
 
         public DateTime Time { get; set; } = DateTime.Now;
+
+        public GeoCoordinate Location { get; set; }
     }
 }

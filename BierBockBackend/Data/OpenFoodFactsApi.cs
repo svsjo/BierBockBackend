@@ -31,7 +31,7 @@ namespace BierBockBackend.Data
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync();
-                    var products = JsonConvert.DeserializeObject<RootObject>(result);
+                    var products = JsonConvert.DeserializeObject<ProductList>(result);
 
                     if (products?.Products == null) break;
 

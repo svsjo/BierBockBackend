@@ -17,8 +17,8 @@ namespace BierBockBackend.Controllers
         public WeatherForecastController(ILogger<WeatherForecastController> logger, AppDatabaseContext dbAppDatabaseContext)
         {
             _logger = logger;
-            var x = dbAppDatabaseContext.Demos;
-            dbAppDatabaseContext.Demos.Add(new DemoEntry() { Id = 12, Name = "jona" });
+            var x = dbAppDatabaseContext.GetDemos();
+            dbAppDatabaseContext.AddDemo(new DemoEntry() { Id = 12, Name = "jona" });
             dbAppDatabaseContext.SaveChanges();
         }
 
