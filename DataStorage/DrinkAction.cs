@@ -17,6 +17,7 @@ namespace BierBockBackend.Data
         public double Longitude { get; set; }
         public double Altitude { get; set; }
 
+        /* Fremdschlüssel */
         public int UserId { get; set; }
         public virtual User User { get; set; }
     }

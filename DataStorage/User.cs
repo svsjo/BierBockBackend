@@ -23,5 +23,5 @@ public class User
 
     public virtual ICollection<ChallengeUser> UserChallenges { get; set; }
 
-    public virtual IQueryable<DrinkAction> AllDrinkingActions { get; set; }
+    public virtual ICollection<DrinkAction> AllDrinkingActions { get; set; }
 }
