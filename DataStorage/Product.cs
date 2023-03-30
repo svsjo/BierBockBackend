@@ -7,9 +7,12 @@ public class Product
 {
     #region Allgemeine Infos
 
-    /* Primärschlüssel */
+    [JsonIgnore]
+    [Key]
+    public int Id { get; set; }
+
     [JsonProperty("code")]
-    [Key] public string Code { get; set; }
+    public string Code { get; set; }
 
     [JsonProperty("product_name")]
     public string ProductName { get; set; }

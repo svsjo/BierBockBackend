@@ -10,7 +10,7 @@ public class ChallengePart
 
     public string Description { get; set; } = string.Empty;
 
-    public string BeerCode { get; }
+    public string BeerCode { get; set; }
 
     public int Quantity { get; set; }
 

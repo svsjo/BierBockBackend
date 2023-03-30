@@ -9,11 +9,9 @@ namespace BierBockBackend.Data
 {
     public class OpenFoodFactsApi
     {
-        public static async Task GetBeerData()
+        public async Task<List<Product>> GetBeerData()
         {
-            var openFoodFactsApi = new OpenFoodFactsApi();
-            var beers = await openFoodFactsApi.GetAllBeers();
-            Console.WriteLine($"Alle Biere: {beers.Count}");
+            return await GetAllBeers();
         }
 
         private async Task<List<Product>> GetAllBeers()

@@ -10,11 +10,11 @@ namespace DataStorage;
 
 public class AppDatabaseContext : DbContext
 {
-    public DbSet<ChallengePart> ChallengeParts { get; set; }
-    public DbSet<Challenge> Challenges { get; set; }
-    public DbSet<DrinkAction> DrinkActions { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<Product> Products { get; set; }
+    private DbSet<ChallengePart> ChallengeParts { get; set; }
+    private DbSet<Challenge> Challenges { get; set; }
+    private DbSet<DrinkAction> DrinkActions { get; set; }
+    private DbSet<User> Users { get; set; }
+    private DbSet<Product> Products { get; set; }
 
     //Add-Migration Name
     //Update-Database
@@ -78,6 +78,12 @@ public class AppDatabaseContext : DbContext
         SaveChanges();
     }
 
+    public void AddProducts(List<Product> entries)
+    {
+        Products.AddRange(entries);
+        SaveChanges();
+    }
+
     public IQueryable<Challenge> GetChallenge()
     {
         return Challenges
@@ -112,7 +118,7 @@ public class AppDatabaseContext : DbContext
             .AsSplitQuery();
     }
 
-    public void AddChallenge(ChallengePart entry)
+    public void AddChallengePart(ChallengePart entry)
     {
         ChallengeParts.Add(entry);
         SaveChanges();
@@ -121,5 +127,6 @@ public class AppDatabaseContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
         options.UseSqlite($"Data Source=ConnectionStrings:DefaultConnection");
+        options.EnableDetailedErrors(true); // Später wieder entfernen wegen Performance
     }
 }
