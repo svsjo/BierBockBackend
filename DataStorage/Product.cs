@@ -114,5 +114,5 @@ public class Product
 public class ProductList
 {
     [JsonProperty("products")]
-    public List<Product>? Products { get; set; }
+    public ICollection<Product>? Products { get; set; }
 }

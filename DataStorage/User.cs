@@ -1,6 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿#region
+
+using System.ComponentModel.DataAnnotations;
 using DataStorage.HelpRelations;
+
+#endregion
 
 namespace BierBockBackend.Data;
 
@@ -18,7 +21,7 @@ public class User
 
     public int Points { get; set; } = 0;
 
-    public  ICollection<ChallengeUser> UserChallenges { get; set; }
+    public virtual ICollection<ChallengeUser> UserChallenges { get; set; }
 
-    public virtual IQueryable<DrinkAction> AllTrinkingActions { get; set; }
+    public virtual IQueryable<DrinkAction> AllDrinkingActions { get; set; }
 }

@@ -91,7 +91,7 @@ namespace DataStorage.Migrations
                     b.ToTable("DrinkAction");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.User", b =>
+            modelBuilder.Entity("BierBockBackend.Data.Users", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -117,7 +117,7 @@ namespace DataStorage.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ChallengeChallengePart", b =>
@@ -158,8 +158,8 @@ namespace DataStorage.Migrations
 
             modelBuilder.Entity("BierBockBackend.Data.DrinkAction", b =>
                 {
-                    b.HasOne("BierBockBackend.Data.User", null)
-                        .WithMany("AllTrinkingActions")
+                    b.HasOne("BierBockBackend.Data.Users", null)
+                        .WithMany("AllDrinkingActions")
                         .HasForeignKey("UserId");
                 });
 
@@ -180,31 +180,31 @@ namespace DataStorage.Migrations
 
             modelBuilder.Entity("DataStorage.HelpRelations.ChallengeUser", b =>
                 {
-                    b.HasOne("BierBockBackend.Data.User", "User")
+                    b.HasOne("BierBockBackend.Data.Users", "Users")
                         .WithMany("UserChallenges")
                         .HasForeignKey("ChallengeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
-                        .WithMany("User")
+                        .WithMany("Users")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Challenge");
 
-                    b.Navigation("User");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("BierBockBackend.Data.Challenge", b =>
                 {
-                    b.Navigation("User");
+                    b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.User", b =>
+            modelBuilder.Entity("BierBockBackend.Data.Users", b =>
                 {
-                    b.Navigation("AllTrinkingActions");
+                    b.Navigation("AllDrinkingActions");
 
                     b.Navigation("UserChallenges");
                 });

@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using DataStorage.HelpRelations;
 
 namespace BierBockBackend.Data;
 
@@ -12,5 +14,5 @@ public class ChallengePart
 
     public int Quantity { get; set; }
 
-    public virtual IQueryable<Challenge> Challenges { get; set; }
+    public virtual ICollection<ChallengePartChallenge> Challenges { get; set; }
 }

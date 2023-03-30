@@ -32,7 +32,7 @@ namespace DataStorage.Migrations
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_User",
-                table: "User");
+                table: "Users");
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_DrinkAction",
@@ -47,7 +47,7 @@ namespace DataStorage.Migrations
                 table: "Challenge");
 
             migrationBuilder.RenameTable(
-                name: "User",
+                name: "Users",
                 newName: "Users");
 
             migrationBuilder.RenameTable(
@@ -211,7 +211,7 @@ namespace DataStorage.Migrations
 
             migrationBuilder.RenameTable(
                 name: "Users",
-                newName: "User");
+                newName: "Users");
 
             migrationBuilder.RenameTable(
                 name: "DrinkActions",
@@ -232,7 +232,7 @@ namespace DataStorage.Migrations
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_User",
-                table: "User",
+                table: "Users",
                 column: "Id");
 
             migrationBuilder.AddPrimaryKey(
@@ -278,7 +278,7 @@ namespace DataStorage.Migrations
                 name: "FK_ChallengeUser_User_ChallengeId",
                 table: "ChallengeUser",
                 column: "ChallengeId",
-                principalTable: "User",
+                principalTable: "Users",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
@@ -286,7 +286,7 @@ namespace DataStorage.Migrations
                 name: "FK_DrinkAction_User_UserId",
                 table: "DrinkAction",
                 column: "UserId",
-                principalTable: "User",
+                principalTable: "Users",
                 principalColumn: "Id");
         }
     }

@@ -10,11 +10,9 @@ namespace DataStorage.HelpRelations
 {
     public class ChallengeUser
     {
-        [Key]
-        public int Id { get; set; }
+        [Key] public int Id { get; set; }
         public int UserId { get; set; }
         public int ChallengeId { get; set; }
-
         public User User { get; set; }
         public Challenge Challenge { get; set; }
     }
