@@ -19,6 +19,8 @@ public class Challenge
 
     public virtual ICollection<ChallengeUser> Users { get; set; }
 
+    public DateTime StartDate { get; set; } = DateTime.Now;
+
     public DateTime EndDate { get; set; }
 
     public bool IsActive => DateTime.Now < EndDate;
