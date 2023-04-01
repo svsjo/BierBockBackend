@@ -50,6 +50,24 @@ public class AppDatabaseContext : DbContext
             .HasOne(x => x.User)
             .WithMany(x => x.AllDrinkingActions)
             .HasForeignKey(x => x.UserId);
+
+        /* Einseitige 1-1-Beziehung ChallengePart zu FavouriteBeer */
+        modelBuilder.Entity<ChallengePart>()
+            .HasOne(x => x.Beer)
+            .WithOne()
+            .HasForeignKey<ChallengePart>(x => x.BeerId);
+
+        /* Einseitige 1-1-Beziehung User zu FavouriteBeer */
+        modelBuilder.Entity<User>()
+            .HasOne(x => x.FavouriteBeer)
+            .WithOne()
+            .HasForeignKey<User>(x => x.BeerId);
+
+        /* Einseitige 1-1-Beziehung DrinkAction zu FavouriteBeer */
+        modelBuilder.Entity<DrinkAction>()
+            .HasOne(x => x.Product)
+            .WithOne()
+            .HasForeignKey<DrinkAction>(x => x.ProductId);
     }
 
     public void AddUser(User entry)
@@ -63,7 +81,10 @@ public class AppDatabaseContext : DbContext
         return Users
             .AsQueryable()
             .Include(x => x.UserChallenges)
+            .ThenInclude(x => x.Challenge)
             .Include(x => x.AllDrinkingActions)
+            .ThenInclude(x => x.Product)
+            .Include(x => x.FavouriteBeer)
             .AsSplitQuery();
     }
 
@@ -78,7 +99,7 @@ public class AppDatabaseContext : DbContext
         SaveChanges();
     }
 
-    public void AddProducts(List<Product> entries)
+    public void AddProducts(IEnumerable<Product> entries)
     {
         Products.AddRange(entries);
         SaveChanges();
@@ -89,7 +110,9 @@ public class AppDatabaseContext : DbContext
         return Challenges
             .AsQueryable()
             .Include(x => x.PartialChallenges)
+            .ThenInclude(x => x.ChallengePart)
             .Include(x => x.Users)
+            .ThenInclude(x => x.User)
             .AsSplitQuery();
     }
 
@@ -101,7 +124,10 @@ public class AppDatabaseContext : DbContext
 
     public IQueryable<DrinkAction> GetDrinkActions()
     {
-        return DrinkActions.AsQueryable();
+        return DrinkActions
+            .AsQueryable()
+            .Include(x => x.Product)
+            .AsSplitQuery();
     }
 
     public void AddDrinkAction(DrinkAction entry)
@@ -115,6 +141,7 @@ public class AppDatabaseContext : DbContext
         return ChallengeParts
             .AsQueryable()
             .Include(x => x.Challenges)
+            .Include(x => x.Beer)
             .AsSplitQuery();
     }
 

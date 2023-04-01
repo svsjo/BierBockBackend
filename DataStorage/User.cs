@@ -3,7 +3,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata;
 using DataStorage.HelpRelations;
-using GeoCoordinatePortable;
 
 #endregion
 
@@ -21,8 +20,6 @@ public class User
 
     public string Email { get; set; } = string.Empty;
 
-    public string FavouriteBeerCode { get; set; } = string.Empty;
-
     public DateOnly BirthDate { get; set; }
 
     public int Points { get; set; } = 0;
@@ -31,9 +28,11 @@ public class User
 
     public virtual ICollection<DrinkAction> AllDrinkingActions { get; set; }
 
-    public GeoCoordinate GetCoordinate => new GeoCoordinate(this.Latitude, this.Longitude, this.Altitude);
+    public Coordinate Location { get; set; }
 
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public double Altitude { get; set; }
+
+    /* Fremdschlüssel von FavouriteBeer */
+    public int BeerId { get; set; }
+
+    public virtual Product FavouriteBeer { get; set; }
 }

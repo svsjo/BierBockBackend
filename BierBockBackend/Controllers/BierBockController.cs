@@ -22,16 +22,46 @@ public class BierBockController : ControllerBase
     #region Echte Schnittstelle
 
     [HttpGet("ownUserData", Name = "GetOwnUserData")]
-    public RequestStatus<User> GetOwnUserData(string token)
+    public RequestStatus<UserBasicData> GetOwnUserData(string token)
     {
-        var result = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+        var user = _dbAppDatabaseContext.GetUsers()
+            .FirstOrDefault(x => x.Token == token);
+        var result = user != default
+            ? new UserBasicData()
+            {
+                Name = user.Name,
+                BirthDate = user.BirthDate,
+                Email = user.Email,
+                Location = user.Location
+            }
+            : default;
+
         var sucess = result != default;
         var status = sucess ? Status.Successful : Status.NoResults;
 
-        return new RequestStatus<User>
+        return new RequestStatus<UserBasicData>
         {
             Status = status,
             Result = result
+        };
+    }
+
+    [HttpGet("ownChallenges", Name = "GetOwnChallenges")]
+    public RequestStatus<IEnumerable<Challenge>> GetOwnChallenges(string token)
+    {
+        var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+        var permission = user != default;
+        var results = permission
+            ? _dbAppDatabaseContext.GetChallenge()
+                .Where(x => x.Users
+                    .Any(y => y.User == user))
+            : default;
+        var status = permission ? (results!.Any() ? Status.Successful : Status.NoResults) : Status.NoPermission;
+
+        return new RequestStatus<IEnumerable<Challenge>>
+        {
+            Status = status,
+            Result = results
         };
     }
 
@@ -49,7 +79,7 @@ public class BierBockController : ControllerBase
         };
     }
 
-    [HttpGet("bestSerachResults", Name = "GetBestSearchResults")]
+    [HttpGet("bestSearchResults", Name = "GetBestSearchResults")]
     public RequestStatus<IEnumerable<Product>> GetBestSearchResults(string token, string searchString)
     {
         var permission = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token) != default;
@@ -185,18 +215,45 @@ public class BierBockController : ControllerBase
     {
         #region Allgemein
 
+        var beer1 = new Product
+        {
+            Code = "1234",
+            ProductName = "Apple",
+            Brands = "BrandA",
+            ImageUrl = "https://example.com/apple.png",
+            Categories = "Fruits",
+            Quantity = "1 kg",
+            GenericName = "Fruit",
+        };
+
+        var beer2 = new Product
+        {
+            Code = "5678",
+            ProductName = "Banana",
+            Brands = "BrandB",
+            ImageUrl = "https://example.com/banana.png",
+            Categories = "Fruits",
+            Quantity = "500 g",
+            GenericName = "Fruit",
+        };
+
+
         var user = new User
         {
             Token = "123456",
             Name = "Max Mustermann",
             PasswordHash = "Password123",
             Email = "max.mustermann@example.com",
-            FavouriteBeerCode = "3080216052885",
+            FavouriteBeer = beer1,
+            BeerId = beer1.Id,
             BirthDate = new DateOnly(1990, 1, 1),
             Points = 10,
-            Latitude = 48.1351,
-            Longitude = 11.5820,
-            Altitude = 100
+            Location = new Coordinate()
+            {
+                Latitude = 48.1351,
+                Longitude = 11.5820,
+                Altitude = 100
+            }
         };
 
         var user1 = new User
@@ -205,12 +262,16 @@ public class BierBockController : ControllerBase
             Name = "Anna Müller",
             PasswordHash = "Password123",
             Email = "anna.mueller@example.com",
-            FavouriteBeerCode = "WEISS",
+            FavouriteBeer = beer1,
+            BeerId = beer1.Id,
             BirthDate = new DateOnly(1995, 6, 15),
             Points = 5,
-            Latitude = 51.5074,
-            Longitude = -0.1278,
-            Altitude = 10,
+            Location = new Coordinate()
+            {
+                Latitude = 51.5074,
+                Longitude = -0.1278,
+                Altitude = 10,
+            }
         };
 
         var user2 = new User
@@ -219,44 +280,60 @@ public class BierBockController : ControllerBase
             Name = "Hans Schmidt",
             PasswordHash = "Password456",
             Email = "hans.schmidt@example.com",
-            FavouriteBeerCode = "3080216049632",
+            FavouriteBeer = beer2,
+            BeerId = beer2.Id,
             BirthDate = new DateOnly(1985, 3, 2),
             Points = 15,
-            Latitude = 40.7128,
-            Longitude = -74.0060,
-            Altitude = 50,
+            Location = new Coordinate()
+            {
+                Latitude = 40.7128,
+                Longitude = -74.0060,
+                Altitude = 50,
+            }
         };
 
 
         var drinkAction = new DrinkAction
         {
-            BeerCode = "3080216052885",
+            Product = beer1,
+            ProductId = beer1.Id,
             Time = DateTime.Now,
-            Latitude = 48.1351,
-            Longitude = 11.5820,
-            Altitude = 100,
+            Location = new Coordinate()
+            {
+                Latitude = 48.1351,
+                Longitude = 11.5820,
+                Altitude = 100,
+            },
             UserId = user.Id,
             User = user,
         };
 
         var drinkAction1 = new DrinkAction
         {
-            BeerCode = "3080216049632",
+            Product = beer1,
+            ProductId = beer1.Id,
             Time = DateTime.Now.AddDays(-2),
-            Latitude = 51.5074,
-            Longitude = -0.1278,
-            Altitude = 10,
+            Location = new Coordinate()
+            {
+                Latitude = 51.5074,
+                Longitude = -0.1278,
+                Altitude = 10,
+            },
             UserId = user1.Id,
             User = user1,
         };
 
         var drinkAction2 = new DrinkAction
         {
-            BeerCode = "3080216049632",
+            Product = beer2,
+            ProductId = beer2.Id,
             Time = DateTime.Now.AddDays(-1),
-            Latitude = 40.7128,
-            Longitude = -74.0060,
-            Altitude = 50,
+            Location = new Coordinate()
+            {
+                Latitude = 40.7128,
+                Longitude = -74.0060,
+                Altitude = 50,
+            },
             UserId = user2.Id,
             User = user2,
         };
@@ -265,21 +342,24 @@ public class BierBockController : ControllerBase
         var challengePart = new ChallengePart
         {
             Description = "Trink ein Bier",
-            BeerCode = "3080216052885",
+            Beer = beer1,
+            BeerId = beer1.Id,
             Quantity = 1,
         };
 
         var challengePart1 = new ChallengePart
         {
             Description = "Trink ein Weißbier",
-            BeerCode = "3119783007483",
+            Beer = beer1,
+            BeerId = beer1.Id,
             Quantity = 1,
         };
 
         var challengePart2 = new ChallengePart
         {
             Description = "Trink ein Pils",
-            BeerCode = "3119783007483",
+            Beer = beer2,
+            BeerId = beer2.Id,
             Quantity = 1,
         };
 

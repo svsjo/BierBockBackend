@@ -10,9 +10,13 @@ public class ChallengePart
 
     public string Description { get; set; } = string.Empty;
 
-    public string BeerCode { get; set; }
-
     public int Quantity { get; set; }
 
     public virtual ICollection<ChallengePartChallenge> Challenges { get; set; }
+
+
+    /* Fremdschlüssel von FavouriteBeer */
+    public int BeerId { get; set; }
+
+    public virtual Product Beer { get; set; }
 }

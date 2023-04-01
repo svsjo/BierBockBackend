@@ -98,7 +98,7 @@ namespace DataStorage.Migrations
                     b.ToTable("DrinkActions");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.Product", b =>
+            modelBuilder.Entity("BierBockBackend.Data.FavouriteBeer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
