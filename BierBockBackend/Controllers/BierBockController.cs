@@ -2,6 +2,9 @@ using BierBockBackend.Data;
 using DataStorage;
 using DataStorage.HelpRelations;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using System.Security;
+using Microsoft.AspNetCore.Http.Metadata;
 
 namespace BierBockBackend.Controllers;
 
@@ -16,19 +19,168 @@ public class BierBockController : ControllerBase
         _dbAppDatabaseContext = dbAppDatabaseContext;
     }
 
-    [HttpGet("allDrinkActions", Name = "GetAllDrinkActions")]
-    public IEnumerable<DrinkAction> GetAllDrinkActions()
+    #region Echte Schnittstelle
+
+    [HttpGet("ownUserData", Name = "GetOwnUserData")]
+    public RequestStatus<User> GetOwnUserData(string token)
     {
-        return _dbAppDatabaseContext.GetDrinkActions();
+        var result = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+        var sucess = result != default;
+        var status = sucess ? Status.Successful : Status.NoResults;
+
+        return new RequestStatus<User>
+        {
+            Status = status,
+            Result = result
+        };
     }
 
-    [HttpGet("allProducts", Name = "GetAllProducts")]
+    [HttpGet("allDrinkActions", Name = "GetAllDrinkActions")]
+    public RequestStatus<IEnumerable<DrinkAction>> GetAllDrinkActions(string token)
+    {
+        var permission = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token) != default;
+        var results = permission ? _dbAppDatabaseContext.GetDrinkActions() : default;
+        var status = permission ? (results!.Any() ? Status.Successful : Status.NoResults) : Status.NoPermission;
+
+        return new RequestStatus<IEnumerable<DrinkAction>>
+        {
+            Status = status,
+            Result = results
+        };
+    }
+
+    [HttpGet("bestSerachResults", Name = "GetBestSearchResults")]
+    public RequestStatus<IEnumerable<Product>> GetBestSearchResults(string token, string searchString)
+    {
+        var permission = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token) != default;
+
+        var results = permission
+            ? _dbAppDatabaseContext.GetProducts()
+                .Where(x => x.ProductName.ToLower().Contains(searchString.ToLower()))
+                .Take(25)
+            : default;
+
+        var status = permission ? (results!.Any() ? Status.Successful : Status.NoResults) : Status.NoPermission;
+
+        return new RequestStatus<IEnumerable<Product>>
+        {
+            Status = status,
+            Result = results
+        };
+    }
+
+    [HttpGet("ownScore", Name = "GetOwnScore")]
+    public RequestStatus<int> GetOwnScore(string token)
+    {
+        var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+        var sucess = user != default;
+        var status = sucess ? Status.Successful : Status.NoResults;
+        var result = sucess ? user!.Points : 0;
+
+        return new RequestStatus<int>
+        {
+            Status = status,
+            Result = result
+        };
+    }
+
+    [HttpGet("topRankedUsers", Name = "GetTopRankedUsers")]
+    public RequestStatus<IEnumerable<RankingEntry>> GetTopRankedUsers(string token)
+    {
+        var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+        var results = user != default
+            ? _dbAppDatabaseContext.GetUsers()
+                .OrderBy(x => x.Points)
+                .Take(15)
+                .Select((value, index) => new RankingEntry()
+                {
+                    Rank = index + 1,
+                    Name = value.Name,
+                    Points = value.Points
+                })
+            : default;
+
+        var status = user != default ? (results!.Any() ? Status.Successful : Status.NoResults) : Status.NoPermission;
+
+        return new RequestStatus<IEnumerable<RankingEntry>>
+        {
+            Status = status,
+            Result = results
+        };
+    }
+
+    [HttpGet("ownRanking", Name = "GetOwnRanking")]
+    public RequestStatus<int> GetOwnRanking(string token)
+    {
+        var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+        var rank = user != default
+            ? _dbAppDatabaseContext.GetUsers()
+                .OrderBy(x => x.Points)
+                .ToList()
+                .IndexOf(user)
+            : default;
+
+        var status = user != default ? Status.Successful : Status.NoPermission;
+
+        return new RequestStatus<int>
+        {
+            Status = status,
+            Result = rank
+        };
+    }
+
+    [HttpGet("barcodeData", Name = "GetBarcodeData")]
+    public RequestStatus<Product> GetBarcodeData(string token, string barcode)
+    {
+        var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+
+        var product = user != default
+            ? _dbAppDatabaseContext.GetProducts()
+                .FirstOrDefault(x => x.Code == barcode)
+            : default;
+
+        var status = user != default ? (product != default ? Status.Successful : Status.NoResults) : Status.NoPermission;
+
+        return new RequestStatus<Product>
+        {
+            Status = status,
+            Result = product
+        };
+    }
+
+    [HttpGet("ownDrinkProgress", Name = "GetOwnDrinkProgress")]
+    public RequestStatus<IEnumerable<DrinkAction>> GetOwnDrinkProgress(string token, DateTime toTime = default, DateTime fromTime = default)
+    {
+        var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+
+        var result = user != default
+            ? _dbAppDatabaseContext.GetDrinkActions()
+                .Where(x => x.User == user)
+            : default;
+
+        if (toTime != default) result = result?.Where(x => x.Time < toTime);
+        if (fromTime != default) result = result?.Where(x => x.Time > fromTime);
+
+        var status = user != default ? (result != default ? Status.Successful : Status.NoResults) : Status.NoPermission;
+
+        return new RequestStatus<IEnumerable<DrinkAction>>
+        {
+            Status = status,
+            Result = result
+        };
+    }
+
+    #endregion
+
+    #region Testweise Schnittstelle
+
+    [HttpGet("Temp_allProducts", Name = "GetAllProducts")]
     public IEnumerable<Product> GetAllProducts()
     {
         return _dbAppDatabaseContext.GetProducts();
     }
 
-    [HttpPost("exampleData", Name = "AddExampleData")]
+    [HttpPost("Temp_exampleData", Name = "AddExampleData")]
     public void AddExampleData()
     {
         #region Allgemein
@@ -245,11 +397,13 @@ public class BierBockController : ControllerBase
     }
 
 
-    [HttpPost("addProducts", Name = "AddAllProducts")]
+    [HttpPost("Temp_addProducts", Name = "AddAllProducts")]
     public void AddAllProducts()
     {
         var openFoodFacts = new OpenFoodFactsApi();
         var allBeers = openFoodFacts.GetBeerData().Result;
         _dbAppDatabaseContext.AddProducts(allBeers);
     }
+
+    #endregion
 }
