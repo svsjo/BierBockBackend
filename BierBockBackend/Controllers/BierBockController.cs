@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Security;
 using Microsoft.AspNetCore.Http.Metadata;
+using System.Xml.Linq;
 
 namespace BierBockBackend.Controllers;
 
@@ -197,6 +198,42 @@ public class BierBockController : ControllerBase
         {
             Status = status,
             Result = result
+        };
+    }
+
+    [HttpPost("newDrinkAction", Name = "SetNewDrinkAction")]
+    public RequestStatus<DrinkAction> SetNewDrinkAction(string token, Coordinate coordinate, string beerCode)
+    {
+        var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+
+        var product = user != default
+            ? _dbAppDatabaseContext.GetProducts()
+                .FirstOrDefault(x => x.Code == beerCode)
+            : default;
+
+        var drinkAction = product != default
+            ? new DrinkAction
+            {
+                Location = coordinate,
+                User = user!,
+                UserId = user!.Id,
+                Product = product,
+                ProductId = product.Id
+            }
+            : default;
+
+        if (drinkAction != default)
+        {
+            user!.AllDrinkingActions.Add(drinkAction);
+            _dbAppDatabaseContext.AddDrinkAction(drinkAction);
+        }
+
+        var status = user != default ? (product != default ? Status.Successful : Status.NoResults) : Status.NoPermission;
+
+        return new RequestStatus<DrinkAction>
+        {
+            Status = status,
+            Result = drinkAction
         };
     }
 
