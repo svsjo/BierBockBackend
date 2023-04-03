@@ -111,8 +111,8 @@ public class AppDatabaseContext : DbContext
             .AsQueryable()
             .Include(x => x.PartialChallenges)
             .ThenInclude(x => x.ChallengePart)
-            .Include(x => x.Users)
-            .ThenInclude(x => x.User)
+            .Include(x => x.Users) // kann raus?
+            .ThenInclude(x => x.User) // kann raus?
             .AsSplitQuery();
     }
 
@@ -140,7 +140,7 @@ public class AppDatabaseContext : DbContext
     {
         return ChallengeParts
             .AsQueryable()
-            .Include(x => x.Challenges)
+            .Include(x => x.Challenges) // kann raus?
             .Include(x => x.Beer)
             .AsSplitQuery();
     }
@@ -153,7 +153,8 @@ public class AppDatabaseContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseSqlite($"Data Source=ConnectionStrings:DefaultConnection");
-        options.EnableDetailedErrors(true); // Später wieder entfernen wegen Performance
+        options
+            .UseSqlite($"Data Source=ConnectionStrings:DefaultConnection")
+            .EnableDetailedErrors(true); // Später wieder entfernen wegen Performance
     }
 }

@@ -52,11 +52,10 @@ public class BierBockController : ControllerBase
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
         var permission = user != default;
-        var results = permission
-            ? _dbAppDatabaseContext.GetChallenge()
-                .Where(x => x.Users
-                    .Any(y => y.User == user))
+        var results = permission != default
+            ? user!.UserChallenges.Select(x => x.Challenge)
             : default;
+
         var status = permission ? (results!.Any() ? Status.Successful : Status.NoResults) : Status.NoPermission;
 
         return new RequestStatus<IEnumerable<Challenge>>
@@ -87,7 +86,7 @@ public class BierBockController : ControllerBase
 
         var results = permission
             ? _dbAppDatabaseContext.GetProducts()
-                .Where(x => x.ProductName.ToLower().Contains(searchString.ToLower()))
+                .Where(x => x.ProductName.ToLower().Contains(searchString.ToLower()) || (x.Brands != default && x.Brands.ToLower().Contains(searchString.ToLower())))
                 .Take(25)
             : default;
 
@@ -184,13 +183,10 @@ public class BierBockController : ControllerBase
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
 
-        var result = user != default
-            ? _dbAppDatabaseContext.GetDrinkActions()
-                .Where(x => x.User == user)
-            : default;
+        var result = user?.AllDrinkingActions.ToList();
 
-        if (toTime != default) result = result?.Where(x => x.Time < toTime);
-        if (fromTime != default) result = result?.Where(x => x.Time > fromTime);
+        if (toTime != default) result = result?.Where(x => x.Time < toTime).ToList();
+        if (fromTime != default) result = result?.Where(x => x.Time > fromTime).ToList();
 
         var status = user != default ? (result != default ? Status.Successful : Status.NoResults) : Status.NoPermission;
 
