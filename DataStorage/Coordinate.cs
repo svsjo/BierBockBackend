@@ -1,9 +1,12 @@
-﻿using GeoCoordinatePortable;
+﻿using System.ComponentModel.DataAnnotations;
+using GeoCoordinatePortable;
 
 namespace BierBockBackend.Data;
 
 public class Coordinate
 {
+    [Key]
+    public int Id { get; set; }
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public double Altitude { get; set; }

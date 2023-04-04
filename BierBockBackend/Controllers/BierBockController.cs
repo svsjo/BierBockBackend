@@ -23,7 +23,7 @@ public class BierBockController : ControllerBase
     #region Echte Schnittstelle
 
     [HttpGet("ownUserData", Name = "GetOwnUserData")]
-    public RequestStatus<UserBasicData> GetOwnUserData(string token)
+    public RequestStatus<UserBasicData> GetOwnUserData([FromHeader] string token)
     {
         var user = _dbAppDatabaseContext.GetUsers()
             .FirstOrDefault(x => x.Token == token);
@@ -48,7 +48,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("ownChallenges", Name = "GetOwnChallenges")]
-    public RequestStatus<IEnumerable<Challenge>> GetOwnChallenges(string token)
+    public RequestStatus<IEnumerable<Challenge>> GetOwnChallenges([FromHeader] string token)
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
         var permission = user != default;
@@ -66,7 +66,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("allDrinkActions", Name = "GetAllDrinkActions")]
-    public RequestStatus<IEnumerable<DrinkAction>> GetAllDrinkActions(string token)
+    public RequestStatus<IEnumerable<DrinkAction>> GetAllDrinkActions([FromHeader] string token)
     {
         var permission = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token) != default;
         var results = permission ? _dbAppDatabaseContext.GetDrinkActions() : default;
@@ -80,7 +80,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("bestSearchResults", Name = "GetBestSearchResults")]
-    public RequestStatus<IEnumerable<Product>> GetBestSearchResults(string token, string searchString)
+    public RequestStatus<IEnumerable<Product>> GetBestSearchResults([FromHeader] string token, string searchString)
     {
         var permission = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token) != default;
 
@@ -100,7 +100,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("ownScore", Name = "GetOwnScore")]
-    public RequestStatus<int> GetOwnScore(string token)
+    public RequestStatus<int> GetOwnScore([FromHeader] string token)
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
         var sucess = user != default;
@@ -115,7 +115,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("topRankedUsers", Name = "GetTopRankedUsers")]
-    public RequestStatus<IEnumerable<RankingEntry>> GetTopRankedUsers(string token)
+    public RequestStatus<IEnumerable<RankingEntry>> GetTopRankedUsers([FromHeader] string token)
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
         var results = user != default
@@ -140,7 +140,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("ownRanking", Name = "GetOwnRanking")]
-    public RequestStatus<int> GetOwnRanking(string token)
+    public RequestStatus<int> GetOwnRanking([FromHeader] string token)
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
         var rank = user != default
@@ -160,7 +160,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("barcodeData", Name = "GetBarcodeData")]
-    public RequestStatus<Product> GetBarcodeData(string token, string barcode)
+    public RequestStatus<Product> GetBarcodeData([FromHeader] string token, string barcode)
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
 
@@ -179,7 +179,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("ownDrinkProgress", Name = "GetOwnDrinkProgress")]
-    public RequestStatus<IEnumerable<DrinkAction>> GetOwnDrinkProgress(string token, DateTime toTime = default, DateTime fromTime = default)
+    public RequestStatus<IEnumerable<DrinkAction>> GetOwnDrinkProgress([FromHeader] string token, DateTime toTime = default, DateTime fromTime = default)
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
 
@@ -198,7 +198,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpPost("newDrinkAction", Name = "SetNewDrinkAction")]
-    public RequestStatus<DrinkAction> SetNewDrinkAction(string token, Coordinate coordinate, string beerCode)
+    public RequestStatus<DrinkAction> SetNewDrinkAction([FromHeader] string token, Coordinate coordinate, string beerCode)
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
 

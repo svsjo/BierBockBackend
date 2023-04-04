@@ -12,25 +12,24 @@ public class Product
     public int Id { get; set; }
 
     [JsonProperty("code")]
-    public string Code { get; set; }
+    public string Code { get; set; } = string.Empty;
 
-    [JsonProperty("product_name")]
-    public string ProductName { get; set; }
+    [JsonProperty("product_name")] public string ProductName { get; set; } = string.Empty;
 
     [JsonProperty("brands")]
-    public string? Brands { get; set; }
+    public string? Brands { get; set; } = string.Empty;
 
     [JsonProperty("image_url")]
-    public string? ImageUrl { get; set; }
+    public string? ImageUrl { get; set; } = string.Empty;
 
     [JsonProperty("categories")]
-    public string? Categories { get; set; }
+    public string? Categories { get; set; } = string.Empty;
 
     [JsonProperty("quantity")]
-    public string? Quantity { get; set; }
+    public string? Quantity { get; set; } = string.Empty;
 
     [JsonProperty("generic_name")]
-    public string? GenericName { get; set; }
+    public string? GenericName { get; set; } = string.Empty;
 
     #endregion
 
@@ -38,10 +37,10 @@ public class Product
     #region Inhaltsstoffe
 
     [JsonProperty("ingredients_text")]
-    public string? IngredientsText { get; set; }
+    public string? IngredientsText { get; set; } = string.Empty;
 
     [JsonProperty("nutriscore_grade")]
-    public string? NutriscoreGrade { get; set; }
+    public string? NutriscoreGrade { get; set; } = string.Empty;
 
     [JsonProperty("energy-kcal_100g")]
     public decimal? EnergyKcalPer100g { get; set; }
@@ -79,37 +78,37 @@ public class Product
     public decimal? AlcoholByVolume { get; set; }
 
     [JsonProperty("brewing_method")]
-    public string? BrewingMethod { get; set; }
+    public string? BrewingMethod { get; set; } = string.Empty;
 
     [JsonProperty("fermentation")]
-    public string? Fermentation { get; set; }
+    public string? Fermentation { get; set; } = string.Empty;
 
     [JsonProperty("color")]
-    public string? Color { get; set; }
+    public string? Color { get; set; } = string.Empty;
 
     [JsonProperty("ibu")]
     public int? IBU { get; set; }
 
     [JsonProperty("hops")]
-    public string? Hops { get; set; }
+    public string? Hops { get; set; } = string.Empty;
 
     [JsonProperty("yeast")]
-    public string? Yeast { get; set; }
+    public string? Yeast { get; set; } = string.Empty;
 
     [JsonProperty("malt")]
-    public string? Malt { get; set; }
+    public string? Malt { get; set; } = string.Empty;
 
     [JsonProperty("beer_style")]
-    public string? BeerStyle { get; set; }
+    public string? BeerStyle { get; set; } = string.Empty;
 
     [JsonProperty("beer_type")]
-    public string? BeerType { get; set; }
+    public string? BeerType { get; set; } = string.Empty;
 
     [JsonProperty("carbonation_level")]
-    public string? CarbonationLevel { get; set; }
+    public string? CarbonationLevel { get; set; } = string.Empty;
 
     [JsonProperty("taste")]
-    public string? Taste { get; set; }
+    public string? Taste { get; set; } = string.Empty;
 
     #endregion
 }
