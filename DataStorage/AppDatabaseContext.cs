@@ -48,26 +48,29 @@ public class AppDatabaseContext : DbContext
         /* 1-n-Beziehung User zu DrinkAction */
         modelBuilder.Entity<DrinkAction>()
             .HasOne(x => x.User)
-            .WithMany(x => x.AllDrinkingActions)
-            .HasForeignKey(x => x.UserId);
+            .WithMany(x => x.AllDrinkingActions).OnDelete(DeleteBehavior.NoAction);
+        // .HasForeignKey(x => x.UserId);
 
-        /* Einseitige 1-1-Beziehung ChallengePart zu FavouriteBeer */
+        /* Einseitige 1-n-Beziehung ChallengePart zu FavouriteBeer */
         modelBuilder.Entity<ChallengePart>()
             .HasOne(x => x.Beer)
-            .WithOne()
-            .HasForeignKey<ChallengePart>(x => x.BeerId);
+            .WithMany(x => x.ChallengeParts).OnDelete(DeleteBehavior.NoAction);
+        //.WithOne()
+        //.HasForeignKey<ChallengePart>(x => x.BeerId);
 
-        /* Einseitige 1-1-Beziehung User zu FavouriteBeer */
+        /* Einseitige 1-n-Beziehung User zu FavouriteBeer */
         modelBuilder.Entity<User>()
             .HasOne(x => x.FavouriteBeer)
-            .WithOne()
-            .HasForeignKey<User>(x => x.BeerId);
+            .WithMany(x => x.UsersHavingThisAsFavouriteBeer).OnDelete(DeleteBehavior.NoAction);
+        //.WithOne()
+        //.HasForeignKey<User>(x => x.BeerId);
 
         /* Einseitige 1-1-Beziehung DrinkAction zu FavouriteBeer */
         modelBuilder.Entity<DrinkAction>()
             .HasOne(x => x.Product)
-            .WithOne()
-            .HasForeignKey<DrinkAction>(x => x.ProductId);
+            .WithMany(x => x.DrinkActions).OnDelete(DeleteBehavior.NoAction);
+        //.WithOne()
+        //.HasForeignKey<DrinkAction>(x => x.ProductId);
     }
 
     public void AddUser(User entry)
@@ -153,8 +156,10 @@ public class AppDatabaseContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
+        //sqllocaldb.exe start
         options
-            .UseSqlite($"Data Source=ConnectionStrings:DefaultConnection")
+            .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=bierbockdb;Trusted_Connection=True;MultipleActiveResultSets=true")
             .EnableDetailedErrors(true); // Später wieder entfernen wegen Performance
+
     }
 }

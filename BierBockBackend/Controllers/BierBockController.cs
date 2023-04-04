@@ -212,9 +212,9 @@ public class BierBockController : ControllerBase
             {
                 Location = coordinate,
                 User = user!,
-                UserId = user!.Id,
+               // UserId = user!.Id,
                 Product = product,
-                ProductId = product.Id
+                //ProductId = product.Id
             }
             : default;
 
@@ -279,7 +279,7 @@ public class BierBockController : ControllerBase
             Email = "max.mustermann@example.com",
             FavouriteBeer = beer1,
             BeerId = beer1.Id,
-            BirthDate = new DateOnly(1990, 1, 1),
+            BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
             Points = 10,
             Location = new Coordinate()
             {
@@ -297,7 +297,7 @@ public class BierBockController : ControllerBase
             Email = "anna.mueller@example.com",
             FavouriteBeer = beer1,
             BeerId = beer1.Id,
-            BirthDate = new DateOnly(1995, 6, 15),
+            BirthDate = new DateOnly(1995, 6, 15).ToLongDateString(),
             Points = 5,
             Location = new Coordinate()
             {
@@ -315,7 +315,7 @@ public class BierBockController : ControllerBase
             Email = "hans.schmidt@example.com",
             FavouriteBeer = beer2,
             BeerId = beer2.Id,
-            BirthDate = new DateOnly(1985, 3, 2),
+            BirthDate = new DateOnly(1985, 3, 2).ToLongDateString(),
             Points = 15,
             Location = new Coordinate()
             {
@@ -329,7 +329,7 @@ public class BierBockController : ControllerBase
         var drinkAction = new DrinkAction
         {
             Product = beer1,
-            ProductId = beer1.Id,
+            //ProductId = beer1.Id,
             Time = DateTime.Now,
             Location = new Coordinate()
             {
@@ -337,14 +337,14 @@ public class BierBockController : ControllerBase
                 Longitude = 11.5820,
                 Altitude = 100,
             },
-            UserId = user.Id,
+            //UserId = user.Id,
             User = user,
         };
 
         var drinkAction1 = new DrinkAction
         {
             Product = beer1,
-            ProductId = beer1.Id,
+            //ProductId = beer1.Id,
             Time = DateTime.Now.AddDays(-2),
             Location = new Coordinate()
             {
@@ -352,14 +352,14 @@ public class BierBockController : ControllerBase
                 Longitude = -0.1278,
                 Altitude = 10,
             },
-            UserId = user1.Id,
+            //UserId = user1.Id,
             User = user1,
         };
 
         var drinkAction2 = new DrinkAction
         {
             Product = beer2,
-            ProductId = beer2.Id,
+            //ProductId = beer2.Id,
             Time = DateTime.Now.AddDays(-1),
             Location = new Coordinate()
             {
@@ -367,7 +367,7 @@ public class BierBockController : ControllerBase
                 Longitude = -74.0060,
                 Altitude = 50,
             },
-            UserId = user2.Id,
+            //UserId = user2.Id,
             User = user2,
         };
 

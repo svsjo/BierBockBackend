@@ -20,7 +20,8 @@ public class User
 
     public string Email { get; set; } = string.Empty;
 
-    public DateOnly BirthDate { get; set; }
+    //public DateOnly BirthDate { get; set; }
+    public string BirthDate { get; set; }
 
     public int Points { get; set; } = 0;
 

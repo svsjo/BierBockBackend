@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
+using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,9 +31,15 @@ if (app.Environment.IsDevelopment())
 }
 
 
-var scope = app.Services.CreateScope();
-var foodFactsDBMgr = (OpenFoodFactsDataBaseManager)scope.ServiceProvider.GetService(typeof(OpenFoodFactsDataBaseManager));
-foodFactsDBMgr.Insert();
+void FillDbFromApi()
+{
+    var scope = app.Services.CreateScope();
+    var foodFactsDbMgr =
+        (OpenFoodFactsDataBaseManager)scope.ServiceProvider.GetService(typeof(OpenFoodFactsDataBaseManager))!;
+    foodFactsDbMgr?.Insert();
+}
+
+FillDbFromApi();
 
 
 app.UseHttpsRedirection();
