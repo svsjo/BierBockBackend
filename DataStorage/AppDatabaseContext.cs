@@ -114,8 +114,8 @@ public class AppDatabaseContext : DbContext
             .AsQueryable()
             .Include(x => x.PartialChallenges)
             .ThenInclude(x => x.ChallengePart)
-            .Include(x => x.Users) // kann raus?
-            .ThenInclude(x => x.User) // kann raus?
+            .Include(x => x.Users)
+            .ThenInclude(x => x.User)
             .AsSplitQuery();
     }
 
@@ -143,7 +143,7 @@ public class AppDatabaseContext : DbContext
     {
         return ChallengeParts
             .AsQueryable()
-            .Include(x => x.Challenges) // kann raus?
+            .Include(x => x.Challenges)
             .Include(x => x.Beer)
             .AsSplitQuery();
     }
@@ -160,6 +160,5 @@ public class AppDatabaseContext : DbContext
         options
             .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=bierbockdb;Trusted_Connection=True;MultipleActiveResultSets=true")
             .EnableDetailedErrors(true); // Später wieder entfernen wegen Performance
-
     }
 }
