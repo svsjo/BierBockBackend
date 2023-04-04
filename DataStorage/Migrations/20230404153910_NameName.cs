@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataStorage.Migrations
 {
     /// <inheritdoc />
-    public partial class workingfragezeias : Migration
+    public partial class NameName : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -151,14 +151,12 @@ namespace DataStorage.Migrations
                         name: "FK_ChallengePartChallenge_ChallengeParts_ChallengePartId",
                         column: x => x.ChallengePartId,
                         principalTable: "ChallengeParts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ChallengePartChallenge_Challenges_ChallengeId",
                         column: x => x.ChallengeId,
                         principalTable: "Challenges",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -177,14 +175,12 @@ namespace DataStorage.Migrations
                         name: "FK_ChallengeUser_Challenges_ChallengeId",
                         column: x => x.ChallengeId,
                         principalTable: "Challenges",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ChallengeUser_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

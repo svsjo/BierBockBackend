@@ -385,13 +385,13 @@ namespace DataStorage.Migrations
                     b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
                         .WithMany("PartialChallenges")
                         .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("BierBockBackend.Data.ChallengePart", "ChallengePart")
                         .WithMany("Challenges")
                         .HasForeignKey("ChallengePartId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Challenge");
@@ -404,13 +404,13 @@ namespace DataStorage.Migrations
                     b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
                         .WithMany("Users")
                         .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("BierBockBackend.Data.User", "User")
                         .WithMany("UserChallenges")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Challenge");

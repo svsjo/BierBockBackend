@@ -212,9 +212,7 @@ public class BierBockController : ControllerBase
             {
                 Location = coordinate,
                 User = user!,
-                // UserId = user!.Id,
                 Product = product,
-                //ProductId = product.Id
             }
             : default;
 
