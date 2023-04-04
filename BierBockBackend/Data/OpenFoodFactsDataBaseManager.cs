@@ -28,86 +28,90 @@ namespace BierBockBackend.Data
 
         public void InitBasicUserData()
         {
-            var user = new User
+            if (!_dbContext.GetUsers().Any()) /* Nur bei leerer DB */
             {
-                Token = "123456",
-                Name = "Max Mustermann",
-                PasswordHash = "Password123",
-                Email = "max.mustermann@example.com",
-                FavouriteBeer = _dbContext.GetProducts().First(),
-                BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
-                Points = 10,
-                Location = new Coordinate()
+
+                var user = new User
                 {
-                    Latitude = 48.1351,
-                    Longitude = 11.5820,
-                    Altitude = 100
-                }
-            };
+                    Token = "123456",
+                    Name = "Max Mustermann",
+                    PasswordHash = "Password123",
+                    Email = "max.mustermann@example.com",
+                    FavouriteBeer = _dbContext.GetProducts().First(),
+                    BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
+                    Points = 10,
+                    Location = new Coordinate()
+                    {
+                        Latitude = 48.1351,
+                        Longitude = 11.5820,
+                        Altitude = 100
+                    }
+                };
 
-            _dbContext.AddUser(user); 
+                _dbContext.AddUser(user);
 
-            var drinkAction = new DrinkAction
-            {
-                Product = _dbContext.GetProducts().First(),
-                Time = DateTime.Now,
-                Location = new Coordinate()
+                var drinkAction = new DrinkAction
                 {
-                    Latitude = 48.1351,
-                    Longitude = 11.5820,
-                    Altitude = 100,
-                },
-                User = _dbContext.GetUsers().First(),
-            };
-            
-            _dbContext.AddDrinkAction(drinkAction);
+                    Product = _dbContext.GetProducts().First(),
+                    Time = DateTime.Now,
+                    Location = new Coordinate()
+                    {
+                        Latitude = 48.1351,
+                        Longitude = 11.5820,
+                        Altitude = 100,
+                    },
+                    User = _dbContext.GetUsers().First(),
+                };
 
-            _dbContext.GetUsers().First().AllDrinkingActions.Add(drinkAction);
-            _dbContext.SaveChanges();
+                _dbContext.AddDrinkAction(drinkAction);
 
-            var challengePart = new ChallengePart
-            {
-                Description = "Trink ein Bier",
-                Beer = _dbContext.GetProducts().First(),
-                Quantity = 1,
-            };
+                _dbContext.GetUsers().First().AllDrinkingActions.Add(drinkAction);
+                _dbContext.SaveChanges();
 
-            _dbContext.AddChallengePart(challengePart);
+                var challengePart = new ChallengePart
+                {
+                    Description = "Trink ein Bier",
+                    Beer = _dbContext.GetProducts().First(),
+                    Quantity = 1,
+                };
 
-            var challenge = new Challenge
-            {
-                PossiblePoints = 50,
-                Description = "Trink jeden Tag ein Bier",
-                StartDate = DateTime.Now.AddDays(-7),
-                EndDate = DateTime.Now.AddDays(7)
-            };
+                _dbContext.AddChallengePart(challengePart);
 
-            _dbContext.AddChallenge(challenge);
+                var challenge = new Challenge
+                {
+                    PossiblePoints = 50,
+                    Description = "Trink jeden Tag ein Bier",
+                    StartDate = DateTime.Now.AddDays(-7),
+                    EndDate = DateTime.Now.AddDays(7)
+                };
 
-            var challengePartAssignment = new ChallengePartChallenge()
-            {
-                Challenge = _dbContext.GetChallenge().First(),
-                ChallengePart = _dbContext.GetChallengeParts().First(),
-            };
+                _dbContext.AddChallenge(challenge);
 
-            _dbContext.GetChallenge().First().PartialChallenges.Add(challengePartAssignment);
-            _dbContext.GetChallengeParts().First().Challenges.Add(challengePartAssignment);
-            _dbContext.SaveChanges();
+                var challengePartAssignment = new ChallengePartChallenge()
+                {
+                    Challenge = _dbContext.GetChallenge().First(),
+                    ChallengePart = _dbContext.GetChallengeParts().First(),
+                };
 
-            var challengeUser = new ChallengeUser
-            {
-                User = _dbContext.GetUsers().First(),
-                Challenge = _dbContext.GetChallenge().First()
-            };
+                _dbContext.GetChallenge().First().PartialChallenges.Add(challengePartAssignment);
+                _dbContext.GetChallengeParts().First().Challenges.Add(challengePartAssignment);
+                _dbContext.SaveChanges();
 
-            _dbContext.GetUsers().First().UserChallenges.Add(challengeUser);
-            _dbContext.GetChallenge().First().Users.Add(challengeUser);
-            _dbContext.SaveChanges();
+                var challengeUser = new ChallengeUser
+                {
+                    User = _dbContext.GetUsers().First(),
+                    Challenge = _dbContext.GetChallenge().First()
+                };
 
-            _dbContext.GetProducts().First().UsedInChallengeParts.Add(challengePart);
-            _dbContext.GetProducts().First().UsedInDrinkActions.Add(drinkAction);
-            _dbContext.GetProducts().First().UsersHavingThisAsFavouriteBeer.Add(user);
-            _dbContext.SaveChanges();
+                _dbContext.GetUsers().First().UserChallenges.Add(challengeUser);
+                _dbContext.GetChallenge().First().Users.Add(challengeUser);
+                _dbContext.SaveChanges();
+
+                _dbContext.GetProducts().First().UsedInChallengeParts.Add(challengePart);
+                _dbContext.GetProducts().First().UsedInDrinkActions.Add(drinkAction);
+                _dbContext.GetProducts().First().UsersHavingThisAsFavouriteBeer.Add(user);
+                _dbContext.SaveChanges();
+            }
         }
     }
 }
