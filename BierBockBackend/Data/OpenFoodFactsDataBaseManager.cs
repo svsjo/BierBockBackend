@@ -15,7 +15,14 @@ namespace BierBockBackend.Data
         {
             var productsTask = new OpenFoodFactsApi().GetBeerData();
             var products = await productsTask;
-            _dbContext.AddProducts(products);
+            //_dbContext.AddProducts(products);
+            foreach (var product in products)
+            {
+                if (_dbContext.GetProducts().All(x => x.Code != product.Code))
+                {
+                    _dbContext.AddProduct(product);
+                }
+            }
         }
-    }
+        }
 }
