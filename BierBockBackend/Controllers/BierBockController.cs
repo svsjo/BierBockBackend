@@ -198,7 +198,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpPost("newDrinkAction", Name = "SetNewDrinkAction")]
-    public RequestStatus<DrinkAction> SetNewDrinkAction([FromHeader] string token, Coordinate coordinate, string beerCode)
+    public RequestStatus<object> SetNewDrinkAction([FromHeader] string token, Coordinate coordinate, string beerCode)
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
 
@@ -226,10 +226,55 @@ public class BierBockController : ControllerBase
 
         var status = user != default ? (product != default ? Status.Successful : Status.NoResults) : Status.NoPermission;
 
-        return new RequestStatus<DrinkAction>
+        return new RequestStatus<object>
         {
             Status = status,
-            Result = drinkAction
+        };
+    }
+
+    [HttpPost("actualisateUserPosition", Name = "ActualisateUserPosition")]
+    public RequestStatus<object> ActualisateUserPosition([FromHeader] string token, Coordinate coordinate)
+    {
+        var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+        var status = user != default ? Status.Successful : Status.NoPermission;
+
+        if (user != default)
+        {
+            user.Location = coordinate;
+        }
+
+
+        return new RequestStatus<object>
+        {
+            Status = status,
+        };
+    }
+
+    [HttpPost("actualisateUserBasicData", Name = "ActualisateUserBasicData")]
+    public RequestStatus<object> ActualisateUserBasicData([FromHeader] string token,
+        string? newName = default, string? newBirthDate = default, string? newFavouriteBeerCode = default)
+    {
+        var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
+        var status = user != default ? Status.Successful : Status.NoPermission;
+
+        if (user != default)
+        {
+            if (newName != default) user.Name = newName;
+            if (newBirthDate != default) user.BirthDate = newBirthDate;
+            if (newFavouriteBeerCode != default)
+            {
+                var beer = _dbAppDatabaseContext.GetProducts().FirstOrDefault(x => x.Code == newFavouriteBeerCode);
+                if (beer == default) status = Status.NoResults;
+                else
+                {
+                    user.FavouriteBeer = beer;
+                }
+            }
+        }
+
+        return new RequestStatus<object>
+        {
+            Status = status,
         };
     }
 

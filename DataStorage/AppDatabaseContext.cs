@@ -115,7 +115,6 @@ public class AppDatabaseContext : DbContext
             .Include(x => x.PartialChallenges)
             .ThenInclude(x => x.ChallengePart)
             .Include(x => x.Users)
-            .ThenInclude(x => x.User)
             .AsSplitQuery();
     }
 

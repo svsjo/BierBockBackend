@@ -6,11 +6,10 @@ namespace BierBockBackend.Data;
 
 public class Product
 {
-
     public virtual ICollection<ChallengePart> ChallengeParts { get; set; }
 
     public virtual ICollection<User> UsersHavingThisAsFavouriteBeer { get; set; }
-   
+
     public virtual ICollection<DrinkAction> DrinkActions { get; set; }
 
     #region Allgemeine Infos
