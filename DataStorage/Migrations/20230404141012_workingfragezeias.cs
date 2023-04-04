@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataStorage.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class workingfragezeias : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -117,8 +117,7 @@ namespace DataStorage.Migrations
                     BirthDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Points = table.Column<int>(type: "int", nullable: false),
                     LocationId = table.Column<int>(type: "int", nullable: false),
-                    BeerId = table.Column<int>(type: "int", nullable: false),
-                    FavouriteBeerId = table.Column<int>(type: "int", nullable: false)
+                    BeerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -130,8 +129,8 @@ namespace DataStorage.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Users_Products_FavouriteBeerId",
-                        column: x => x.FavouriteBeerId,
+                        name: "FK_Users_Products_BeerId",
+                        column: x => x.BeerId,
                         principalTable: "Products",
                         principalColumn: "Id");
                 });
@@ -149,14 +148,14 @@ namespace DataStorage.Migrations
                 {
                     table.PrimaryKey("PK_ChallengePartChallenge", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ChallengePartChallenge_ChallengeParts_ChallengeId",
-                        column: x => x.ChallengeId,
+                        name: "FK_ChallengePartChallenge_ChallengeParts_ChallengePartId",
+                        column: x => x.ChallengePartId,
                         principalTable: "ChallengeParts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ChallengePartChallenge_Challenges_ChallengePartId",
-                        column: x => x.ChallengePartId,
+                        name: "FK_ChallengePartChallenge_Challenges_ChallengeId",
+                        column: x => x.ChallengeId,
                         principalTable: "Challenges",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -175,14 +174,14 @@ namespace DataStorage.Migrations
                 {
                     table.PrimaryKey("PK_ChallengeUser", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ChallengeUser_Challenges_UserId",
-                        column: x => x.UserId,
+                        name: "FK_ChallengeUser_Challenges_ChallengeId",
+                        column: x => x.ChallengeId,
                         principalTable: "Challenges",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ChallengeUser_Users_ChallengeId",
-                        column: x => x.ChallengeId,
+                        name: "FK_ChallengeUser_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -261,9 +260,9 @@ namespace DataStorage.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_FavouriteBeerId",
+                name: "IX_Users_BeerId",
                 table: "Users",
-                column: "FavouriteBeerId");
+                column: "BeerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_LocationId",

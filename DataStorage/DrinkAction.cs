@@ -13,14 +13,11 @@ namespace BierBockBackend.Data
         public Coordinate Location { get; set; }
 
 
-        /* Fremdschlüssel */
         [ForeignKey("UserId")]
-        //public int UserId { get; set; }
         public virtual User User { get; set; }
 
 
         [ForeignKey("ProductId")]
-        //public int ProductId { get; set; }
         public virtual Product Product { get; set; }
     }
 }

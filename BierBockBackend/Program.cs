@@ -37,6 +37,7 @@ void FillDbFromApi()
     var foodFactsDbMgr =
         (OpenFoodFactsDataBaseManager)scope.ServiceProvider.GetService(typeof(OpenFoodFactsDataBaseManager))!;
     foodFactsDbMgr?.Insert();
+    foodFactsDbMgr?.InitBasicUserData();
 }
 
 FillDbFromApi();

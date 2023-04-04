@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection.Metadata;
 using DataStorage.HelpRelations;
 
@@ -20,7 +21,6 @@ public class User
 
     public string Email { get; set; } = string.Empty;
 
-    //public DateOnly BirthDate { get; set; }
     public string BirthDate { get; set; }
 
     public int Points { get; set; } = 0;
@@ -32,8 +32,6 @@ public class User
     public Coordinate Location { get; set; }
 
 
-    /* Fremdschlüssel von FavouriteBeer */
-    public int BeerId { get; set; }
-
+    [ForeignKey("BeerId")]
     public virtual Product FavouriteBeer { get; set; }
 }

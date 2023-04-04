@@ -15,8 +15,6 @@ public class ChallengePart
     public virtual ICollection<ChallengePartChallenge> Challenges { get; set; }
 
 
-    /* Fremdschlüssel von FavouriteBeer */
-    public int BeerId { get; set; }
-
+    [ForeignKey("BeerId")]
     public virtual Product Beer { get; set; }
 }

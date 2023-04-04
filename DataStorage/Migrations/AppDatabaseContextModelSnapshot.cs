@@ -250,9 +250,6 @@ namespace DataStorage.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FavouriteBeerId")
-                        .HasColumnType("int");
-
                     b.Property<int>("LocationId")
                         .HasColumnType("int");
 
@@ -273,7 +270,7 @@ namespace DataStorage.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FavouriteBeerId");
+                    b.HasIndex("BeerId");
 
                     b.HasIndex("LocationId");
 
@@ -329,7 +326,7 @@ namespace DataStorage.Migrations
             modelBuilder.Entity("BierBockBackend.Data.ChallengePart", b =>
                 {
                     b.HasOne("BierBockBackend.Data.Product", "Beer")
-                        .WithMany("ChallengeParts")
+                        .WithMany("UsedInChallengeParts")
                         .HasForeignKey("BeerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -346,7 +343,7 @@ namespace DataStorage.Migrations
                         .IsRequired();
 
                     b.HasOne("BierBockBackend.Data.Product", "Product")
-                        .WithMany("DrinkActions")
+                        .WithMany("UsedInDrinkActions")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -368,7 +365,7 @@ namespace DataStorage.Migrations
                 {
                     b.HasOne("BierBockBackend.Data.Product", "FavouriteBeer")
                         .WithMany("UsersHavingThisAsFavouriteBeer")
-                        .HasForeignKey("FavouriteBeerId")
+                        .HasForeignKey("BeerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -385,14 +382,14 @@ namespace DataStorage.Migrations
 
             modelBuilder.Entity("DataStorage.HelpRelations.ChallengePartChallenge", b =>
                 {
-                    b.HasOne("BierBockBackend.Data.ChallengePart", "ChallengePart")
-                        .WithMany("Challenges")
+                    b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
+                        .WithMany("PartialChallenges")
                         .HasForeignKey("ChallengeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
-                        .WithMany("PartialChallenges")
+                    b.HasOne("BierBockBackend.Data.ChallengePart", "ChallengePart")
+                        .WithMany("Challenges")
                         .HasForeignKey("ChallengePartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -404,14 +401,14 @@ namespace DataStorage.Migrations
 
             modelBuilder.Entity("DataStorage.HelpRelations.ChallengeUser", b =>
                 {
-                    b.HasOne("BierBockBackend.Data.User", "User")
-                        .WithMany("UserChallenges")
+                    b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
+                        .WithMany("Users")
                         .HasForeignKey("ChallengeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
-                        .WithMany("Users")
+                    b.HasOne("BierBockBackend.Data.User", "User")
+                        .WithMany("UserChallenges")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -435,9 +432,9 @@ namespace DataStorage.Migrations
 
             modelBuilder.Entity("BierBockBackend.Data.Product", b =>
                 {
-                    b.Navigation("ChallengeParts");
+                    b.Navigation("UsedInChallengeParts");
 
-                    b.Navigation("DrinkActions");
+                    b.Navigation("UsedInDrinkActions");
 
                     b.Navigation("UsersHavingThisAsFavouriteBeer");
                 });

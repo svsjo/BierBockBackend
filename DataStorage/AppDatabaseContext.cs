@@ -26,51 +26,40 @@ public class AppDatabaseContext : DbContext
         /* n-m-Beziehung User zu Challenge */
         modelBuilder.Entity<ChallengeUser>()
             .HasOne(x => x.User)
-            .WithMany(x => x.UserChallenges)
-            .HasForeignKey(x => x.ChallengeId);
+            .WithMany(x => x.UserChallenges);
 
         modelBuilder.Entity<ChallengeUser>()
             .HasOne(x => x.Challenge)
-            .WithMany(x => x.Users)
-            .HasForeignKey(x => x.UserId);
+            .WithMany(x => x.Users);
 
         /* n-m-Beziehung Challenge zu ChallengePart */
         modelBuilder.Entity<ChallengePartChallenge>()
             .HasOne(x => x.Challenge)
-            .WithMany(x => x.PartialChallenges)
-            .HasForeignKey(x => x.ChallengePartId);
+            .WithMany(x => x.PartialChallenges);
 
         modelBuilder.Entity<ChallengePartChallenge>()
             .HasOne(x => x.ChallengePart)
-            .WithMany(x => x.Challenges)
-            .HasForeignKey(x => x.ChallengeId);
+            .WithMany(x => x.Challenges);
 
         /* 1-n-Beziehung User zu DrinkAction */
         modelBuilder.Entity<DrinkAction>()
             .HasOne(x => x.User)
             .WithMany(x => x.AllDrinkingActions).OnDelete(DeleteBehavior.NoAction);
-        // .HasForeignKey(x => x.UserId);
 
         /* Einseitige 1-n-Beziehung ChallengePart zu FavouriteBeer */
         modelBuilder.Entity<ChallengePart>()
             .HasOne(x => x.Beer)
-            .WithMany(x => x.ChallengeParts).OnDelete(DeleteBehavior.NoAction);
-        //.WithOne()
-        //.HasForeignKey<ChallengePart>(x => x.BeerId);
-
+            .WithMany(x => x.UsedInChallengeParts).OnDelete(DeleteBehavior.NoAction);
+        
         /* Einseitige 1-n-Beziehung User zu FavouriteBeer */
         modelBuilder.Entity<User>()
             .HasOne(x => x.FavouriteBeer)
             .WithMany(x => x.UsersHavingThisAsFavouriteBeer).OnDelete(DeleteBehavior.NoAction);
-        //.WithOne()
-        //.HasForeignKey<User>(x => x.BeerId);
 
         /* Einseitige 1-1-Beziehung DrinkAction zu FavouriteBeer */
         modelBuilder.Entity<DrinkAction>()
             .HasOne(x => x.Product)
-            .WithMany(x => x.DrinkActions).OnDelete(DeleteBehavior.NoAction);
-        //.WithOne()
-        //.HasForeignKey<DrinkAction>(x => x.ProductId);
+            .WithMany(x => x.UsedInDrinkActions).OnDelete(DeleteBehavior.NoAction);
     }
 
     public void AddUser(User entry)
