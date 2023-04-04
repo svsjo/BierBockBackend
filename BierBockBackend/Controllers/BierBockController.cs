@@ -212,7 +212,7 @@ public class BierBockController : ControllerBase
             {
                 Location = coordinate,
                 User = user!,
-               // UserId = user!.Id,
+                // UserId = user!.Id,
                 Product = product,
                 //ProductId = product.Id
             }
@@ -237,6 +237,7 @@ public class BierBockController : ControllerBase
 
     #region Testweise Schnittstelle
 
+    /*
     [HttpGet("Temp_allProducts", Name = "GetAllProducts")]
     public IEnumerable<Product> GetAllProducts()
     {
@@ -517,6 +518,7 @@ public class BierBockController : ControllerBase
         var allBeers = openFoodFacts.GetBeerData().Result;
         _dbAppDatabaseContext.AddProducts(allBeers);
     }
+    */
 
     #endregion
 }
