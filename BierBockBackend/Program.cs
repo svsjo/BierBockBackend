@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using System.Timers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +42,15 @@ void FillDbFromApi()
     foodFactsDbMgr?.InitBasicUserData();
 }
 
-FillDbFromApi();
+var timer = new System.Timers.Timer()
+{
+    Interval = TimeSpan.FromDays(7).TotalMilliseconds
+};
+timer.Elapsed+= delegate
+{
+    FillDbFromApi();
+};
+timer.Start();
 
 
 app.UseHttpsRedirection();
