@@ -82,6 +82,8 @@ public class AppDatabaseContext : DbContext
             .AsQueryable()
             .Include(x => x.UserChallenges)
             .ThenInclude(x => x.Challenge)
+            .ThenInclude( x => x.PartialChallenges)
+            .ThenInclude(x => x.ChallengePart)
             .Include(x => x.AllDrinkingActions)
             .ThenInclude(x => x.Product)
             .Include(x => x.FavouriteBeer)

@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using DataStorage.HelpRelations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 #endregion
 

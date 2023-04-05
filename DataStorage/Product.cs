@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace BierBockBackend.Data;
 
@@ -21,24 +20,24 @@ public class Product
     [Key]
     public int Id { get; set; }
 
-    [JsonProperty("code")]
+    [JsonPropertyName("code")]
     public string Code { get; set; } = string.Empty;
 
-    [JsonProperty("product_name")] public string ProductName { get; set; } = string.Empty;
+    [JsonPropertyName("product_name")] public string ProductName { get; set; } = string.Empty;
 
-    [JsonProperty("brands")]
+    [JsonPropertyName("brands")]
     public string? Brands { get; set; } = string.Empty;
 
-    [JsonProperty("image_url")]
+    [JsonPropertyName("image_url")]
     public string? ImageUrl { get; set; } = string.Empty;
 
-    [JsonProperty("categories")]
+    [JsonPropertyName("categories")]
     public string? Categories { get; set; } = string.Empty;
 
-    [JsonProperty("quantity")]
+    [JsonPropertyName("quantity")]
     public string? Quantity { get; set; } = string.Empty;
 
-    [JsonProperty("generic_name")]
+    [JsonPropertyName("generic_name")]
     public string? GenericName { get; set; } = string.Empty;
 
     #endregion
@@ -46,37 +45,37 @@ public class Product
 
     #region Inhaltsstoffe
 
-    [JsonProperty("ingredients_text")]
+    [JsonPropertyName("ingredients_text")]
     public string? IngredientsText { get; set; } = string.Empty;
 
-    [JsonProperty("nutriscore_grade")]
+    [JsonPropertyName("nutriscore_grade")]
     public string? NutriscoreGrade { get; set; } = string.Empty;
 
-    [JsonProperty("energy-kcal_100g")]
+    [JsonPropertyName("energy-kcal_100g")]
     public decimal? EnergyKcalPer100g { get; set; }
 
-    [JsonProperty("fat_100g")]
+    [JsonPropertyName("fat_100g")]
     public decimal? FatPer100g { get; set; }
 
-    [JsonProperty("saturated-fat_100g")]
+    [JsonPropertyName("saturated-fat_100g")]
     public decimal? SaturatedFatPer100g { get; set; }
 
-    [JsonProperty("carbohydrates_100g")]
+    [JsonPropertyName("carbohydrates_100g")]
     public decimal? CarbohydratesPer100g { get; set; }
 
-    [JsonProperty("sugars_100g")]
+    [JsonPropertyName("sugars_100g")]
     public decimal? SugarsPer100g { get; set; }
 
-    [JsonProperty("fiber_100g")]
+    [JsonPropertyName("fiber_100g")]
     public decimal? FiberPer100g { get; set; }
 
-    [JsonProperty("proteins_100g")]
+    [JsonPropertyName("proteins_100g")]
     public decimal? ProteinsPer100g { get; set; }
 
-    [JsonProperty("salt_100g")]
+    [JsonPropertyName("salt_100g")]
     public decimal? SaltPer100g { get; set; }
 
-    [JsonProperty("sodium_100g")]
+    [JsonPropertyName("sodium_100g")]
     public decimal? SodiumPer100g { get; set; }
 
     #endregion
@@ -84,40 +83,40 @@ public class Product
 
     #region Bierspezifisch
 
-    [JsonProperty("alcohol_100g")]
+    [JsonPropertyName("alcohol_100g")]
     public decimal? AlcoholByVolume { get; set; }
 
-    [JsonProperty("brewing_method")]
+    [JsonPropertyName("brewing_method")]
     public string? BrewingMethod { get; set; } = string.Empty;
 
-    [JsonProperty("fermentation")]
+    [JsonPropertyName("fermentation")]
     public string? Fermentation { get; set; } = string.Empty;
 
-    [JsonProperty("color")]
+    [JsonPropertyName("color")]
     public string? Color { get; set; } = string.Empty;
 
-    [JsonProperty("ibu")]
+    [JsonPropertyName("ibu")]
     public int? IBU { get; set; }
 
-    [JsonProperty("hops")]
+    [JsonPropertyName("hops")]
     public string? Hops { get; set; } = string.Empty;
 
-    [JsonProperty("yeast")]
+    [JsonPropertyName("yeast")]
     public string? Yeast { get; set; } = string.Empty;
 
-    [JsonProperty("malt")]
+    [JsonPropertyName("malt")]
     public string? Malt { get; set; } = string.Empty;
 
-    [JsonProperty("beer_style")]
+    [JsonPropertyName("beer_style")]
     public string? BeerStyle { get; set; } = string.Empty;
 
-    [JsonProperty("beer_type")]
+    [JsonPropertyName("beer_type")]
     public string? BeerType { get; set; } = string.Empty;
 
-    [JsonProperty("carbonation_level")]
+    [JsonPropertyName("carbonation_level")]
     public string? CarbonationLevel { get; set; } = string.Empty;
 
-    [JsonProperty("taste")]
+    [JsonPropertyName("taste")]
     public string? Taste { get; set; } = string.Empty;
 
     #endregion
@@ -125,6 +124,6 @@ public class Product
 
 public class ProductList
 {
-    [JsonProperty("products")]
+    [JsonPropertyName("products")]
     public ICollection<Product>? Products { get; set; }
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using GeoCoordinatePortable;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace BierBockBackend.Data;
 

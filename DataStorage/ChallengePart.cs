@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using DataStorage.HelpRelations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace BierBockBackend.Data;
 
