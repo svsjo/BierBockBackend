@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using GeoCoordinatePortable;
+using Newtonsoft.Json;
 
 namespace BierBockBackend.Data
 {
@@ -12,7 +13,7 @@ namespace BierBockBackend.Data
 
         public Coordinate Location { get; set; }
 
-
+        [JsonIgnore]
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
 

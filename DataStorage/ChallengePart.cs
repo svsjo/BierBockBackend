@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using DataStorage.HelpRelations;
+using Newtonsoft.Json;
 
 namespace BierBockBackend.Data;
 
@@ -12,6 +13,7 @@ public class ChallengePart
 
     public int Quantity { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<ChallengePartChallenge> Challenges { get; set; }
 
 

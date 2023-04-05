@@ -18,6 +18,7 @@ public class Challenge
 
     public virtual ICollection<ChallengePartChallenge> PartialChallenges { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<ChallengeUser> Users { get; set; }
 
     public DateTime StartDate { get; set; } = DateTime.Now;

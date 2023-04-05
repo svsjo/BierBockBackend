@@ -14,9 +14,10 @@ namespace BierBockBackend.Data
 
         public void Insert()
         {
+            if (_dbContext.GetProducts().Any()) return;
+
             var productsTask = new OpenFoodFactsApi().GetBeerData();
             var products = productsTask.Result;
-            //_dbContext.AddProducts(products);
             foreach (var product in products)
             {
                 if (_dbContext.GetProducts().All(x => x.Code != product.Code))
@@ -30,7 +31,6 @@ namespace BierBockBackend.Data
         {
             if (!_dbContext.GetUsers().Any()) /* Nur bei leerer DB */
             {
-
                 var user = new User
                 {
                     Token = "123456",

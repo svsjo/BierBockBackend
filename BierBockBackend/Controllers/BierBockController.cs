@@ -23,12 +23,12 @@ public class BierBockController : ControllerBase
     #region Echte Schnittstelle
 
     [HttpGet("ownUserData", Name = "GetOwnUserData")]
-    public RequestStatus<UserBasicData> GetOwnUserData([FromHeader] string token)
+    public RequestStatus<object> GetOwnUserData([FromHeader] string token)
     {
         var user = _dbAppDatabaseContext.GetUsers()
             .FirstOrDefault(x => x.Token == token);
         var result = user != default
-            ? new UserBasicData()
+            ? new
             {
                 Name = user.Name,
                 BirthDate = user.BirthDate,
@@ -40,7 +40,7 @@ public class BierBockController : ControllerBase
         var sucess = result != default;
         var status = sucess ? Status.Successful : Status.NoResults;
 
-        return new RequestStatus<UserBasicData>
+        return new RequestStatus<object>
         {
             Status = status,
             Result = result
@@ -115,24 +115,26 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("topRankedUsers", Name = "GetTopRankedUsers")]
-    public RequestStatus<IEnumerable<RankingEntry>> GetTopRankedUsers([FromHeader] string token)
+    public RequestStatus<IEnumerable<object>> GetTopRankedUsers([FromHeader] string token)
     {
         var user = _dbAppDatabaseContext.GetUsers().FirstOrDefault(x => x.Token == token);
-        var results = user != default
+        var users = user != default
             ? _dbAppDatabaseContext.GetUsers()
                 .OrderBy(x => x.Points)
                 .Take(15)
-                .Select((value, index) => new RankingEntry()
-                {
-                    Rank = index + 1,
-                    Name = value.Name,
-                    Points = value.Points
-                })
+                .ToList()
             : default;
+
+        var results = users?.Select((value, index) => new
+        {
+            Rank = index + 1,
+            Name = value.Name,
+            Points = value.Points
+        });
 
         var status = user != default ? (results!.Any() ? Status.Successful : Status.NoResults) : Status.NoPermission;
 
-        return new RequestStatus<IEnumerable<RankingEntry>>
+        return new RequestStatus<IEnumerable<object>>
         {
             Status = status,
             Result = results

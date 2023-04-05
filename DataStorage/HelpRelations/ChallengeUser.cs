@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BierBockBackend.Data;
+using Newtonsoft.Json;
 
 namespace DataStorage.HelpRelations
 {
@@ -13,6 +14,7 @@ namespace DataStorage.HelpRelations
     {
         [Key] public int Id { get; set; }
 
+        [JsonIgnore]
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
 
