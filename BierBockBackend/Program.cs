@@ -52,6 +52,8 @@ timer.Elapsed+= delegate
 };
 timer.Start();
 
+Task.Run(FillDbFromApi);
+
 
 app.UseHttpsRedirection();
 
