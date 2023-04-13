@@ -74,7 +74,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("allDrinkActions", Name = "GetAllDrinkActions")]
-    public RequestStatus<IEnumerable<object>> GetAllDrinkActions([FromBody] string? searchString = default, [FromBody] DateTime fromTime = default, [FromBody] DateTime toTime = default)
+    public RequestStatus<IEnumerable<object>> GetAllDrinkActions(string? searchString = default, DateTime fromTime = default, DateTime toTime = default)
     {
         var results = _dbAppDatabaseContext.GetDrinkActions();
 
@@ -102,7 +102,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("bestSearchResults", Name = "GetBestSearchResults")]
-    public RequestStatus<IEnumerable<object>> GetBestSearchResults([FromBody] string searchString)
+    public RequestStatus<IEnumerable<object>> GetBestSearchResults(string searchString)
     {
         var results = _dbAppDatabaseContext.GetProducts()
             .Where(x => x.ProductName.ToLower().Contains(searchString.ToLower()) ||
@@ -183,7 +183,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("barcodeData", Name = "GetBarcodeData")]
-    public RequestStatus<Product> GetBarcodeData([FromBody] string barcode)
+    public RequestStatus<Product> GetBarcodeData(string barcode)
     {
         var user = GetCurrentUser();
 
@@ -200,7 +200,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("ownDrinkProgress", Name = "GetOwnDrinkProgress")]
-    public RequestStatus<IEnumerable<object>> GetOwnDrinkProgress([FromBody] DateTime toTime = default, [FromBody] DateTime fromTime = default)
+    public RequestStatus<IEnumerable<object>> GetOwnDrinkProgress(DateTime toTime = default, DateTime fromTime = default)
     {
         var user = GetCurrentUser();
 
@@ -229,7 +229,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpPost("newDrinkAction", Name = "SetNewDrinkAction")]
-    public RequestStatus<object> SetNewDrinkAction([FromBody] Coordinate coordinate, [FromBody] string beerCode)
+    public RequestStatus<object> SetNewDrinkAction(Coordinate coordinate, string beerCode)
     {
         var user = GetCurrentUser();
 
@@ -260,7 +260,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpPost("actualisateUserPosition", Name = "ActualisateUserPosition")]
-    public RequestStatus<object> ActualisateUserPosition([FromBody] Coordinate coordinate)
+    public RequestStatus<object> ActualisateUserPosition(Coordinate coordinate)
     {
         var user = GetCurrentUser();
         var status = Status.Successful;
@@ -274,8 +274,8 @@ public class BierBockController : ControllerBase
     }
 
     [HttpPost("actualisateUserBasicData", Name = "ActualisateUserBasicData")]
-    public RequestStatus<object> ActualisateUserBasicData([FromBody] string? newName = default, [FromBody] string? newVorname = default, [FromBody] string? newWohnort = default, 
-        [FromBody] string? newBirthDate = default, [FromBody] string? newFavouriteBeerCode = default, [FromBody] string? newMail = default)
+    public RequestStatus<object> ActualisateUserBasicData(string? newName = default, string? newVorname = default, string? newWohnort = default, 
+        string? newBirthDate = default, string? newFavouriteBeerCode = default, string? newMail = default)
     {
         var user = GetCurrentUser();
         var status = Status.Successful;

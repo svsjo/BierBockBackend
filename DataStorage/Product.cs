@@ -13,7 +13,7 @@ public class Product
 
     #region Allgemeine Infos
 
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     [Key]
     public int Id { get; set; }
 
