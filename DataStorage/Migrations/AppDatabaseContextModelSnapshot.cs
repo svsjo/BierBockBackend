@@ -48,31 +48,6 @@ namespace DataStorage.Migrations
                     b.ToTable("Challenges");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.ChallengePart", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BeerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BeerId");
-
-                    b.ToTable("ChallengeParts");
-                });
-
             modelBuilder.Entity("BierBockBackend.Data.Coordinate", b =>
                 {
                     b.Property<int>("Id")
@@ -135,96 +110,126 @@ namespace DataStorage.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal?>("AlcoholByVolume")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "alcohol_100g");
 
                     b.Property<string>("BeerStyle")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "beer_style");
 
                     b.Property<string>("BeerType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "beer_type");
 
                     b.Property<string>("Brands")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "brands");
 
                     b.Property<string>("BrewingMethod")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "brewing_method");
 
                     b.Property<decimal?>("CarbohydratesPer100g")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "carbohydrates_100g");
 
                     b.Property<string>("CarbonationLevel")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "carbonation_level");
 
                     b.Property<string>("Categories")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "categories");
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "code");
 
                     b.Property<string>("Color")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "color");
 
                     b.Property<decimal?>("EnergyKcalPer100g")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "energy-kcal_100g");
 
                     b.Property<decimal?>("FatPer100g")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "fat_100g");
 
                     b.Property<string>("Fermentation")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "fermentation");
 
                     b.Property<decimal?>("FiberPer100g")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "fiber_100g");
 
                     b.Property<string>("GenericName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "generic_name");
 
                     b.Property<string>("Hops")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "hops");
 
                     b.Property<int?>("IBU")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasAnnotation("Relational:JsonPropertyName", "ibu");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "image_url");
 
                     b.Property<string>("IngredientsText")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "ingredients_text");
 
                     b.Property<string>("Malt")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "malt");
 
                     b.Property<string>("NutriscoreGrade")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "nutriscore_grade");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "product_name");
 
                     b.Property<decimal?>("ProteinsPer100g")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "proteins_100g");
 
                     b.Property<string>("Quantity")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "quantity");
 
                     b.Property<decimal?>("SaltPer100g")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "salt_100g");
 
                     b.Property<decimal?>("SaturatedFatPer100g")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "saturated-fat_100g");
 
                     b.Property<decimal?>("SodiumPer100g")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "sodium_100g");
 
                     b.Property<decimal?>("SugarsPer100g")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasAnnotation("Relational:JsonPropertyName", "sugars_100g");
 
                     b.Property<string>("Taste")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "taste");
 
                     b.Property<string>("Yeast")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasAnnotation("Relational:JsonPropertyName", "yeast");
 
                     b.HasKey("Id");
 
@@ -268,6 +273,18 @@ namespace DataStorage.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Wohnort")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BeerId");
@@ -275,29 +292,6 @@ namespace DataStorage.Migrations
                     b.HasIndex("LocationId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("DataStorage.HelpRelations.ChallengePartChallenge", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChallengeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ChallengePartId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeId");
-
-                    b.HasIndex("ChallengePartId");
-
-                    b.ToTable("ChallengePartChallenge");
                 });
 
             modelBuilder.Entity("DataStorage.HelpRelations.ChallengeUser", b =>
@@ -321,17 +315,6 @@ namespace DataStorage.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ChallengeUser");
-                });
-
-            modelBuilder.Entity("BierBockBackend.Data.ChallengePart", b =>
-                {
-                    b.HasOne("BierBockBackend.Data.Product", "Beer")
-                        .WithMany("UsedInChallengeParts")
-                        .HasForeignKey("BeerId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Beer");
                 });
 
             modelBuilder.Entity("BierBockBackend.Data.DrinkAction", b =>
@@ -380,25 +363,6 @@ namespace DataStorage.Migrations
                     b.Navigation("Location");
                 });
 
-            modelBuilder.Entity("DataStorage.HelpRelations.ChallengePartChallenge", b =>
-                {
-                    b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
-                        .WithMany("PartialChallenges")
-                        .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("BierBockBackend.Data.ChallengePart", "ChallengePart")
-                        .WithMany("Challenges")
-                        .HasForeignKey("ChallengePartId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Challenge");
-
-                    b.Navigation("ChallengePart");
-                });
-
             modelBuilder.Entity("DataStorage.HelpRelations.ChallengeUser", b =>
                 {
                     b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
@@ -420,20 +384,11 @@ namespace DataStorage.Migrations
 
             modelBuilder.Entity("BierBockBackend.Data.Challenge", b =>
                 {
-                    b.Navigation("PartialChallenges");
-
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("BierBockBackend.Data.ChallengePart", b =>
-                {
-                    b.Navigation("Challenges");
                 });
 
             modelBuilder.Entity("BierBockBackend.Data.Product", b =>
                 {
-                    b.Navigation("UsedInChallengeParts");
-
                     b.Navigation("UsedInDrinkActions");
 
                     b.Navigation("UsersHavingThisAsFavouriteBeer");

@@ -275,7 +275,7 @@ public class BierBockController : ControllerBase
 
     [HttpPost("actualisateUserBasicData", Name = "ActualisateUserBasicData")]
     public RequestStatus<object> ActualisateUserBasicData([FromBody] string? newName = default, [FromBody] string? newVorname = default, [FromBody] string? newWohnort = default, 
-        [FromBody] DateOnly newBirthDate = default, [FromBody] string? newFavouriteBeerCode = default, [FromBody] string? newMail = default)
+        [FromBody] string? newBirthDate = default, [FromBody] string? newFavouriteBeerCode = default, [FromBody] string? newMail = default)
     {
         var user = GetCurrentUser();
         var status = Status.Successful;

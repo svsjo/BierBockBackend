@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataStorage.Migrations
 {
     /// <inheritdoc />
-    public partial class shitshat : Migration
+    public partial class asasasaaaaaaaaaaaaa : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -85,26 +85,6 @@ namespace DataStorage.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChallengeParts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    BeerId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChallengeParts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ChallengeParts_Products_BeerId",
-                        column: x => x.BeerId,
-                        principalTable: "Products",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -112,11 +92,14 @@ namespace DataStorage.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VorName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BirthDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Points = table.Column<int>(type: "int", nullable: false),
                     LocationId = table.Column<int>(type: "int", nullable: false),
+                    Wohnort = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BeerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -132,30 +115,6 @@ namespace DataStorage.Migrations
                         name: "FK_Users_Products_BeerId",
                         column: x => x.BeerId,
                         principalTable: "Products",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ChallengePartChallenge",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ChallengeId = table.Column<int>(type: "int", nullable: false),
-                    ChallengePartId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChallengePartChallenge", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ChallengePartChallenge_ChallengeParts_ChallengePartId",
-                        column: x => x.ChallengePartId,
-                        principalTable: "ChallengeParts",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ChallengePartChallenge_Challenges_ChallengeId",
-                        column: x => x.ChallengeId,
-                        principalTable: "Challenges",
                         principalColumn: "Id");
                 });
 
@@ -216,21 +175,6 @@ namespace DataStorage.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChallengePartChallenge_ChallengeId",
-                table: "ChallengePartChallenge",
-                column: "ChallengeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ChallengePartChallenge_ChallengePartId",
-                table: "ChallengePartChallenge",
-                column: "ChallengePartId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ChallengeParts_BeerId",
-                table: "ChallengeParts",
-                column: "BeerId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ChallengeUser_ChallengeId",
                 table: "ChallengeUser",
                 column: "ChallengeId");
@@ -270,16 +214,10 @@ namespace DataStorage.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ChallengePartChallenge");
-
-            migrationBuilder.DropTable(
                 name: "ChallengeUser");
 
             migrationBuilder.DropTable(
                 name: "DrinkActions");
-
-            migrationBuilder.DropTable(
-                name: "ChallengeParts");
 
             migrationBuilder.DropTable(
                 name: "Challenges");
