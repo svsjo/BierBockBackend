@@ -2,6 +2,7 @@
 
 using BierBockBackend.Data;
 using DataStorage;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -18,6 +19,19 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+    logging.RequestHeaders.Add("token");
+    logging.RequestHeaders.Add("Referer");
+    logging.RequestHeaders.Add("sec-ch-ua");
+    logging.RequestHeaders.Add("sec-ch-ua-platform");
+    logging.RequestHeaders.Add("sec-fetch-site");
+    logging.RequestHeaders.Add("sec-fetch-mode");
+    logging.RequestHeaders.Add("sec-fetch-dest");
+    logging.RequestHeaders.Add("sec-ch-ua-mobile");
+});
+
 builder.Services.AddDbContext<AppDatabaseContext>(); //(options => options.UseSqlite("name=ConnectionStrings:DefaultConnection"));
 
 
@@ -46,7 +60,7 @@ var timer = new System.Timers.Timer()
 {
     Interval = TimeSpan.FromDays(7).TotalMilliseconds
 };
-timer.Elapsed+= delegate
+timer.Elapsed += delegate
 {
     FillDbFromApi();
 };
@@ -54,11 +68,11 @@ timer.Start();
 
 Task.Run(FillDbFromApi);
 
+app.UseHttpLogging();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 
 app.MapControllers();
 
