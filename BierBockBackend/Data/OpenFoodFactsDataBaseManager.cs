@@ -68,15 +68,6 @@ namespace BierBockBackend.Data
                 _dbContext.GetUsers().First().AllDrinkingActions.Add(drinkAction);
                 _dbContext.SaveChanges();
 
-                var challengePart = new ChallengePart
-                {
-                    Description = "Trink ein Bier",
-                    Beer = _dbContext.GetProducts().First(),
-                    Quantity = 1,
-                };
-
-                _dbContext.AddChallengePart(challengePart);
-
                 var challenge = new Challenge
                 {
                     PossiblePoints = 50,
@@ -86,16 +77,6 @@ namespace BierBockBackend.Data
                 };
 
                 _dbContext.AddChallenge(challenge);
-
-                var challengePartAssignment = new ChallengePartChallenge()
-                {
-                    Challenge = _dbContext.GetChallenge().First(),
-                    ChallengePart = _dbContext.GetChallengeParts().First(),
-                };
-
-                _dbContext.GetChallenge().First().PartialChallenges.Add(challengePartAssignment);
-                _dbContext.GetChallengeParts().First().Challenges.Add(challengePartAssignment);
-                _dbContext.SaveChanges();
 
                 var challengeUser = new ChallengeUser
                 {
@@ -107,7 +88,6 @@ namespace BierBockBackend.Data
                 _dbContext.GetChallenge().First().Users.Add(challengeUser);
                 _dbContext.SaveChanges();
 
-                _dbContext.GetProducts().First().UsedInChallengeParts.Add(challengePart);
                 _dbContext.GetProducts().First().UsedInDrinkActions.Add(drinkAction);
                 _dbContext.GetProducts().First().UsersHavingThisAsFavouriteBeer.Add(user);
                 _dbContext.SaveChanges();

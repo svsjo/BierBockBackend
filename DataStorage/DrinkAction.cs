@@ -6,7 +6,9 @@ namespace BierBockBackend.Data
 {
     public class DrinkAction
     {
-        [Key] public int Id { get; set; }
+        [JsonIgnore]
+        [Key]
+        public int Id { get; set; }
 
         public DateTime Time { get; set; } = DateTime.Now;
 
@@ -16,7 +18,7 @@ namespace BierBockBackend.Data
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
 
-
+        [JsonIgnore]
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
     }

@@ -28,15 +28,18 @@ public class BierBockController : ControllerBase
     [HttpGet("ownUserData", Name = "GetOwnUserData")]
     public RequestStatus<object> GetOwnUserData()
     {
-
         var user = GetCurrentUser();
         var result = user != default
             ? new
             {
-                Name = user.Name,
-                BirthDate = user.BirthDate,
-                Email = user.Email,
-                Location = user.Location
+                user.UserName,
+                user.Name,
+                user.VorName,
+                user.BirthDate,
+                user.Email,
+                user.Location,
+                user.Wohnort,
+                user.FavouriteBeer.ProductName
             }
             : default;
 
@@ -55,9 +58,13 @@ public class BierBockController : ControllerBase
     {
         var user = GetCurrentUser();
 
-        var results = user.UserChallenges.Select(x => x.Challenge);
+        var results = user.UserChallenges
+            .Select(x => x.Challenge)
+            .ToList();
 
-        var status = (results!.Any() ? Status.Successful : Status.NoResults);
+        // TODO: Challenge Fortschritt berechnen
+
+        var status = (results.Any() ? Status.Successful : Status.NoResults);
 
         return new RequestStatus<IEnumerable<Challenge>>
         {
@@ -67,28 +74,47 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("allDrinkActions", Name = "GetAllDrinkActions")]
-    public RequestStatus<IEnumerable<DrinkAction>> GetAllDrinkActions()
+    public RequestStatus<IEnumerable<object>> GetAllDrinkActions([FromBody] string? searchString = default, [FromBody] DateTime fromTime = default, [FromBody] DateTime toTime = default)
     {
         var results = _dbAppDatabaseContext.GetDrinkActions();
-    
-        return new RequestStatus<IEnumerable<DrinkAction>>
+
+        if (fromTime != default) results = results.Where(x => x.Time > fromTime);
+        if (toTime != default) results = results.Where(x => x.Time < toTime);
+        if (searchString != default)
+            results = results
+                .Where(x => (x.Product.Brands != null && x.Product.Brands.ToLower().Contains(searchString.ToLower())) ||
+                            x.Product.ProductName.ToLower().Contains(searchString.ToLower()) ||
+                            (x.Product.Categories != null && x.Product.Categories.ToLower().Contains(searchString.ToLower())))
+                .OrderByDescending(x => x.Time);
+
+
+        var status = results.Any() ? Status.Successful : Status.NoResults;
+
+        return new RequestStatus<IEnumerable<object>>
         {
-            Result = results
+            Result = results.Select(x => new
+            {
+                x.Location,
+                x.Time
+            }),
+            Status = status
         };
     }
 
     [HttpGet("bestSearchResults", Name = "GetBestSearchResults")]
-    public RequestStatus<IEnumerable<Product>> GetBestSearchResults(string searchString)
+    public RequestStatus<IEnumerable<object>> GetBestSearchResults([FromBody] string searchString)
     {
-
         var results = _dbAppDatabaseContext.GetProducts()
             .Where(x => x.ProductName.ToLower().Contains(searchString.ToLower()) ||
                         (x.Brands != default && x.Brands.ToLower().Contains(searchString.ToLower())))
             .Take(25);
 
-        return new RequestStatus<IEnumerable<Product>>
+        var status = results.Any() ? Status.Successful : Status.NoResults;
+
+        return new RequestStatus<IEnumerable<object>>
         {
-            Result = results
+            Result = results,
+            Status = status
         };
     }
 
@@ -96,9 +122,8 @@ public class BierBockController : ControllerBase
     public RequestStatus<int> GetOwnScore()
     {
         var user = GetCurrentUser();
-        var sucess = user != default;
-        var status = sucess ? Status.Successful : Status.NoResults;
-        var result = sucess ? user!.Points : 0;
+        var status = Status.Successful;
+        var result = user.Points;
 
         return new RequestStatus<int>
         {
@@ -108,29 +133,33 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("topRankedUsers", Name = "GetTopRankedUsers")]
-    public RequestStatus<IEnumerable<object>> GetTopRankedUsers()
+    public RequestStatus<object> GetTopRankedUsers()
     {
         var user = GetCurrentUser();
-        var users = user != default
-            ? _dbAppDatabaseContext.GetUsers()
-                .OrderBy(x => x.Points)
-                .Take(15)
-                .ToList()
-            : default;
 
-        var results = users?.Select((value, index) => new
+        var users = _dbAppDatabaseContext.GetUsers()
+            .OrderByDescending(x => x.Points);
+
+        var results = users.Select((value, index) => new
         {
             Rank = index + 1,
-            Name = value.Name,
-            Points = value.Points
-        });
+            value.UserName,
+            value.Points
+        }).ToList();
 
-        var status = results!.Any() ? Status.Successful : Status.NoResults;
+        var ownRanking = results
+            .First(x => x.UserName == user.UserName);
 
-        return new RequestStatus<IEnumerable<object>>
+        var status = results.Any() ? Status.Successful : Status.NoResults;
+
+        return new RequestStatus<object>
         {
             Status = status,
-            Result = results
+            Result = new
+            {
+                Top25 = results.Take(25),
+                Own = ownRanking
+            }
         };
     }
 
@@ -138,12 +167,11 @@ public class BierBockController : ControllerBase
     public RequestStatus<int> GetOwnRanking()
     {
         var user = GetCurrentUser();
-        var rank = user != default
-            ? _dbAppDatabaseContext.GetUsers()
-                .OrderBy(x => x.Points)
-                .ToList()
-                .IndexOf(user)
-            : default;
+
+        var rank = _dbAppDatabaseContext.GetUsers()
+            .OrderBy(x => x.Points)
+            .ToList()
+            .IndexOf(user) + 1;
 
         var status = Status.Successful;
 
@@ -155,14 +183,12 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("barcodeData", Name = "GetBarcodeData")]
-    public RequestStatus<Product> GetBarcodeData(string barcode)
+    public RequestStatus<Product> GetBarcodeData([FromBody] string barcode)
     {
         var user = GetCurrentUser();
 
-        var product = user != default
-            ? _dbAppDatabaseContext.GetProducts()
-                .FirstOrDefault(x => x.Code == barcode)
-            : default;
+        var product = _dbAppDatabaseContext.GetProducts()
+            .FirstOrDefault(x => x.Code == barcode);
 
         var status = (product != default ? Status.Successful : Status.NoResults);
 
@@ -174,46 +200,54 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("ownDrinkProgress", Name = "GetOwnDrinkProgress")]
-    public RequestStatus<IEnumerable<DrinkAction>> GetOwnDrinkProgress( DateTime toTime = default, DateTime fromTime = default)
+    public RequestStatus<IEnumerable<object>> GetOwnDrinkProgress([FromBody] DateTime toTime = default, [FromBody] DateTime fromTime = default)
     {
         var user = GetCurrentUser();
 
-        var result = user?.AllDrinkingActions.ToList();
+        var results = user?.AllDrinkingActions
+            .Select(x => new
+            {
+                x.Location,
+                x.Time,
+                x.Product.Code,
+                x.Product.ProductName,
+                x.Product.Brands
+            })
+            .OrderByDescending(x => x.Time)
+            .ToList();
 
-        if (toTime != default) result = result?.Where(x => x.Time < toTime).ToList();
-        if (fromTime != default) result = result?.Where(x => x.Time > fromTime).ToList();
+        if (toTime != default) results = results?.Where(x => x.Time < toTime).ToList();
+        if (fromTime != default) results = results?.Where(x => x.Time > fromTime).ToList();
 
-        var status = (result != default ? Status.Successful : Status.NoResults);
+        var status = results != default && results.Any() ? Status.Successful : Status.NoResults;
 
-        return new RequestStatus<IEnumerable<DrinkAction>>
+        return new RequestStatus<IEnumerable<object>>
         {
             Status = status,
-            Result = result
+            Result = results
         };
     }
 
     [HttpPost("newDrinkAction", Name = "SetNewDrinkAction")]
-    public RequestStatus<object> SetNewDrinkAction( Coordinate coordinate, string beerCode)
+    public RequestStatus<object> SetNewDrinkAction([FromBody] Coordinate coordinate, [FromBody] string beerCode)
     {
         var user = GetCurrentUser();
 
-        var product = user != default
-            ? _dbAppDatabaseContext.GetProducts()
-                .FirstOrDefault(x => x.Code == beerCode)
-            : default;
+        var product = _dbAppDatabaseContext.GetProducts()
+            .FirstOrDefault(x => x.Code == beerCode);
 
         var drinkAction = product != default
             ? new DrinkAction
             {
                 Location = coordinate,
-                User = user!,
+                User = user,
                 Product = product,
             }
             : default;
 
         if (drinkAction != default)
         {
-            user!.AllDrinkingActions.Add(drinkAction);
+            user.AllDrinkingActions.Add(drinkAction);
             _dbAppDatabaseContext.AddDrinkAction(drinkAction);
         }
 
@@ -226,16 +260,12 @@ public class BierBockController : ControllerBase
     }
 
     [HttpPost("actualisateUserPosition", Name = "ActualisateUserPosition")]
-    public RequestStatus<object> ActualisateUserPosition(Coordinate coordinate)
+    public RequestStatus<object> ActualisateUserPosition([FromBody] Coordinate coordinate)
     {
         var user = GetCurrentUser();
-        var status =  Status.Successful;
+        var status = Status.Successful;
 
-        if (user != default)
-        {
-            user.Location = coordinate;
-        }
-
+        user.Location = coordinate;
 
         return new RequestStatus<object>
         {
@@ -244,25 +274,22 @@ public class BierBockController : ControllerBase
     }
 
     [HttpPost("actualisateUserBasicData", Name = "ActualisateUserBasicData")]
-    public RequestStatus<object> ActualisateUserBasicData(
-        string? newName = default, string? newBirthDate = default, string? newFavouriteBeerCode = default)
-        {
-            var user = GetCurrentUser();
-            var status =  Status.Successful;
+    public RequestStatus<object> ActualisateUserBasicData([FromBody] string? newName = default, [FromBody] string? newVorname = default, [FromBody] string? newWohnort = default, 
+        [FromBody] DateOnly newBirthDate = default, [FromBody] string? newFavouriteBeerCode = default, [FromBody] string? newMail = default)
+    {
+        var user = GetCurrentUser();
+        var status = Status.Successful;
 
-        if (user != default)
+        if (newName != default) user.Name = newName;
+        if (newVorname != default) user.VorName = newVorname;
+        if (newWohnort != default) user.Wohnort = newWohnort;
+        if (newBirthDate != default) user.BirthDate = newBirthDate;
+        if (newMail != default) user.Email = newMail;
+        if (newFavouriteBeerCode != default)
         {
-            if (newName != default) user.Name = newName;
-            if (newBirthDate != default) user.BirthDate = newBirthDate;
-            if (newFavouriteBeerCode != default)
-            {
-                var beer = _dbAppDatabaseContext.GetProducts().FirstOrDefault(x => x.Code == newFavouriteBeerCode);
-                if (beer == default) status = Status.NoResults;
-                else
-                {
-                    user.FavouriteBeer = beer;
-                }
-            }
+            var beer = _dbAppDatabaseContext.GetProducts().FirstOrDefault(x => x.Code == newFavouriteBeerCode);
+            if (beer == default) status = Status.NoResults;
+            else user.FavouriteBeer = beer;
         }
 
         return new RequestStatus<object>
@@ -273,297 +300,14 @@ public class BierBockController : ControllerBase
 
     #endregion
 
-    #region Testweise Schnittstelle
-
-    /*
-    [HttpGet("Temp_allProducts", Name = "GetAllProducts")]
-    public IEnumerable<Product> GetAllProducts()
+    private User GetCurrentUser()
     {
-        return _dbAppDatabaseContext.GetProducts();
-    }
+        var name = HttpContext.User.Claims
+            .FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?
+            .Value;
 
-    [HttpPost("Temp_exampleData", Name = "AddExampleData")]
-    public void AddExampleData()
-    {
-        #region Allgemein
-
-        var beer1 = new Product
-        {
-            Code = "1234",
-            ProductName = "Apple",
-            Brands = "BrandA",
-            ImageUrl = "https://example.com/apple.png",
-            Categories = "Fruits",
-            Quantity = "1 kg",
-            GenericName = "Fruit",
-        };
-
-        var beer2 = new Product
-        {
-            Code = "5678",
-            ProductName = "Banana",
-            Brands = "BrandB",
-            ImageUrl = "https://example.com/banana.png",
-            Categories = "Fruits",
-            Quantity = "500 g",
-            GenericName = "Fruit",
-        };
-
-
-        var user = new User
-        {
-            Token = "123456",
-            Name = "Max Mustermann",
-            PasswordHash = "Password123",
-            Email = "max.mustermann@example.com",
-            FavouriteBeer = beer1,
-            BeerId = beer1.Id,
-            BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
-            Points = 10,
-            Location = new Coordinate()
-            {
-                Latitude = 48.1351,
-                Longitude = 11.5820,
-                Altitude = 100
-            }
-        };
-
-        var user1 = new User
-        {
-            Token = "abcdef",
-            Name = "Anna Müller",
-            PasswordHash = "Password123",
-            Email = "anna.mueller@example.com",
-            FavouriteBeer = beer1,
-            BeerId = beer1.Id,
-            BirthDate = new DateOnly(1995, 6, 15).ToLongDateString(),
-            Points = 5,
-            Location = new Coordinate()
-            {
-                Latitude = 51.5074,
-                Longitude = -0.1278,
-                Altitude = 10,
-            }
-        };
-
-        var user2 = new User
-        {
-            Token = "ghijkl",
-            Name = "Hans Schmidt",
-            PasswordHash = "Password456",
-            Email = "hans.schmidt@example.com",
-            FavouriteBeer = beer2,
-            BeerId = beer2.Id,
-            BirthDate = new DateOnly(1985, 3, 2).ToLongDateString(),
-            Points = 15,
-            Location = new Coordinate()
-            {
-                Latitude = 40.7128,
-                Longitude = -74.0060,
-                Altitude = 50,
-            }
-        };
-
-
-        var drinkAction = new DrinkAction
-        {
-            Product = beer1,
-            //ProductId = beer1.Id,
-            Time = DateTime.Now,
-            Location = new Coordinate()
-            {
-                Latitude = 48.1351,
-                Longitude = 11.5820,
-                Altitude = 100,
-            },
-            //UserId = user.Id,
-            User = user,
-        };
-
-        var drinkAction1 = new DrinkAction
-        {
-            Product = beer1,
-            //ProductId = beer1.Id,
-            Time = DateTime.Now.AddDays(-2),
-            Location = new Coordinate()
-            {
-                Latitude = 51.5074,
-                Longitude = -0.1278,
-                Altitude = 10,
-            },
-            //UserId = user1.Id,
-            User = user1,
-        };
-
-        var drinkAction2 = new DrinkAction
-        {
-            Product = beer2,
-            //ProductId = beer2.Id,
-            Time = DateTime.Now.AddDays(-1),
-            Location = new Coordinate()
-            {
-                Latitude = 40.7128,
-                Longitude = -74.0060,
-                Altitude = 50,
-            },
-            //UserId = user2.Id,
-            User = user2,
-        };
-
-
-        var challengePart = new ChallengePart
-        {
-            Description = "Trink ein Bier",
-            Beer = beer1,
-            BeerId = beer1.Id,
-            Quantity = 1,
-        };
-
-        var challengePart1 = new ChallengePart
-        {
-            Description = "Trink ein Weißbier",
-            Beer = beer1,
-            BeerId = beer1.Id,
-            Quantity = 1,
-        };
-
-        var challengePart2 = new ChallengePart
-        {
-            Description = "Trink ein Pils",
-            Beer = beer2,
-            BeerId = beer2.Id,
-            Quantity = 1,
-        };
-
-
-        var challenge = new Challenge
-        {
-            PossiblePoints = 50,
-            Description = "Trink jeden Tag ein Bier",
-            StartDate = DateTime.Now.AddDays(-7),
-            EndDate = DateTime.Now.AddDays(7)
-        };
-
-        var challenge1 = new Challenge
-        {
-            PossiblePoints = 100,
-            Description = "Trink 10 Biere in einer Woche",
-            StartDate = DateTime.Now.AddDays(-7),
-            EndDate = DateTime.Now.AddDays(7),
-        };
-
-        var challenge2 = new Challenge
-        {
-            PossiblePoints = 75,
-            Description = "Trink 5 verschiedene Biere in einer Woche",
-            StartDate = DateTime.Now.AddDays(-14),
-            EndDate = DateTime.Now.AddDays(14),
-        };
-
-        #endregion
-
-        #region Zuordnung Challenge <> ChallengePart
-
-        var challengePartAssignment1 = new ChallengePartChallenge()
-        {
-            Challenge = challenge1,
-            ChallengeId = challenge1.Id,
-            ChallengePart = challengePart,
-            ChallengePartId = challengePart.Id
-        };
-
-        var challengePartAssignment2 = new ChallengePartChallenge()
-        {
-            Challenge = challenge1,
-            ChallengeId = challenge1.Id,
-            ChallengePart = challengePart1,
-            ChallengePartId = challengePart1.Id
-        };
-
-        challenge1.PartialChallenges.Add(challengePartAssignment1);
-        challenge1.PartialChallenges.Add(challengePartAssignment2);
-        challengePart.Challenges.Add(challengePartAssignment1);
-        challengePart1.Challenges.Add(challengePartAssignment2);
-
-        #endregion
-
-        #region Zuordnung Challenge <> User
-
-        var challengeUser = new ChallengeUser
-        {
-            UserId = user.Id,
-            ChallengeId = challenge.Id,
-            User = user,
-            Challenge = challenge
-        };
-
-        var challenge1User = new ChallengeUser()
-        {
-            UserId = user.Id,
-            ChallengeId = challenge1.Id,
-            User = user,
-            Challenge = challenge1
-        };
-
-        var challengeUser1 = new ChallengeUser()
-        {
-            UserId = user1.Id,
-            ChallengeId = challenge.Id,
-            User = user1,
-            Challenge = challenge
-        };
-
-        user.UserChallenges.Add(challengeUser);
-        user.UserChallenges.Add(challenge1User);
-        user1.UserChallenges.Add(challengeUser1);
-        challenge.Users.Add(challengeUser);
-        challenge.Users.Add(challengeUser1);
-        challenge1.Users.Add(challenge1User);
-
-        #endregion
-
-        #region Zuordnung DrinkingActions <> User
-
-        user.AllDrinkingActions.Add(drinkAction);
-        user1.AllDrinkingActions.Add(drinkAction1);
-        user2.AllDrinkingActions.Add(drinkAction2);
-
-        #endregion
-
-        #region In Datenbank schreiben
-
-        _dbAppDatabaseContext.AddChallengePart(challengePart);
-        _dbAppDatabaseContext.AddChallengePart(challengePart1);
-        _dbAppDatabaseContext.AddChallengePart(challengePart2);
-        _dbAppDatabaseContext.AddChallenge(challenge);
-        _dbAppDatabaseContext.AddChallenge(challenge1);
-        _dbAppDatabaseContext.AddChallenge(challenge2);
-        _dbAppDatabaseContext.AddUser(user);
-        _dbAppDatabaseContext.AddUser(user1);
-        _dbAppDatabaseContext.AddUser(user2);
-        _dbAppDatabaseContext.AddDrinkAction(drinkAction);
-        _dbAppDatabaseContext.AddDrinkAction(drinkAction1);
-        _dbAppDatabaseContext.AddDrinkAction(drinkAction2);
-
-        #endregion
-    }
-
-
-    [HttpPost("Temp_addProducts", Name = "AddAllProducts")]
-    public void AddAllProducts()
-    {
-        var openFoodFacts = new OpenFoodFactsApi();
-        var allBeers = openFoodFacts.GetBeerData().Result;
-        _dbAppDatabaseContext.AddProducts(allBeers);
-    }
-    */
-
-    #endregion
-
-    User GetCurrentUser()
-    {
-        var name = HttpContext.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         return _dbAppDatabaseContext.GetUsers()
-            .FirstOrDefault(x => x.Name == name);
+            .FirstOrDefault(x => x.Name == name)!;
+        // TODO: UserName?
     }
 }

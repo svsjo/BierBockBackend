@@ -6,5 +6,9 @@ namespace BierBockBackend.Controllers;
 [Route("[controller]")]
 public class AdminController
 {
-
+    /*
+     * Füge neue Challenge hinzu
+     * Sperre User XY
+     * ...?
+     */
 }

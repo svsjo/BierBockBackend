@@ -10,7 +10,6 @@ namespace DataStorage;
 
 public class AppDatabaseContext : DbContext
 {
-    private DbSet<ChallengePart> ChallengeParts { get; set; }
     private DbSet<Challenge> Challenges { get; set; }
     private DbSet<DrinkAction> DrinkActions { get; set; }
     private DbSet<User> Users { get; set; }
@@ -34,27 +33,10 @@ public class AppDatabaseContext : DbContext
             .WithMany(x => x.Users)
             .OnDelete(DeleteBehavior.NoAction);
 
-        /* n-m-Beziehung Challenge zu ChallengePart */
-        modelBuilder.Entity<ChallengePartChallenge>()
-            .HasOne(x => x.Challenge)
-            .WithMany(x => x.PartialChallenges)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        modelBuilder.Entity<ChallengePartChallenge>()
-            .HasOne(x => x.ChallengePart)
-            .WithMany(x => x.Challenges)
-            .OnDelete(DeleteBehavior.NoAction);
-
         /* 1-n-Beziehung User zu DrinkAction */
         modelBuilder.Entity<DrinkAction>()
             .HasOne(x => x.User)
             .WithMany(x => x.AllDrinkingActions)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        /* Einseitige 1-n-Beziehung ChallengePart zu FavouriteBeer */
-        modelBuilder.Entity<ChallengePart>()
-            .HasOne(x => x.Beer)
-            .WithMany(x => x.UsedInChallengeParts)
             .OnDelete(DeleteBehavior.NoAction);
 
         /* Einseitige 1-n-Beziehung User zu FavouriteBeer */
@@ -82,8 +64,6 @@ public class AppDatabaseContext : DbContext
             .AsQueryable()
             .Include(x => x.UserChallenges)
             .ThenInclude(x => x.Challenge)
-            .ThenInclude( x => x.PartialChallenges)
-            .ThenInclude(x => x.ChallengePart)
             .Include(x => x.AllDrinkingActions)
             .ThenInclude(x => x.Product)
             .Include(x => x.FavouriteBeer)
@@ -111,8 +91,6 @@ public class AppDatabaseContext : DbContext
     {
         return Challenges
             .AsQueryable()
-            .Include(x => x.PartialChallenges)
-            .ThenInclude(x => x.ChallengePart)
             .Include(x => x.Users)
             .AsSplitQuery();
     }
@@ -137,26 +115,10 @@ public class AppDatabaseContext : DbContext
         SaveChanges();
     }
 
-    public IQueryable<ChallengePart> GetChallengeParts()
-    {
-        return ChallengeParts
-            .AsQueryable()
-            .Include(x => x.Challenges)
-            .Include(x => x.Beer)
-            .AsSplitQuery();
-    }
-
-    public void AddChallengePart(ChallengePart entry)
-    {
-        ChallengeParts.Add(entry);
-        SaveChanges();
-    }
-
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
         //sqllocaldb.exe start
         options
-            .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=bierbockdb;Trusted_Connection=True;MultipleActiveResultSets=true")
-            .EnableDetailedErrors(true); // Später wieder entfernen wegen Performance
+            .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=bierbockdb;Trusted_Connection=True;MultipleActiveResultSets=true");
     }
 }

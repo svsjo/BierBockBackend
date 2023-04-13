@@ -11,17 +11,17 @@ namespace BierBockBackend.Data;
 
 public class User
 {
-    [Key] public int Id { get; set; }
+    [JsonIgnore]
+    [Key]
+    public int Id { get; set; }
 
     public string Token { get; set; } = string.Empty;
-
     public string Name { get; set; } = string.Empty;
-
+    public string VorName { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
-
     public string Email { get; set; } = string.Empty;
-
-    public string BirthDate { get; set; }
+    public DateOnly BirthDate { get; set; }
 
     public int Points { get; set; } = 0;
 
@@ -32,8 +32,9 @@ public class User
     public virtual ICollection<DrinkAction> AllDrinkingActions { get; set; }
 
     public Coordinate Location { get; set; }
+    public string Wohnort { get; set; } = string.Empty;
 
-
+    [JsonIgnore]
     [ForeignKey("BeerId")]
     public virtual Product FavouriteBeer { get; set; }
 }

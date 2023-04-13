@@ -10,13 +10,15 @@ namespace BierBockBackend.Data;
 
 public class Challenge
 {
-    [Key] public int Id { get; set; }
+    [JsonIgnore]
+    [Key]
+    public int Id { get; set; }
 
     public int PossiblePoints { get; set; }
 
     public string Description { get; set; } = string.Empty;
 
-    public virtual ICollection<ChallengePartChallenge> PartialChallenges { get; set; }
+    // TODO: Challengetypen definieren!
 
     [JsonIgnore]
     public virtual ICollection<ChallengeUser> Users { get; set; }
