@@ -11,7 +11,7 @@ public class RequestStatus<T>
 public enum Status
 {
     Successful,
-    NoPermission,
+   // NoPermission,
     NoResults,
     AlreadyPresent,
 }
