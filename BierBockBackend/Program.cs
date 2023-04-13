@@ -77,41 +77,36 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/security/getMessage", () => "Hello World!").RequireAuthorization();
 
 
-
-app.MapPost("/security/createToken",
-    [AllowAnonymous] (JAuthUser user) =>
+app.MapPost("/security/createToken", [AllowAnonymous](JAuthUser user) =>
+{
+    if (user.UserName == "mustimax" && user.Password == "Password123")
     {
-        if (user.Name == "Max Mustermann" && user.Passwort == "Password123")
+        var issuer = builder.Configuration["Jwt:Issuer"];
+        var audience = builder.Configuration["Jwt:Audience"];
+        var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            var issuer = builder.Configuration["Jwt:Issuer"];
-            var audience = builder.Configuration["Jwt:Audience"];
-            var key = Encoding.ASCII.GetBytes
-                (builder.Configuration["Jwt:Key"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            Subject = new ClaimsIdentity(new[]
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("Id", Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Name),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Name),
-                    new Claim(JwtRegisteredClaimNames.Jti,
-                        Guid.NewGuid().ToString())
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(5),
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = new SigningCredentials
-                (new SymmetricSecurityKey(key),
-                    SecurityAlgorithms.HmacSha512Signature)
-            };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var jwtToken = tokenHandler.WriteToken(token);
-            var stringToken = tokenHandler.WriteToken(token);
-            return Results.Ok(stringToken);
-        }
-        return Results.Unauthorized();
-    });
+                new Claim("Id", Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Email, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            }),
+            Expires = DateTime.UtcNow.AddMinutes(60),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var jwtToken = tokenHandler.WriteToken(token);
+        var stringToken = tokenHandler.WriteToken(token);
+        return Results.Ok(stringToken);
+    }
+
+    return Results.Unauthorized();
+});
 
 
 void FillDbFromApi()
@@ -146,4 +141,4 @@ app.MapControllers();
 
 app.Run();
 
-record JAuthUser(string Name, string Passwort, string Email);
+record JAuthUser(string UserName, string Password, string Email);

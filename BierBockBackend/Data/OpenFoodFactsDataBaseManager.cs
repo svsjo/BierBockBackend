@@ -34,7 +34,9 @@ namespace BierBockBackend.Data
                 var user = new User
                 {
                     Token = "123456",
-                    Name = "Max Mustermann",
+                    Name = "Mustermann",
+                    VorName = "Max",
+                    UserName = "mustimax",
                     PasswordHash = "Password123",
                     Email = "max.mustermann@example.com",
                     FavouriteBeer = _dbContext.GetProducts().First(),
