@@ -16,6 +16,7 @@ using System.Timers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using BierBockBackend.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,11 +39,10 @@ builder.Services.AddHttpLogging(logging =>
     logging.RequestHeaders.Add("sec-ch-ua-mobile");
 });
 
-builder.Services.AddDbContext<AppDatabaseContext>(); //(options => options.UseSqlite("name=ConnectionStrings:DefaultConnection"));
+builder.Services.AddDbContext<AppDatabaseContext>(ServiceLifetime.Singleton);
 
-
-builder.Services.AddScoped<OpenFoodFactsDataBaseManager>();
-
+builder.Services.AddHostedService<ChallengeUpdateService>();
+builder.Services.AddHostedService<DatabaseUpdateService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -108,35 +108,10 @@ app.MapPost("/security/createToken", [AllowAnonymous](JAuthUser user) =>
     return Results.Unauthorized();
 });
 
-
-void FillDbFromApi()
-{
-    var scope = app.Services.CreateScope();
-    var foodFactsDbMgr =
-        (OpenFoodFactsDataBaseManager)scope.ServiceProvider.GetService(typeof(OpenFoodFactsDataBaseManager))!;
-    foodFactsDbMgr?.Insert();
-    foodFactsDbMgr?.InitBasicUserData();
-}
-
-var timer = new System.Timers.Timer()
-{
-    Interval = TimeSpan.FromDays(7).TotalMilliseconds
-};
-timer.Elapsed += delegate
-{
-    FillDbFromApi();
-};
-timer.Start();
-
-Task.Run(FillDbFromApi);
-
 app.UseHttpLogging();
-
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
