@@ -8,11 +8,13 @@ public class DatabaseUpdateService : BackgroundService
 {
     private readonly ILogger<DatabaseUpdateService> _logger;
     private readonly AppDatabaseContext _dbContext;
+    private readonly OpenFoodFactsApi _foodFactsApi;
 
     public DatabaseUpdateService(ILogger<DatabaseUpdateService> logger, AppDatabaseContext dbContext)
     {
         _logger = logger;
         _dbContext = dbContext;
+        _foodFactsApi = new OpenFoodFactsApi();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -21,19 +23,18 @@ public class DatabaseUpdateService : BackgroundService
         {
             _logger.LogInformation("Scheduled task started at: {time}", DateTimeOffset.Now);
 
-            this.Insert();
-            this.InitBasicUserData();
+            this.InsertNewProducts();
+            this.InitBasicUserData(); // nur testweise - Mock Daten
 
             await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
         }
     }
 
-    private void Insert()
+    private void InsertNewProducts()
     {
-        if (_dbContext.GetProducts().Any()) return;
-
-        var productsTask = new OpenFoodFactsApi().GetBeerData();
+        var productsTask = _foodFactsApi.GetBeerData();
         var products = productsTask.Result;
+
         foreach (var product in products
                      .Where(product => _dbContext.GetProducts()
                          .All(x => x.Code != product.Code)))
