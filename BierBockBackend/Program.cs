@@ -114,4 +114,4 @@ app.MapControllers();
 
 app.Run();
 
-record JAuthUser(string UserName, string Password, string Email);
+record JAuthUser(string UserName, string Password);
