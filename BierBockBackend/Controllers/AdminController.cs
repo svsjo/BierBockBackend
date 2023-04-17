@@ -18,13 +18,8 @@ public class AdminController
     [HttpPost("newChallenge", Name = "AddNewChallenge")]
     public RequestStatus<object> AddNewChallenge(Challenge challenge)
     {
-        _dbAppDatabaseContext.AddChallenge(challenge);
-
-        var status = Status.Successful;
-
         return new RequestStatus<object>
         {
-            Status = status
         };
     }
 

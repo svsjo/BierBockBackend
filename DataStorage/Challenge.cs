@@ -1,13 +1,13 @@
 ﻿#region
 
 using System.ComponentModel.DataAnnotations;
-using DataStorage.HelpRelations;
 using System.Text.Json.Serialization;
+using DataStorage;
 using DataStorage.HelperClasses;
 
 #endregion
 
-namespace BierBockBackend.Data;
+namespace DataStorage;
 
 public abstract class Challenge
 {

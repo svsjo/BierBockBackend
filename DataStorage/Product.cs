@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace BierBockBackend.Data;
+namespace DataStorage;
 
 public class Product
 {

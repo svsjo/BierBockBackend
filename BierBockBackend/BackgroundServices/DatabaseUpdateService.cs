@@ -1,7 +1,5 @@
 ﻿using BierBockBackend.Data;
 using DataStorage;
-using DataStorage.HelpRelations;
-
 namespace BierBockBackend.BackgroundServices;
 
 public class DatabaseUpdateService : BackgroundService

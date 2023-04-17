@@ -1,6 +1,4 @@
-﻿using BierBockBackend.Data;
-
-namespace DataStorage.HelperClasses;
+﻿namespace DataStorage.HelperClasses;
 
 public class SameBeerChallenge : Challenge
 {

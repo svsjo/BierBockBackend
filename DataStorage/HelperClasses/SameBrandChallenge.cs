@@ -1,5 +1,4 @@
-﻿using BierBockBackend.Data;
-
+﻿
 namespace DataStorage.HelperClasses;
 
 public class SameBrandChallenge : Challenge

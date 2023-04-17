@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using DataStorage;
 
-namespace BierBockBackend.Data
+namespace DataStorage
 {
     public class DrinkAction
     {

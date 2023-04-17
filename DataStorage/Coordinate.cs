@@ -2,7 +2,7 @@
 using GeoCoordinatePortable;
 using System.Text.Json.Serialization;
 
-namespace BierBockBackend.Data;
+namespace DataStorage;
 
 public class Coordinate
 {

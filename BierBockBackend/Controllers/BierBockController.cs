@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using BierBockBackend.Data;
 using DataStorage;
-using DataStorage.HelpRelations;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Security;
@@ -58,9 +57,7 @@ public class BierBockController : ControllerBase
     {
         var user = GetCurrentUser();
 
-        var results = user.UserChallenges
-            .Select(x => x.Challenge)
-            .ToList();
+        var results = user.UserChallenges;
 
         // TODO: Challenge Fortschritt berechnen
 

@@ -3,11 +3,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using DataStorage.HelpRelations;
 
 #endregion
 
-namespace BierBockBackend.Data;
+namespace DataStorage;
 
 public class User
 {
