@@ -25,5 +25,7 @@ public abstract class Challenge
 
     public bool IsActive => DateTime.Now < EndDate;
 
+    public int NeededQuantity { get; set; } = 0;
+
     public abstract ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions);
 }

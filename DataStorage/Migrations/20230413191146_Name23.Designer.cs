@@ -206,7 +206,7 @@ namespace DataStorage.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasAnnotation("Relational:JsonPropertyName", "proteins_100g");
 
-                    b.Property<string>("Quantity")
+                    b.Property<string>("NeededQuantity")
                         .HasColumnType("nvarchar(max)")
                         .HasAnnotation("Relational:JsonPropertyName", "quantity");
 
