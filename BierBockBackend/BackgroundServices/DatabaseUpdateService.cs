@@ -23,17 +23,16 @@ public class DatabaseUpdateService : BackgroundService
         {
             _logger.LogInformation("Scheduled task started at: {time}", DateTimeOffset.Now);
 
-            this.InsertNewProducts();
+            await this.InsertNewProducts();
             this.InitBasicUserData(); // nur testweise - Mock Daten
 
             await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
         }
     }
 
-    private void InsertNewProducts()
+    private async Task InsertNewProducts()
     {
-        var productsTask = _foodFactsApi.GetBeerData();
-        var products = productsTask.Result;
+        var products = await _foodFactsApi.GetBeerData();
 
         foreach (var product in products
                      .Where(product => _dbContext.GetProducts()
@@ -84,26 +83,6 @@ public class DatabaseUpdateService : BackgroundService
             _dbContext.AddDrinkAction(drinkAction);
 
             _dbContext.GetUsers().First().AllDrinkingActions.Add(drinkAction);
-            _dbContext.SaveChanges();
-
-            var challenge = new Challenge
-            {
-                PossiblePoints = 50,
-                Description = "Trink jeden Tag ein Bier",
-                StartDate = DateTime.Now.AddDays(-7),
-                EndDate = DateTime.Now.AddDays(7)
-            };
-
-            _dbContext.AddChallenge(challenge);
-
-            var challengeUser = new ChallengeUser
-            {
-                User = _dbContext.GetUsers().First(),
-                Challenge = _dbContext.GetChallenge().First()
-            };
-
-            _dbContext.GetUsers().First().UserChallenges.Add(challengeUser);
-            _dbContext.GetChallenge().First().Users.Add(challengeUser);
             _dbContext.SaveChanges();
 
             _dbContext.GetProducts().First().UsedInDrinkActions.Add(drinkAction);
