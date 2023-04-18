@@ -138,13 +138,14 @@ public class BierBockController : ControllerBase
         var user = GetCurrentUser();
 
         var users = _dbAppDatabaseContext.GetUsers()
-            .OrderByDescending(x => x.Points);
+            .OrderByDescending(x => x.Points)
+            .ToList();
 
         var results = users.Select((value, index) => new
         {
             Rank = index + 1,
-            value.UserName,
-            value.Points
+            UserName = value?.UserName,
+            Points = value?.Points
         }).ToList();
 
         var ownRanking = results
