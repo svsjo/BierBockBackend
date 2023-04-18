@@ -34,14 +34,14 @@ public class DatabaseUpdateService : BackgroundService
 
     private async Task InsertNewProducts()
     {
-        // var products = await _foodFactsApi.GetBeerData();
-        //
-        // foreach (var product in products
-        //              .Where(product => _dbContext.GetProducts()
-        //                  .All(x => x.Code != product.Code)))
-        // {
-        //     _dbContext.AddProduct(product);
-        // }
+        var products = await _foodFactsApi.GetBeerData();
+         
+        foreach (var product in products
+                     .Where(product => _dbContext.GetProducts()
+                         .All(x => x.Code != product.Code)))
+        {
+            _dbContext.AddProduct(product);
+        }
     }
 
     private void InitBasicUserData()
@@ -108,7 +108,17 @@ public class DatabaseUpdateService : BackgroundService
                 NeededQuantity = 3
             };
 
+            var challenge2 = new Challenge()
+            {
+                ChallengeType = ChallengeType.SameBrand,
+                Description = "Trinke drei Bier der Marke Alpirsbacher",
+                SearchString = "Alpirsbacher",
+                PossiblePoints = 50,
+                NeededQuantity = 3
+            };
+
             _dbContext.GetUsers().First().UserChallenges.Add(challenge);
+            _dbContext.GetUsers().First().UserChallenges.Add(challenge2);
             _dbContext.SaveChanges();
         }
     }
