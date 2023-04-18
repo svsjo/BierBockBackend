@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.InteropServices.ComTypes;
 using BierBockBackend.Data;
 using DataStorage;
 using Microsoft.AspNetCore.Mvc;
@@ -30,22 +31,19 @@ public class BierBockController : ControllerBase
     public RequestStatus<object> GetOwnUserData()
     {
         var user = GetCurrentUser();
-        var result = user != default
-            ? new
-            {
-                user.UserName,
-                user.Name,
-                user.VorName,
-                user.BirthDate,
-                user.Email,
-                user.Location,
-                user.Wohnort,
-                user.FavouriteBeer.ProductName
-            }
-            : default;
+        var result = new
+        {
+            user.UserName,
+            user.Name,
+            user.VorName,
+            user.BirthDate,
+            user.Email,
+            user.Location,
+            user.Wohnort,
+            user.FavouriteBeer.ProductName
+        };
 
-        var sucess = result != default;
-        var status = sucess ? Status.Successful : Status.NoResults;
+        var status = Status.Successful;
 
         return new RequestStatus<object>
         {
@@ -55,17 +53,20 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("ownChallenges", Name = "GetOwnChallenges")]
-    public RequestStatus<IEnumerable<Challenge>> GetOwnChallenges()
+    public RequestStatus<IEnumerable<object>> GetOwnChallenges()
     {
         var user = GetCurrentUser();
 
-        var results = user.UserChallenges;
+        var challenges = user.UserChallenges;
+        var results = challenges.Select(x => new
+        {
+            Challenge = x,
+            Progress = _challengeValidtorSelector.ValidateChallengeProgress(user.AllDrinkingActions, x.SearchString, x.NeededQuantity, x.ChallengeType)
+        });
 
-        // TODO: IChallenge Fortschritt berechnen
+        var status = (challenges.Any() ? Status.Successful : Status.NoResults);
 
-        var status = (results.Any() ? Status.Successful : Status.NoResults);
-
-        return new RequestStatus<IEnumerable<Challenge>>
+        return new RequestStatus<IEnumerable<object>>
         {
             Status = status,
             Result = results

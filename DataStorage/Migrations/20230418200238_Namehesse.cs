@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataStorage.Migrations
 {
     /// <inheritdoc />
-    public partial class Nameaaa : Migration
+    public partial class Namehesse : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

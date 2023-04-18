@@ -1,5 +1,7 @@
 ﻿using BierBockBackend.Data;
 using DataStorage;
+using DataStorage.HelperClasses;
+
 namespace BierBockBackend.BackgroundServices;
 
 public class DatabaseUpdateService : BackgroundService
@@ -32,19 +34,21 @@ public class DatabaseUpdateService : BackgroundService
 
     private async Task InsertNewProducts()
     {
-        var products = await _foodFactsApi.GetBeerData();
-
-        foreach (var product in products
-                     .Where(product => _dbContext.GetProducts()
-                         .All(x => x.Code != product.Code)))
-        {
-            _dbContext.AddProduct(product);
-        }
+        // var products = await _foodFactsApi.GetBeerData();
+        //
+        // foreach (var product in products
+        //              .Where(product => _dbContext.GetProducts()
+        //                  .All(x => x.Code != product.Code)))
+        // {
+        //     _dbContext.AddProduct(product);
+        // }
     }
 
     private void InitBasicUserData()
     {
-        if (!_dbContext.GetUsers().Any()) /* Nur bei leerer DB */
+        /* Nur bei leerer DB */
+
+        if (!_dbContext.GetUsers().Any())
         {
             var user = new User
             {
@@ -66,7 +70,12 @@ public class DatabaseUpdateService : BackgroundService
             };
 
             _dbContext.AddUser(user);
+            _dbContext.GetProducts().First().UsersHavingThisAsFavouriteBeer.Add(user);
+            _dbContext.SaveChanges();
+        }
 
+        if (!_dbContext.GetUsers().First().AllDrinkingActions.Any())
+        {
             var drinkAction = new DrinkAction
             {
                 Product = _dbContext.GetProducts().First(),
@@ -86,7 +95,20 @@ public class DatabaseUpdateService : BackgroundService
             _dbContext.SaveChanges();
 
             _dbContext.GetProducts().First().UsedInDrinkActions.Add(drinkAction);
-            _dbContext.GetProducts().First().UsersHavingThisAsFavouriteBeer.Add(user);
+            _dbContext.SaveChanges();
+        }
+
+        if (!_dbContext.GetUsers().First().UserChallenges.Any())
+        {
+            var challenge = new Challenge()
+            {
+                ChallengeType = ChallengeType.DifferentBeer,
+                Description = "Trinke drei Unterschiedliche Bier",
+                PossiblePoints = 30,
+                NeededQuantity = 3
+            };
+
+            _dbContext.GetUsers().First().UserChallenges.Add(challenge);
             _dbContext.SaveChanges();
         }
     }
