@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using System.Security;
 using Microsoft.AspNetCore.Http.Metadata;
 using System.Xml.Linq;
+using DataStorage.HelperClasses;
 using Microsoft.AspNetCore.Authorization;
 
 namespace BierBockBackend.Controllers;
@@ -16,6 +17,7 @@ namespace BierBockBackend.Controllers;
 public class BierBockController : ControllerBase
 {
     private readonly AppDatabaseContext _dbAppDatabaseContext;
+    private readonly ChallengeValidtorSelector _challengeValidtorSelector = new ChallengeValidtorSelector();
 
     public BierBockController(AppDatabaseContext dbAppDatabaseContext)
     {

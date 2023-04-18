@@ -8,13 +8,14 @@ public class DiffrentBrandChallenge : IChallengeValidator
     {
         var drunkBeers = drinkActions.Select(x => x.Product);
 
-        var brandGroups = drunkBeers.GroupBy(x => x.Brands);
+        var brandGroups = drunkBeers.GroupBy(x => x.Brands).ToList();
         var done = brandGroups.Count();
 
         return new ChallengeProgress
         {
             Done = done,
-            Total = neededQuantity
+            Total = neededQuantity,
+            AllPartialProgresses = brandGroups.Select(x => x.First().Brands)
         };
     }
 }

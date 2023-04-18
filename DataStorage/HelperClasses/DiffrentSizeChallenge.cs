@@ -8,13 +8,14 @@ public class DiffrentSizeChallenge : IChallengeValidator
 
         var drunkBeers = drinkActions.Select(x => x.Product);
 
-        var sizeGroups = drunkBeers.GroupBy(x => unitNormalizer.NormalizeQuantity(x.Quantity));
+        var sizeGroups = drunkBeers.GroupBy(x => unitNormalizer.NormalizeQuantity(x.Quantity)).ToList();
         var done = sizeGroups.Count();
 
         return new ChallengeProgress
         {
             Done = done,
-            Total = neededQuantity
+            Total = neededQuantity,
+            AllPartialProgresses = sizeGroups.Select(x => x.First().Quantity)
         };
     }
 }

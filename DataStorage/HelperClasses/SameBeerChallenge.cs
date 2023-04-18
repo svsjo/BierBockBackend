@@ -16,14 +16,16 @@ public class SameBeerChallenge : IChallengeValidator
         }
         else /* Wenn nicht gesetzt, kann es jedes beliebige Bier sein */
         {
-            var beerGroups = drunkBeers.GroupBy(x => x.Code);
+            var beerGroups = drunkBeers.GroupBy(x => x.Code).ToList();
             done = beerGroups.Select(x => x.Count()).Max();
+            searchString = beerGroups.First(x => x.Count() == done).First().ProductName;
         }
 
         return new ChallengeProgress
         {
             Done = done,
-            Total = neededQuantity
+            Total = neededQuantity,
+            AllPartialProgresses = new List<string?>() { searchString }
         };
     }
 }
