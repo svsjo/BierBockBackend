@@ -2,9 +2,9 @@
 
 namespace DataStorage.HelperClasses;
 
-public class DiffrentBeerChallenge : Challenge
+public class DiffrentBeerChallenge : IChallengeValidator
 {
-    public override ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions)
+    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString, int neededQuantity)
     {
         var drunkBeers = drinkActions.Select(x => x.Product);
 
@@ -14,7 +14,12 @@ public class DiffrentBeerChallenge : Challenge
         return new ChallengeProgress
         {
             Done = done,
-            Total = this.NeededQuantity
+            Total = neededQuantity
         };
     }
+}
+
+public interface IChallengeValidator
+{
+    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString, int neededQuantity);
 }

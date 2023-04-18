@@ -2,19 +2,17 @@
 
 namespace DataStorage.HelperClasses;
 
-public class SameBeerChallenge : Challenge
+public class SameBeerChallenge : IChallengeValidator
 {
-    public string BeerCode { get; set; } = string.Empty;
-
-    public override ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions)
+    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString, int neededQuantity)
     {
         int done;
 
         var drunkBeers = drinkActions.Select(x => x.Product);
 
-        if (!string.IsNullOrEmpty(BeerCode))
+        if (!string.IsNullOrEmpty(searchString))
         {
-            done = drunkBeers.Where(x => x.Code == BeerCode)?.Count() ?? 0;
+            done = drunkBeers.Where(x => x.Code == searchString)?.Count() ?? 0;
         }
         else /* Wenn nicht gesetzt, kann es jedes beliebige Bier sein */
         {
@@ -25,7 +23,7 @@ public class SameBeerChallenge : Challenge
         return new ChallengeProgress
         {
             Done = done,
-            Total = this.NeededQuantity
+            Total = neededQuantity
         };
     }
 }

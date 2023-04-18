@@ -59,7 +59,7 @@ public class BierBockController : ControllerBase
 
         var results = user.UserChallenges;
 
-        // TODO: Challenge Fortschritt berechnen
+        // TODO: IChallenge Fortschritt berechnen
 
         var status = (results.Any() ? Status.Successful : Status.NoResults);
 
@@ -304,7 +304,7 @@ public class BierBockController : ControllerBase
             .Value;
 
         return _dbAppDatabaseContext.GetUsers()
-            .FirstOrDefault(x => x.Name == name)!;
+            .FirstOrDefault(x => x.UserName == name)!;
         // TODO: UserName?
     }
 }

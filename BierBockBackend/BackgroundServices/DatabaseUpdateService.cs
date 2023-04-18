@@ -24,6 +24,8 @@ public class DatabaseUpdateService : BackgroundService
             await this.InsertNewProducts();
             this.InitBasicUserData(); // nur testweise - Mock Daten
 
+            _logger.LogInformation("Scheduled task ended at: {time}", DateTimeOffset.Now);
+
             await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
         }
     }

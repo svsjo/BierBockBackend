@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using DataStorage;
 using DataStorage.HelperClasses;
@@ -9,7 +10,7 @@ using DataStorage.HelperClasses;
 
 namespace DataStorage;
 
-public abstract class Challenge
+public class Challenge
 {
     [JsonIgnore]
     [Key]
@@ -26,6 +27,7 @@ public abstract class Challenge
     public bool IsActive => DateTime.Now < EndDate;
 
     public int NeededQuantity { get; set; } = 0;
+    public string SearchString { get; set; } = string.Empty;
 
-    public abstract ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions);
+    public ChallengeType ChallengeType { get; set; }
 }

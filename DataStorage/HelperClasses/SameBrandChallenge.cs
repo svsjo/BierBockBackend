@@ -1,19 +1,18 @@
 ﻿
+
 namespace DataStorage.HelperClasses;
 
-public class SameBrandChallenge : Challenge
+public class SameBrandChallenge : IChallengeValidator
 {
-    public string BrandName { get; set; } = string.Empty;
-
-    public override ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions)
+    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString, int neededQuantity)
     {
         int done;
 
         var drunkBeers = drinkActions.Select(x => x.Product);
 
-        if (!string.IsNullOrEmpty(BrandName))
+        if (!string.IsNullOrEmpty(searchString))
         {
-            done = drunkBeers.Where(x => x.Brands == BrandName)?.Count() ?? 0;
+            done = drunkBeers.Where(x => x.Brands == searchString)?.Count() ?? 0;
         }
         else /* Wenn nicht gesetzt, kann es jede beliebige Marke sein */
         {
@@ -24,7 +23,7 @@ public class SameBrandChallenge : Challenge
         return new ChallengeProgress
         {
             Done = done,
-            Total = this.NeededQuantity
+            Total = neededQuantity
         };
     }
 }
