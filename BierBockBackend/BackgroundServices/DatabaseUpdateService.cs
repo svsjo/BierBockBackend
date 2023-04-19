@@ -35,9 +35,7 @@ public class DatabaseUpdateService : BackgroundService
 
     private async Task InsertNewProducts()
     {
-        return; 
-
-        var products = await _foodFactsApi.GetBeerData();
+         var products = await _foodFactsApi.GetBeerData();
 
         foreach (var product in products
                      .Where(product => _dbContext.GetProducts()

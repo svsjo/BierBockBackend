@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataStorage.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20230419100637_as383fixas")]
-    partial class as383fixas
+    [Migration("20230419104844_12aas123")]
+    partial class _12aas123
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
