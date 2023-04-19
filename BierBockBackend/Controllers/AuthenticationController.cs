@@ -18,6 +18,8 @@ namespace BierBockBackend.Controllers
         private readonly IConfiguration _configuration;
         private readonly AppDatabaseContext _databaseContext;
 
+        private static object Lock = new object();
+
         public AuthenticationController(IConfiguration configuration, AppDatabaseContext databaseContext)
         {
             _configuration = configuration;
@@ -29,51 +31,55 @@ namespace BierBockBackend.Controllers
         [HttpPost("register", Name = "Register")]
         public RequestStatus<object> Register(RegisterUser registerUser)
         {
-            if (!registerUser.IsUserNameValid)
-                return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid UserName" };
-
-            if(_databaseContext.GetUsers().Any(x=>x.UserName==registerUser.UserName)) return new RequestStatus<object>()
-                { Status = Status.Error, DetailledErrorMessage = "UserName taken" };
-
-            if (!registerUser.IsVornameValid)
-                return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Vorname" };
-
-            if (!registerUser.IsNachnameValid)
-                return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Nachname" };
-
-            if (!registerUser.IsPasswordValid)
-                return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Password" };
-
-            if (!registerUser.IsEmailValid)
-                return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Email" };
-
-            if (!registerUser.IsBirthdateValid)
-                return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Birthdate" };
-
-            var pwdHash = PasswordHashing.HashPassword(registerUser.Password);
-            var user = new User
+            lock (Lock)
             {
-                Name = registerUser.Nachname,
-                VorName = registerUser.Vorname,
-                UserName = registerUser.UserName,
-                PasswordHash = pwdHash.Hash,
-                PasswordSalt = pwdHash.Salt,
-                Email = registerUser.Email,
-                BirthDate = registerUser.Birthdate,
-                Location = new Coordinate(),
-                FavouriteBeer = new Product()
-            };
-            _databaseContext.AddUser(user);
-            return new RequestStatus<object>()
-            {
-                Status = Status.Successful
-            };
+                if (!registerUser.IsUserNameValid)
+                    return new RequestStatus<object>()
+                        { Status = Status.Error, DetailledErrorMessage = "Invalid UserName" };
+
+                if (_databaseContext.GetUsers().Any(x => x.UserName == registerUser.UserName))
+                    return new RequestStatus<object>()
+                        { Status = Status.Error, DetailledErrorMessage = "UserName taken" };
+
+                if (!registerUser.IsVornameValid)
+                    return new RequestStatus<object>()
+                        { Status = Status.Error, DetailledErrorMessage = "Invalid Vorname" };
+
+                if (!registerUser.IsNachnameValid)
+                    return new RequestStatus<object>()
+                        { Status = Status.Error, DetailledErrorMessage = "Invalid Nachname" };
+
+                if (!registerUser.IsPasswordValid)
+                    return new RequestStatus<object>()
+                        { Status = Status.Error, DetailledErrorMessage = "Invalid Password" };
+
+                if (!registerUser.IsEmailValid)
+                    return new RequestStatus<object>()
+                        { Status = Status.Error, DetailledErrorMessage = "Invalid Email" };
+
+                if (!registerUser.IsBirthdateValid)
+                    return new RequestStatus<object>()
+                        { Status = Status.Error, DetailledErrorMessage = "Invalid Birthdate" };
+
+                var pwdHash = PasswordHashing.HashPassword(registerUser.Password);
+                var user = new User
+                {
+                    Name = registerUser.Nachname,
+                    VorName = registerUser.Vorname,
+                    UserName = registerUser.UserName,
+                    PasswordHash = pwdHash.Hash,
+                    PasswordSalt = pwdHash.Salt,
+                    Email = registerUser.Email,
+                    BirthDate = registerUser.Birthdate,
+                    Location = new Coordinate(),
+                    FavouriteBeer = new Product()
+                };
+                _databaseContext.AddUser(user);
+                return new RequestStatus<object>()
+                {
+                    Status = Status.Successful
+                };
+            }
         }
 
 
@@ -82,50 +88,53 @@ namespace BierBockBackend.Controllers
 
         public RequestStatus<object> CreateToken(AuthUser user)
         {
-            var userMatch = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == user.UserName);
-
-            if (userMatch == null)
-                return new RequestStatus<object>()
-                {
-                    Status = Status.Error,
-                    DetailledErrorMessage = "User not found"
-                };
-
-            if (!PasswordHashing.VerifyPassword(user.Password, userMatch.PasswordHash, userMatch.PasswordSalt))
-                return new RequestStatus<object>()
-                {
-                    Status = Status.Error,
-                    DetailledErrorMessage = "Invalid Password"
-                };
-
-            var issuer = _configuration["Jwt:Issuer"];
-            var audience = _configuration["Jwt:Audience"];
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            lock (Lock)
             {
-                Subject = new ClaimsIdentity(new[]
+                var userMatch = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == user.UserName);
+
+                if (userMatch == null)
+                    return new RequestStatus<object>()
+                    {
+                        Status = Status.Error,
+                        DetailledErrorMessage = "User not found"
+                    };
+
+                if (!PasswordHashing.VerifyPassword(user.Password, userMatch.PasswordHash, userMatch.PasswordSalt))
+                    return new RequestStatus<object>()
+                    {
+                        Status = Status.Error,
+                        DetailledErrorMessage = "Invalid Password"
+                    };
+
+                var issuer = _configuration["Jwt:Issuer"];
+                var audience = _configuration["Jwt:Audience"];
+                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                var tokenDescriptor = new SecurityTokenDescriptor
                 {
+                    Subject = new ClaimsIdentity(new[]
+                    {
                         new Claim("Id", Guid.NewGuid().ToString()),
                         new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                         new Claim(JwtRegisteredClaimNames.Email, user.UserName),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                     }),
-                Expires = DateTime.UtcNow.AddMinutes(60),
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
-            };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var jwtToken = tokenHandler.WriteToken(token);
-            var stringToken = tokenHandler.WriteToken(token);
-            return new RequestStatus<object>()
-            {
-                Status = Status.Successful,
-                Result = stringToken
-            };
+                    Expires = DateTime.UtcNow.AddMinutes(60),
+                    Issuer = issuer,
+                    Audience = audience,
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                        SecurityAlgorithms.HmacSha512Signature)
+                };
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var jwtToken = tokenHandler.WriteToken(token);
+                var stringToken = tokenHandler.WriteToken(token);
+                return new RequestStatus<object>()
+                {
+                    Status = Status.Successful,
+                    Result = stringToken
+                };
 
-
+            }
         }
     }
     public record AuthUser(string UserName, string Password);
