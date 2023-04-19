@@ -1,4 +1,5 @@
-﻿using BierBockBackend.Data;
+﻿using BierBockBackend.Auth;
+using BierBockBackend.Data;
 using DataStorage;
 namespace BierBockBackend.BackgroundServices;
 
@@ -44,13 +45,14 @@ public class DatabaseUpdateService : BackgroundService
     {
         if (!_dbContext.GetUsers().Any()) /* Nur bei leerer DB */
         {
+            var hash = PasswordHashing.HashPassword("Password123");
             var user = new User
             {
-                Token = "123456",
                 Name = "Mustermann",
                 VorName = "Max",
                 UserName = "mustimax",
-                PasswordHash = "Password123",
+                PasswordHash = hash.Hash,
+                PasswordSalt = hash.Salt,
                 Email = "max.mustermann@example.com",
                 FavouriteBeer = _dbContext.GetProducts().First(),
                 BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),

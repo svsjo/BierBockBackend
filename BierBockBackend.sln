@@ -5,7 +5,11 @@ VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BierBockBackend", "BierBockBackend\BierBockBackend.csproj", "{4A315D42-C088-4118-AE1C-A152211B593A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorage", "DataStorage\DataStorage.csproj", "{2657C58F-C49B-4E6E-9E69-BA360664E02F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataStorage", "DataStorage\DataStorage.csproj", "{2657C58F-C49B-4E6E-9E69-BA360664E02F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BierBock.Tests", "BierBock.Tests\BierBock.Tests.csproj", "{86F4764A-6E81-4AA1-94FA-BF0FDEE38909}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BierBock.Logic", "BierBock.Logic\BierBock.Logic.csproj", "{F7AA18D4-16D2-4645-B513-45C28372B609}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{2657C58F-C49B-4E6E-9E69-BA360664E02F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2657C58F-C49B-4E6E-9E69-BA360664E02F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2657C58F-C49B-4E6E-9E69-BA360664E02F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86F4764A-6E81-4AA1-94FA-BF0FDEE38909}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86F4764A-6E81-4AA1-94FA-BF0FDEE38909}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86F4764A-6E81-4AA1-94FA-BF0FDEE38909}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86F4764A-6E81-4AA1-94FA-BF0FDEE38909}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7AA18D4-16D2-4645-B513-45C28372B609}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7AA18D4-16D2-4645-B513-45C28372B609}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7AA18D4-16D2-4645-B513-45C28372B609}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7AA18D4-16D2-4645-B513-45C28372B609}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
