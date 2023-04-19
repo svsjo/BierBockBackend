@@ -35,6 +35,8 @@ public class DatabaseUpdateService : BackgroundService
 
     private async Task InsertNewProducts()
     {
+        return; 
+
         var products = await _foodFactsApi.GetBeerData();
 
         foreach (var product in products
@@ -140,7 +142,7 @@ public class DatabaseUpdateService : BackgroundService
         {
             var vorname = Guid.NewGuid().ToString();
             var nachname = Guid.NewGuid().ToString();
-            var username = vorname.Take(18).ToString() + nachname.Take(18);
+            var username = vorname[..17] + nachname[..17];
             var mail = username + "@example.com";
 
             var user2 = new User
@@ -173,59 +175,59 @@ public class DatabaseUpdateService : BackgroundService
     {
         var users = _dbContext.GetUsers().ToList();
 
-        var challenge = new Challenge()
-        {
-            ChallengeType = ChallengeType.DifferentBrand,
-            Description = "Trinke von drei unterschiedlichen Marken",
-            PossiblePoints = 30,
-            NeededQuantity = 3
-        };
-
-        var challenge2 = new Challenge()
-        {
-            ChallengeType = ChallengeType.SameBrand,
-            Description = "Trinke drei Bier der Marke Alpirsbacher",
-            SearchString = "Alpirsbacher",
-            PossiblePoints = 50,
-            NeededQuantity = 3
-        };
-
-        var challenge3 = new Challenge()
-        {
-            ChallengeType = ChallengeType.DifferentBeer,
-            Description = "Trinke fünf unterschiedliche Bier",
-            PossiblePoints = 20,
-            NeededQuantity = 5
-        };
-
-        var challenge4 = new Challenge()
-        {
-            ChallengeType = ChallengeType.SameBeer,
-            Description = "Trinke fünf Alpirsbacher Spezial",
-            SearchString = "Alpirsbacher Spezial",
-            PossiblePoints = 30,
-            NeededQuantity = 5
-        };
-
-        var challenge5 = new Challenge()
-        {
-            ChallengeType = ChallengeType.DifferentSize,
-            Description = "Trinke drei Biere unterschiedlicher Größe",
-            PossiblePoints = 20,
-            NeededQuantity = 3
-        };
-
-        var challenge6 = new Challenge()
-        {
-            ChallengeType = ChallengeType.SameSize,
-            Description = "Trinke drei Bier der Größe 0,5L",
-            SearchString = "0,5L",
-            PossiblePoints = 50,
-            NeededQuantity = 3
-        };
-
         foreach (var user in users)
         {
+            var challenge = new Challenge()
+            {
+                ChallengeType = ChallengeType.DifferentBrand,
+                Description = "Trinke von drei unterschiedlichen Marken",
+                PossiblePoints = 30,
+                NeededQuantity = 3
+            };
+
+            var challenge2 = new Challenge()
+            {
+                ChallengeType = ChallengeType.SameBrand,
+                Description = "Trinke drei Bier der Marke Alpirsbacher",
+                SearchString = "Alpirsbacher",
+                PossiblePoints = 50,
+                NeededQuantity = 3
+            };
+
+            var challenge3 = new Challenge()
+            {
+                ChallengeType = ChallengeType.DifferentBeer,
+                Description = "Trinke fünf unterschiedliche Bier",
+                PossiblePoints = 20,
+                NeededQuantity = 5
+            };
+
+            var challenge4 = new Challenge()
+            {
+                ChallengeType = ChallengeType.SameBeer,
+                Description = "Trinke fünf Alpirsbacher Spezial",
+                SearchString = "Alpirsbacher Spezial",
+                PossiblePoints = 30,
+                NeededQuantity = 5
+            };
+
+            var challenge5 = new Challenge()
+            {
+                ChallengeType = ChallengeType.DifferentSize,
+                Description = "Trinke drei Biere unterschiedlicher Größe",
+                PossiblePoints = 20,
+                NeededQuantity = 3
+            };
+
+            var challenge6 = new Challenge()
+            {
+                ChallengeType = ChallengeType.SameSize,
+                Description = "Trinke drei Bier der Größe 0,5L",
+                SearchString = "0,5L",
+                PossiblePoints = 50,
+                NeededQuantity = 3
+            };
+
             user.UserChallenges.Add(challenge);
             user.UserChallenges.Add(challenge2);
             user.UserChallenges.Add(challenge3);

@@ -21,11 +21,17 @@ public class SameBeerChallenge : IChallengeValidator
             searchString = beerGroups.First(x => x.Count() == done).First().ProductName;
         }
 
+        var partialProgress = new List<string?>();
+        for (int i = 0; i < done; i++)
+        {
+            partialProgress.Add(searchString);
+        }
+
         return new ChallengeProgress
         {
             Done = done,
             Total = neededQuantity,
-            AllPartialProgresses = new List<string?>() { searchString }
+            AllPartialProgresses = partialProgress
         };
     }
 }
