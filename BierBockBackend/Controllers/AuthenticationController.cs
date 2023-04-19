@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using BierBockBackend.Auth;
+using BierBockBackend.Data;
 using DataStorage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,17 +24,79 @@ namespace BierBockBackend.Controllers
             _databaseContext = databaseContext;
         }
 
+
+        [AllowAnonymous]
+        [HttpPost("register", Name = "Register")]
+        public RequestStatus<object> Register(RegisterUser registerUser)
+        {
+            if (!registerUser.IsUserNameValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid UserName" };
+
+            if(_databaseContext.GetUsers().Any(x=>x.UserName==registerUser.UserName)) return new RequestStatus<object>()
+                { Status = Status.Error, DetailledErrorMessage = "UserName taken" };
+
+            if (!registerUser.IsVornameValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Vorname" };
+
+            if (!registerUser.IsNachnameValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Nachname" };
+
+            if (!registerUser.IsPasswordValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Password" };
+
+            if (!registerUser.IsEmailValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Email" };
+
+            if (!registerUser.IsBirthdateValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Birthdate" };
+
+            var pwdHash = PasswordHashing.HashPassword(registerUser.Password);
+            var user = new User
+            {
+                Name = registerUser.Nachname,
+                VorName = registerUser.Vorname,
+                UserName = registerUser.UserName,
+                PasswordHash = pwdHash.Hash,
+                PasswordSalt = pwdHash.Salt,
+                Email = registerUser.Email,
+                BirthDate = registerUser.Birthdate,
+                Location = new Coordinate(),
+                FavouriteBeer = new Product()
+            };
+            _databaseContext.AddUser(user);
+            return new RequestStatus<object>()
+            {
+                Status = Status.Successful
+            };
+        }
+
+
         [AllowAnonymous]
         [HttpPost("createToken", Name = "CreateToken")]
 
-        public object CreateToken(JAuthUser user)
+        public RequestStatus<object> CreateToken(AuthUser user)
         {
             var userMatch = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == user.UserName);
 
-            if (userMatch != null) return Results.Unauthorized();
+            if (userMatch == null)
+                return new RequestStatus<object>()
+                {
+                    Status = Status.Error,
+                    DetailledErrorMessage = "User not found"
+                };
 
             if (!PasswordHashing.VerifyPassword(user.Password, userMatch.PasswordHash, userMatch.PasswordSalt))
-                return Results.Unauthorized();
+                return new RequestStatus<object>()
+                {
+                    Status = Status.Error,
+                    DetailledErrorMessage = "Invalid Password"
+                };
 
             var issuer = _configuration["Jwt:Issuer"];
             var audience = _configuration["Jwt:Audience"];
@@ -56,10 +119,56 @@ namespace BierBockBackend.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwtToken = tokenHandler.WriteToken(token);
             var stringToken = tokenHandler.WriteToken(token);
-            return Results.Ok(stringToken);
+            return new RequestStatus<object>()
+            {
+                Status = Status.Successful,
+                Result = stringToken
+            };
 
 
         }
     }
-    public record JAuthUser(string UserName, string Password);
+    public record AuthUser(string UserName, string Password);
+    public class RegisterUser
+    {
+        public RegisterUser(string UserName, string Vorname, string Nachname, string Password, string Email,
+            string Birthdate)
+        {
+            this.UserName = UserName;
+            this.Vorname = Vorname;
+            this.Nachname = Nachname;
+            this.Password = Password;
+            this.Email = Email;
+            this.Birthdate = Birthdate;
+        }
+        
+        public string UserName { get; init; }
+        public string Vorname { get; init; }
+        public string Nachname { get; init; }
+        public string Password { get; init; }
+        public string Email { get; init; }
+        public string Birthdate { get; init; }
+
+
+        public bool IsUserNameValid => !string.IsNullOrEmpty(UserName) && UserName.Length is <= 15 and >= 4;
+        public bool IsVornameValid => !string.IsNullOrEmpty(Vorname) && Vorname.Length is <= 15 and >= 3;
+        public bool IsNachnameValid => !string.IsNullOrEmpty(Nachname) && Nachname.Length is <= 15 and >= 3;
+        public bool IsPasswordValid => !string.IsNullOrEmpty(Password) && Password.Length is >= 8 and <= 20;
+        public bool IsEmailValid => !string.IsNullOrEmpty(Email) && Email.Length is <= 15 and >= 4 && IsValidEmail(Email);
+        public bool IsBirthdateValid => !string.IsNullOrEmpty(Birthdate) && Birthdate.Length == 10;
+
+
+        private static bool IsValidEmail(string email)
+        {
+            try
+            {
+                var adr = new System.Net.Mail.MailAddress(email);
+                return adr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
 }
