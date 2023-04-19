@@ -5,9 +5,9 @@ namespace BierBockBackend.Auth
 {
     public class PasswordHashing
     {
-        public static HashResult HashPassword(string password)
+        public static HashResult HashPassword(string password, byte[] salt = null)
         {
-            var salt = GenerateSalt();
+            salt ??= GenerateSalt();
             using var hmac = new HMACSHA256(salt);
             var passwordBytes = Encoding.UTF8.GetBytes(password);
             var hashBytes = hmac.ComputeHash(passwordBytes);
@@ -16,16 +16,15 @@ namespace BierBockBackend.Auth
 
         private static byte[] GenerateSalt()
         {
-            byte[] salt = new byte[16];
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
-            return salt;
+            return randomNumber;
         }
 
         public static bool VerifyPassword(string password, string hashedPassword, byte[] salt)
         {
-            var hashedInputPassword = HashPassword(password).Hash;
+            var hashedInputPassword = HashPassword(password,salt).Hash;
             return hashedPassword == hashedInputPassword;
         }
 

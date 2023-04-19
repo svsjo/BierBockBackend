@@ -14,4 +14,5 @@ public enum Status
    // NoPermission,
     NoResults,
     AlreadyPresent,
+    Error
 }
