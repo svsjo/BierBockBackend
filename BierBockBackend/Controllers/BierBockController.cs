@@ -165,7 +165,7 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("ownRanking", Name = "GetOwnRanking")]
-    public RequestStatus<int> GetOwnRanking()
+    public RequestStatus<object> GetOwnRanking()
     {
         var user = GetCurrentUser();
 
@@ -174,12 +174,16 @@ public class BierBockController : ControllerBase
             .ToList()
             .IndexOf(user) + 1;
 
+        var userCount = _dbAppDatabaseContext.GetUsers().Count() + 1;
+
+        var result = new { Rank = rank, UserCount = userCount };
+
         var status = Status.Successful;
 
-        return new RequestStatus<int>
+        return new RequestStatus<object>
         {
             Status = status,
-            Result = rank
+            Result = result
         };
     }
 

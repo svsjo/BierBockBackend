@@ -36,7 +36,7 @@ public class DatabaseUpdateService : BackgroundService
     private async Task InsertNewProducts()
     {
         var products = await _foodFactsApi.GetBeerData();
-         
+
         foreach (var product in products
                      .Where(product => _dbContext.GetProducts()
                          .All(x => x.Code != product.Code)))
@@ -49,79 +49,191 @@ public class DatabaseUpdateService : BackgroundService
     {
         /* Nur bei leerer DB */
 
-        if (!_dbContext.GetUsers().Any())
+        const int users = 30;
+        const int drinkActions = 8;
+        const int challenges = 6;
+
+        if (_dbContext.GetUsers().Count() < users)
         {
-            var hash = PasswordHashing.HashPassword("Password123");
-            var user = new User
+            InitUsers(users);
+        }
+
+        if (_dbContext.GetDrinkActions().Count() < drinkActions)
+        {
+            InitDrinkActions(drinkActions);
+        }
+
+        if (_dbContext.GetUsers().First().UserChallenges.Count() < challenges)
+        {
+            InitChallenges();
+        }
+    }
+
+    private void InitDrinkActions(int numberDrinkActions)
+    {
+        var products = _dbContext.GetProducts().Take(numberDrinkActions).ToList();
+
+        var random = new Random();
+        var users = _dbContext.GetUsers().ToList();
+
+        foreach (var product in products)
+        {
+            foreach (var user in users)
             {
-                Name = "Mustermann",
-                VorName = "Max",
-                UserName = "mustimax",
+                var drinkAction = new DrinkAction
+                {
+                    Product = product,
+                    Time = DateTime.Now,
+                    Location = new Coordinate()
+                    {
+                        Latitude = 48.1351 + random.Next(0, 400),
+                        Longitude = 11.5820 + random.Next(0, 400),
+                        Altitude = 100 + random.Next(0, 200),
+                    },
+                    User = user,
+                };
+
+                _dbContext.AddDrinkAction(drinkAction);
+                user.AllDrinkingActions.Add(drinkAction);
+                product.UsedInDrinkActions.Add(drinkAction);
+            }
+        }
+
+        _dbContext.SaveChanges();
+    }
+
+    private void InitUsers(int numberUsers)
+    {
+        var products = _dbContext.GetProducts().Take(numberUsers).ToList();
+
+        var hash = PasswordHashing.HashPassword("Password123");
+
+        #region mustimax
+
+        var user = new User
+        {
+            Name = "Mustermann",
+            VorName = "Max",
+            UserName = "mustimax",
+            PasswordHash = hash.Hash,
+            PasswordSalt = hash.Salt,
+            Email = "max.mustermann@example.com",
+            FavouriteBeer = products.ElementAt(0),
+            BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
+            Points = 10,
+            Location = new Coordinate()
+            {
+                Latitude = 48.1351,
+                Longitude = 11.5820,
+                Altitude = 100
+            }
+        };
+
+        _dbContext.AddUser(user);
+        products.ElementAt(0).UsersHavingThisAsFavouriteBeer.Add(user);
+
+        #endregion
+
+        var random = new Random();
+
+        foreach (var product in products)
+        {
+            var vorname = Guid.NewGuid().ToString();
+            var nachname = Guid.NewGuid().ToString();
+            var username = vorname.Take(18).ToString() + nachname.Take(18);
+            var mail = username + "@example.com";
+
+            var user2 = new User
+            {
+                Name = vorname,
+                VorName = nachname,
+                UserName = username,
                 PasswordHash = hash.Hash,
                 PasswordSalt = hash.Salt,
-                Email = "max.mustermann@example.com",
-                FavouriteBeer = _dbContext.GetProducts().First(),
+                Email = mail,
+                FavouriteBeer = product,
                 BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
-                Points = 10,
+                Points = 10 + random.Next(0, 500),
                 Location = new Coordinate()
                 {
-                    Latitude = 48.1351,
-                    Longitude = 11.5820,
-                    Altitude = 100
+                    Latitude = 48.1351 + random.Next(0, 400),
+                    Longitude = 11.5820 + random.Next(0, 400),
+                    Altitude = 100 + random.Next(0, 200)
                 }
             };
 
-            _dbContext.AddUser(user);
-            _dbContext.GetProducts().First().UsersHavingThisAsFavouriteBeer.Add(user);
-            _dbContext.SaveChanges();
+            _dbContext.AddUser(user2);
+            product.UsersHavingThisAsFavouriteBeer.Add(user2);
         }
 
-        if (!_dbContext.GetUsers().First().AllDrinkingActions.Any())
+        _dbContext.SaveChanges();
+    }
+
+    private void InitChallenges()
+    {
+        var users = _dbContext.GetUsers().ToList();
+
+        var challenge = new Challenge()
         {
-            var drinkAction = new DrinkAction
-            {
-                Product = _dbContext.GetProducts().First(),
-                Time = DateTime.Now,
-                Location = new Coordinate()
-                {
-                    Latitude = 48.1351,
-                    Longitude = 11.5820,
-                    Altitude = 100,
-                },
-                User = _dbContext.GetUsers().First(),
-            };
+            ChallengeType = ChallengeType.DifferentBrand,
+            Description = "Trinke von drei unterschiedlichen Marken",
+            PossiblePoints = 30,
+            NeededQuantity = 3
+        };
 
-            _dbContext.AddDrinkAction(drinkAction);
-
-            _dbContext.GetUsers().First().AllDrinkingActions.Add(drinkAction);
-            _dbContext.SaveChanges();
-
-            _dbContext.GetProducts().First().UsedInDrinkActions.Add(drinkAction);
-            _dbContext.SaveChanges();
-        }
-
-        if (!_dbContext.GetUsers().First().UserChallenges.Any())
+        var challenge2 = new Challenge()
         {
-            var challenge = new Challenge()
-            {
-                ChallengeType = ChallengeType.DifferentBeer,
-                Description = "Trinke drei Unterschiedliche Bier",
-                PossiblePoints = 30,
-                NeededQuantity = 3
-            };
+            ChallengeType = ChallengeType.SameBrand,
+            Description = "Trinke drei Bier der Marke Alpirsbacher",
+            SearchString = "Alpirsbacher",
+            PossiblePoints = 50,
+            NeededQuantity = 3
+        };
 
-            var challenge2 = new Challenge()
-            {
-                ChallengeType = ChallengeType.SameBrand,
-                Description = "Trinke drei Bier der Marke Alpirsbacher",
-                SearchString = "Alpirsbacher",
-                PossiblePoints = 50,
-                NeededQuantity = 3
-            };
+        var challenge3 = new Challenge()
+        {
+            ChallengeType = ChallengeType.DifferentBeer,
+            Description = "Trinke fünf unterschiedliche Bier",
+            PossiblePoints = 20,
+            NeededQuantity = 5
+        };
 
-            _dbContext.GetUsers().First().UserChallenges.Add(challenge);
-            _dbContext.GetUsers().First().UserChallenges.Add(challenge2);
-            _dbContext.SaveChanges();
+        var challenge4 = new Challenge()
+        {
+            ChallengeType = ChallengeType.SameBeer,
+            Description = "Trinke fünf Alpirsbacher Spezial",
+            SearchString = "Alpirsbacher Spezial",
+            PossiblePoints = 30,
+            NeededQuantity = 5
+        };
+
+        var challenge5 = new Challenge()
+        {
+            ChallengeType = ChallengeType.DifferentSize,
+            Description = "Trinke drei Biere unterschiedlicher Größe",
+            PossiblePoints = 20,
+            NeededQuantity = 3
+        };
+
+        var challenge6 = new Challenge()
+        {
+            ChallengeType = ChallengeType.SameSize,
+            Description = "Trinke drei Bier der Größe 0,5L",
+            SearchString = "0,5L",
+            PossiblePoints = 50,
+            NeededQuantity = 3
+        };
+
+        foreach (var user in users)
+        {
+            user.UserChallenges.Add(challenge);
+            user.UserChallenges.Add(challenge2);
+            user.UserChallenges.Add(challenge3);
+            user.UserChallenges.Add(challenge4);
+            user.UserChallenges.Add(challenge5);
+            user.UserChallenges.Add(challenge6);
         }
+
+        _dbContext.SaveChanges();
     }
 }
