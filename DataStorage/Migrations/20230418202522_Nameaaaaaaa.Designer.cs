@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataStorage.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20230413191146_Name23")]
-    partial class Name23
+    [Migration("20230418202522_Nameaaaaaaa")]
+    partial class Nameaaaaaaa
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,13 +25,16 @@ namespace DataStorage.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BierBockBackend.Data.Challenge", b =>
+            modelBuilder.Entity("DataStorage.Challenge", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChallengeType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -40,18 +43,30 @@ namespace DataStorage.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("NeededQuantity")
+                        .HasColumnType("int");
+
                     b.Property<int>("PossiblePoints")
                         .HasColumnType("int");
+
+                    b.Property<string>("SearchString")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Challenges");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Challenge");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.Coordinate", b =>
+            modelBuilder.Entity("DataStorage.Coordinate", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,7 +88,7 @@ namespace DataStorage.Migrations
                     b.ToTable("Coordinate");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.DrinkAction", b =>
+            modelBuilder.Entity("DataStorage.DrinkAction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,7 +119,7 @@ namespace DataStorage.Migrations
                     b.ToTable("DrinkActions");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.Product", b =>
+            modelBuilder.Entity("DataStorage.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -206,7 +221,7 @@ namespace DataStorage.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasAnnotation("Relational:JsonPropertyName", "proteins_100g");
 
-                    b.Property<string>("NeededQuantity")
+                    b.Property<string>("Quantity")
                         .HasColumnType("nvarchar(max)")
                         .HasAnnotation("Relational:JsonPropertyName", "quantity");
 
@@ -239,7 +254,7 @@ namespace DataStorage.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.User", b =>
+            modelBuilder.Entity("DataStorage.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -297,44 +312,28 @@ namespace DataStorage.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("DataStorage.HelpRelations.ChallengeUser", b =>
+            modelBuilder.Entity("DataStorage.Challenge", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChallengeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ChallengeUser");
+                    b.HasOne("DataStorage.User", null)
+                        .WithMany("UserChallenges")
+                        .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.DrinkAction", b =>
+            modelBuilder.Entity("DataStorage.DrinkAction", b =>
                 {
-                    b.HasOne("BierBockBackend.Data.Coordinate", "Location")
+                    b.HasOne("DataStorage.Coordinate", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BierBockBackend.Data.Product", "Product")
+                    b.HasOne("DataStorage.Product", "Product")
                         .WithMany("UsedInDrinkActions")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("BierBockBackend.Data.User", "User")
+                    b.HasOne("DataStorage.User", "User")
                         .WithMany("AllDrinkingActions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -347,15 +346,15 @@ namespace DataStorage.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.User", b =>
+            modelBuilder.Entity("DataStorage.User", b =>
                 {
-                    b.HasOne("BierBockBackend.Data.Product", "FavouriteBeer")
+                    b.HasOne("DataStorage.Product", "FavouriteBeer")
                         .WithMany("UsersHavingThisAsFavouriteBeer")
                         .HasForeignKey("BeerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("BierBockBackend.Data.Coordinate", "Location")
+                    b.HasOne("DataStorage.Coordinate", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -366,38 +365,14 @@ namespace DataStorage.Migrations
                     b.Navigation("Location");
                 });
 
-            modelBuilder.Entity("DataStorage.HelpRelations.ChallengeUser", b =>
-                {
-                    b.HasOne("BierBockBackend.Data.Challenge", "Challenge")
-                        .WithMany("Users")
-                        .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("BierBockBackend.Data.User", "User")
-                        .WithMany("UserChallenges")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Challenge");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BierBockBackend.Data.Challenge", b =>
-                {
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("BierBockBackend.Data.Product", b =>
+            modelBuilder.Entity("DataStorage.Product", b =>
                 {
                     b.Navigation("UsedInDrinkActions");
 
                     b.Navigation("UsersHavingThisAsFavouriteBeer");
                 });
 
-            modelBuilder.Entity("BierBockBackend.Data.User", b =>
+            modelBuilder.Entity("DataStorage.User", b =>
                 {
                     b.Navigation("AllDrinkingActions");
 

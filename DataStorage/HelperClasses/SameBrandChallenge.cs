@@ -1,30 +1,33 @@
-﻿
-namespace DataStorage.HelperClasses;
+﻿namespace DataStorage.HelperClasses;
 
-public class SameBrandChallenge : Challenge
+public class SameBrandChallenge : IChallengeValidator
 {
-    public string BrandName { get; set; } = string.Empty;
-
-    public override ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions)
+    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString, int neededQuantity)
     {
         int done;
 
         var drunkBeers = drinkActions.Select(x => x.Product);
 
-        if (!string.IsNullOrEmpty(BrandName))
+        IEnumerable<string?> partialProgress;
+
+        if (!string.IsNullOrEmpty(searchString))
         {
-            done = drunkBeers.Where(x => x.Brands == BrandName)?.Count() ?? 0;
+            var relatedBeer = drunkBeers.Where(x => x.Brands == searchString).ToList();
+            done = relatedBeer?.Count() ?? 0;
+            partialProgress = relatedBeer?.Select(x => x.ProductName) ?? new List<string>();
         }
         else /* Wenn nicht gesetzt, kann es jede beliebige Marke sein */
         {
-            var brandGroups = drunkBeers.GroupBy(x => x.Brands);
+            var brandGroups = drunkBeers.GroupBy(x => x.Brands).ToList();
             done = brandGroups.Select(x => x.Count()).Max();
+            partialProgress = brandGroups.First(x => x.Count() == done).Select(x => x.ProductName);
         }
 
         return new ChallengeProgress
         {
             Done = done,
-            Total = this.NeededQuantity
+            Total = neededQuantity,
+            AllPartialProgresses = partialProgress
         };
     }
 }

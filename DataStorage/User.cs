@@ -25,7 +25,7 @@ public class User
     public int Points { get; set; } = 0;
 
     [JsonIgnore]
-    public ICollection<Challenge> UserChallenges { get; set; }
+    public ICollection<Challenge> UserChallenges { get; set; } = new List<Challenge>();
 
     [JsonIgnore]
     public virtual ICollection<DrinkAction> AllDrinkingActions { get; set; }

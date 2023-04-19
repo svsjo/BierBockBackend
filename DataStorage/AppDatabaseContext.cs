@@ -1,5 +1,4 @@
 ﻿#region
-
 using Microsoft.EntityFrameworkCore;
 
 #endregion

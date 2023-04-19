@@ -20,7 +20,8 @@ public class Product
     [JsonPropertyName("code")]
     public string Code { get; set; } = string.Empty;
 
-    [JsonPropertyName("product_name")] public string ProductName { get; set; } = string.Empty;
+    [JsonPropertyName("product_name")]
+    public string ProductName { get; set; } = string.Empty;
 
     [JsonPropertyName("brands")]
     public string? Brands { get; set; } = string.Empty;

@@ -6,27 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataStorage.Migrations
 {
     /// <inheritdoc />
-    public partial class Name23 : Migration
+    public partial class Nameaaaaaaa : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Challenges",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PossiblePoints = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Challenges", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Coordinate",
                 columns: table => new
@@ -119,24 +103,25 @@ namespace DataStorage.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChallengeUser",
+                name: "Challenge",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    ChallengeId = table.Column<int>(type: "int", nullable: false)
+                    PossiblePoints = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NeededQuantity = table.Column<int>(type: "int", nullable: false),
+                    SearchString = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ChallengeType = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChallengeUser", x => x.Id);
+                    table.PrimaryKey("PK_Challenge", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ChallengeUser_Challenges_ChallengeId",
-                        column: x => x.ChallengeId,
-                        principalTable: "Challenges",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ChallengeUser_Users_UserId",
+                        name: "FK_Challenge_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
@@ -175,13 +160,8 @@ namespace DataStorage.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChallengeUser_ChallengeId",
-                table: "ChallengeUser",
-                column: "ChallengeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ChallengeUser_UserId",
-                table: "ChallengeUser",
+                name: "IX_Challenge_UserId",
+                table: "Challenge",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -214,13 +194,10 @@ namespace DataStorage.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ChallengeUser");
+                name: "Challenge");
 
             migrationBuilder.DropTable(
                 name: "DrinkActions");
-
-            migrationBuilder.DropTable(
-                name: "Challenges");
 
             migrationBuilder.DropTable(
                 name: "Users");
