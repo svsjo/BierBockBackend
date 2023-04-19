@@ -9,19 +9,22 @@ namespace BierBockBackend.BackgroundServices;
 
 public class DatabaseUpdateService : BackgroundService
 {
-    private readonly ILogger<DatabaseUpdateService> _logger;
+    private readonly ILogger<DatabaseUpdateService>? _logger;
     private readonly AppDatabaseContext _dbContext;
     private readonly OpenFoodFactsApi _foodFactsApi;
-
+    private readonly IServiceScope scope;
     public DatabaseUpdateService(IServiceScopeFactory serviceScopeFactory)
     {
-        using (var scope = serviceScopeFactory.CreateScope())
-        {
-            this._dbContext =  scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
-            _logger = scope.ServiceProvider.GetService<ILogger<DatabaseUpdateService>>();
-        }
-
+        scope = serviceScopeFactory.CreateScope();
+        this._dbContext =  scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
+        _logger = scope.ServiceProvider.GetService<ILogger<DatabaseUpdateService>>();
         _foodFactsApi = new OpenFoodFactsApi();
+    }
+
+    public override void Dispose()
+    {
+        this.scope.Dispose();   
+        base.Dispose();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
