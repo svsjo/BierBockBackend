@@ -2,6 +2,8 @@
 using BierBockBackend.Data;
 using DataStorage;
 using DataStorage.HelperClasses;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BierBockBackend.BackgroundServices;
 
@@ -11,10 +13,14 @@ public class DatabaseUpdateService : BackgroundService
     private readonly AppDatabaseContext _dbContext;
     private readonly OpenFoodFactsApi _foodFactsApi;
 
-    public DatabaseUpdateService(ILogger<DatabaseUpdateService> logger, AppDatabaseContext dbContext)
+    public DatabaseUpdateService(IServiceScopeFactory serviceScopeFactory)
     {
-        _logger = logger;
-        _dbContext = dbContext;
+        using (var scope = serviceScopeFactory.CreateScope())
+        {
+            this._dbContext =  scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
+            _logger = scope.ServiceProvider.GetService<ILogger<DatabaseUpdateService>>();
+        }
+
         _foodFactsApi = new OpenFoodFactsApi();
     }
 

@@ -18,8 +18,6 @@ namespace BierBockBackend.Controllers
         private readonly IConfiguration _configuration;
         private readonly AppDatabaseContext _databaseContext;
 
-        private static object Lock = new object();
-
         public AuthenticationController(IConfiguration configuration, AppDatabaseContext databaseContext)
         {
             _configuration = configuration;
@@ -31,55 +29,53 @@ namespace BierBockBackend.Controllers
         [HttpPost("register", Name = "Register")]
         public RequestStatus<object> Register(RegisterUser registerUser)
         {
-            lock (Lock)
-            {
-                if (!registerUser.IsUserNameValid)
-                    return new RequestStatus<object>()
-                        { Status = Status.Error, DetailledErrorMessage = "Invalid UserName" };
 
-                if (_databaseContext.GetUsers().Any(x => x.UserName == registerUser.UserName))
-                    return new RequestStatus<object>()
-                        { Status = Status.Error, DetailledErrorMessage = "UserName taken" };
-
-                if (!registerUser.IsVornameValid)
-                    return new RequestStatus<object>()
-                        { Status = Status.Error, DetailledErrorMessage = "Invalid Vorname" };
-
-                if (!registerUser.IsNachnameValid)
-                    return new RequestStatus<object>()
-                        { Status = Status.Error, DetailledErrorMessage = "Invalid Nachname" };
-
-                if (!registerUser.IsPasswordValid)
-                    return new RequestStatus<object>()
-                        { Status = Status.Error, DetailledErrorMessage = "Invalid Password" };
-
-                if (!registerUser.IsEmailValid)
-                    return new RequestStatus<object>()
-                        { Status = Status.Error, DetailledErrorMessage = "Invalid Email" };
-
-                if (!registerUser.IsBirthdateValid)
-                    return new RequestStatus<object>()
-                        { Status = Status.Error, DetailledErrorMessage = "Invalid Birthdate" };
-
-                var pwdHash = PasswordHashing.HashPassword(registerUser.Password);
-                var user = new User
-                {
-                    Name = registerUser.Nachname,
-                    VorName = registerUser.Vorname,
-                    UserName = registerUser.UserName,
-                    PasswordHash = pwdHash.Hash,
-                    PasswordSalt = pwdHash.Salt,
-                    Email = registerUser.Email,
-                    BirthDate = registerUser.Birthdate,
-                    Location = new Coordinate(),
-                    FavouriteBeer = new Product()
-                };
-                _databaseContext.AddUser(user);
+            if (!registerUser.IsUserNameValid)
                 return new RequestStatus<object>()
-                {
-                    Status = Status.Successful
-                };
-            }
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid UserName" };
+
+            if (_databaseContext.GetUsers().Any(x => x.UserName == registerUser.UserName))
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "UserName taken" };
+
+            if (!registerUser.IsVornameValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Vorname" };
+
+            if (!registerUser.IsNachnameValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Nachname" };
+
+            if (!registerUser.IsPasswordValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Password" };
+
+            if (!registerUser.IsEmailValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Email" };
+
+            if (!registerUser.IsBirthdateValid)
+                return new RequestStatus<object>()
+                    { Status = Status.Error, DetailledErrorMessage = "Invalid Birthdate" };
+
+            var pwdHash = PasswordHashing.HashPassword(registerUser.Password);
+            var user = new User
+            {
+                Name = registerUser.Nachname,
+                VorName = registerUser.Vorname,
+                UserName = registerUser.UserName,
+                PasswordHash = pwdHash.Hash,
+                PasswordSalt = pwdHash.Salt,
+                Email = registerUser.Email,
+                BirthDate = registerUser.Birthdate,
+                Location = new Coordinate(),
+                FavouriteBeer = new Product()
+            };
+            _databaseContext.AddUser(user);
+            return new RequestStatus<object>()
+            {
+                Status = Status.Successful
+            };
         }
 
 
@@ -88,95 +84,98 @@ namespace BierBockBackend.Controllers
 
         public RequestStatus<object> CreateToken(AuthUser user)
         {
-            lock (Lock)
-            {
-                var userMatch = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == user.UserName);
 
-                if (userMatch == null)
-                    return new RequestStatus<object>()
-                    {
-                        Status = Status.Error,
-                        DetailledErrorMessage = "User not found"
-                    };
+            var userMatch = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == user.UserName);
 
-                if (!PasswordHashing.VerifyPassword(user.Password, userMatch.PasswordHash, userMatch.PasswordSalt))
-                    return new RequestStatus<object>()
-                    {
-                        Status = Status.Error,
-                        DetailledErrorMessage = "Invalid Password"
-                    };
-
-                var issuer = _configuration["Jwt:Issuer"];
-                var audience = _configuration["Jwt:Audience"];
-                var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim("Id", Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                        new Claim(JwtRegisteredClaimNames.Email, user.UserName),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                    }),
-                    Expires = DateTime.UtcNow.AddMinutes(60),
-                    Issuer = issuer,
-                    Audience = audience,
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
-                        SecurityAlgorithms.HmacSha512Signature)
-                };
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                var jwtToken = tokenHandler.WriteToken(token);
-                var stringToken = tokenHandler.WriteToken(token);
+            if (userMatch == null)
                 return new RequestStatus<object>()
                 {
-                    Status = Status.Successful,
-                    Result = stringToken
+                    Status = Status.Error,
+                    DetailledErrorMessage = "User not found"
                 };
 
-            }
-        }
-    }
-    public record AuthUser(string UserName, string Password);
-    public class RegisterUser
-    {
-        public RegisterUser(string UserName, string Vorname, string Nachname, string Password, string Email,
-            string Birthdate)
-        {
-            this.UserName = UserName;
-            this.Vorname = Vorname;
-            this.Nachname = Nachname;
-            this.Password = Password;
-            this.Email = Email;
-            this.Birthdate = Birthdate;
-        }
-        
-        public string UserName { get; init; }
-        public string Vorname { get; init; }
-        public string Nachname { get; init; }
-        public string Password { get; init; }
-        public string Email { get; init; }
-        public string Birthdate { get; init; }
+            if (!PasswordHashing.VerifyPassword(user.Password, userMatch.PasswordHash, userMatch.PasswordSalt))
+                return new RequestStatus<object>()
+                {
+                    Status = Status.Error,
+                    DetailledErrorMessage = "Invalid Password"
+                };
 
-
-        public bool IsUserNameValid => !string.IsNullOrEmpty(UserName) && UserName.Length is <= 15 and >= 4;
-        public bool IsVornameValid => !string.IsNullOrEmpty(Vorname) && Vorname.Length is <= 15 and >= 3;
-        public bool IsNachnameValid => !string.IsNullOrEmpty(Nachname) && Nachname.Length is <= 15 and >= 3;
-        public bool IsPasswordValid => !string.IsNullOrEmpty(Password) && Password.Length is >= 8 and <= 20;
-        public bool IsEmailValid => !string.IsNullOrEmpty(Email) && Email.Length is <= 15 and >= 4 && IsValidEmail(Email);
-        public bool IsBirthdateValid => !string.IsNullOrEmpty(Birthdate) && Birthdate.Length == 10;
-
-
-        private static bool IsValidEmail(string email)
-        {
-            try
+            var issuer = _configuration["Jwt:Issuer"];
+            var audience = _configuration["Jwt:Audience"];
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                var adr = new System.Net.Mail.MailAddress(email);
-                return adr.Address == email;
-            }
-            catch
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("Id", Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.Email, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(60),
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha512Signature)
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwtToken = tokenHandler.WriteToken(token);
+            var stringToken = tokenHandler.WriteToken(token);
+            return new RequestStatus<object>()
             {
-                return false;
+                Status = Status.Successful,
+                Result = stringToken
+            };
+
+        }
+
+        public record AuthUser(string UserName, string Password);
+
+        public class RegisterUser
+        {
+            public RegisterUser(string UserName, string Vorname, string Nachname, string Password, string Email,
+                string Birthdate)
+            {
+                this.UserName = UserName;
+                this.Vorname = Vorname;
+                this.Nachname = Nachname;
+                this.Password = Password;
+                this.Email = Email;
+                this.Birthdate = Birthdate;
+            }
+
+            public string UserName { get; init; }
+            public string Vorname { get; init; }
+            public string Nachname { get; init; }
+            public string Password { get; init; }
+            public string Email { get; init; }
+            public string Birthdate { get; init; }
+
+
+            public bool IsUserNameValid => !string.IsNullOrEmpty(UserName) && UserName.Length is <= 15 and >= 4;
+            public bool IsVornameValid => !string.IsNullOrEmpty(Vorname) && Vorname.Length is <= 15 and >= 3;
+            public bool IsNachnameValid => !string.IsNullOrEmpty(Nachname) && Nachname.Length is <= 15 and >= 3;
+            public bool IsPasswordValid => !string.IsNullOrEmpty(Password) && Password.Length is >= 8 and <= 20;
+
+            public bool IsEmailValid =>
+                !string.IsNullOrEmpty(Email) && Email.Length is <= 15 and >= 4 && IsValidEmail(Email);
+
+            public bool IsBirthdateValid => !string.IsNullOrEmpty(Birthdate) && Birthdate.Length == 10;
+
+
+            private static bool IsValidEmail(string email)
+            {
+                try
+                {
+                    var adr = new System.Net.Mail.MailAddress(email);
+                    return adr.Address == email;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
     }

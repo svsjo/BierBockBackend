@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using BierBockBackend.BackgroundServices;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,7 +70,7 @@ builder.Services.AddHttpLogging(logging =>
     logging.RequestHeaders.Add("sec-ch-ua-mobile");
 });
 
-builder.Services.AddDbContext<AppDatabaseContext>(ServiceLifetime.Singleton);
+builder.Services.AddDbContext<AppDatabaseContext>();//(ServiceLifetime.Singleton);
 
 builder.Services.AddHostedService<ChallengeUpdateService>();
 builder.Services.AddHostedService<DatabaseUpdateService>();
