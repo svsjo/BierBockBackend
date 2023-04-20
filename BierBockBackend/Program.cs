@@ -68,9 +68,10 @@ builder.Services.AddHttpLogging(logging =>
     logging.RequestHeaders.Add("sec-fetch-mode");
     logging.RequestHeaders.Add("sec-fetch-dest");
     logging.RequestHeaders.Add("sec-ch-ua-mobile");
+    logging.RequestHeaders.Add("Authorization");
 });
 
-builder.Services.AddDbContext<AppDatabaseContext>();//(ServiceLifetime.Singleton);
+builder.Services.AddDbContext<AppDatabaseContext>(); //(ServiceLifetime.Singleton);
 
 builder.Services.AddHostedService<ChallengeUpdateService>();
 builder.Services.AddHostedService<DatabaseUpdateService>();

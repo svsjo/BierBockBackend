@@ -11,9 +11,9 @@ public class AppDatabaseContext : DbContext
     private DbSet<User> Users { get; set; }
     private DbSet<Product> Products { get; set; }
 
-    private Mutex _mutexDrinkActions = new Mutex();
-    private Mutex _mutexUsers = new Mutex();
-    private Mutex _mutexProducts = new Mutex();
+    private readonly Mutex _mutexDrinkActions = new();
+    private readonly Mutex _mutexUsers = new();
+    private readonly Mutex _mutexProducts = new();
 
     //Add-Migration Name
     //Update-Database
