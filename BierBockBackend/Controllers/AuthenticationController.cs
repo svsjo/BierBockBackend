@@ -51,34 +51,34 @@ namespace BierBockBackend.Controllers
 
             if (!registerUser.IsUserNameValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid UserName" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_username };
 
             if (_databaseContext.GetUsers().Any(x => x.UserName == registerUser.UserName))
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "UserName taken" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.username_taken };
 
             if(_databaseContext.GetUsers().Any(x=>x.Email==registerUser.Email)) return new RequestStatus<object>()
-                { Status = Status.Error, DetailledErrorMessage = "Email taken" };
+                { Status = Status.Error, ErrorCode = ErrorCodes.mail_taken };
 
             if (!registerUser.IsVornameValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Vorname" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_firstname_format };
 
             if (!registerUser.IsNachnameValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Nachname" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_surname_format };
 
             if (!registerUser.IsPasswordValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Password" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_password_format };
 
             if (!registerUser.IsEmailValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Email" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_email_format };
 
             if (!registerUser.IsBirthdateValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Birthdate" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_birthdate_format};
 
             var pwdHash = PasswordHashing.HashPassword(registerUser.Password);
             var user = new User
@@ -126,20 +126,20 @@ namespace BierBockBackend.Controllers
                 return new RequestStatus<object>()
                 {
                     Status = Status.Error,
-                    DetailledErrorMessage = "User not found"
+                    ErrorCode = ErrorCodes.user_not_found
                 };
 
             if(!userMatch.EmailConfirmed) return new RequestStatus<object>()
             {
                 Status = Status.Error,
-                DetailledErrorMessage = "E-Mail not confirmed"
+                ErrorCode = ErrorCodes.mail_not_confirmed
             };
 
             if (!PasswordHashing.VerifyPassword(user.Password, userMatch.PasswordHash, userMatch.PasswordSalt))
                 return new RequestStatus<object>()
                 {
                     Status = Status.Error,
-                    DetailledErrorMessage = "Invalid Password"
+                    ErrorCode = ErrorCodes.invalid_password
                 };
 
             var issuer = _configuration["Jwt:Issuer"];
