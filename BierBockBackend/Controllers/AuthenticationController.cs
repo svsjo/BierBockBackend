@@ -55,6 +55,9 @@ namespace BierBockBackend.Controllers
                 return new RequestStatus<object>()
                     { Status = Status.Error, DetailledErrorMessage = "UserName taken" };
 
+            if(_databaseContext.GetUsers().Any(x=>x.Email==registerUser.Email)) return new RequestStatus<object>()
+                { Status = Status.Error, DetailledErrorMessage = "Email taken" };
+
             if (!registerUser.IsVornameValid)
                 return new RequestStatus<object>()
                     { Status = Status.Error, DetailledErrorMessage = "Invalid Vorname" };
