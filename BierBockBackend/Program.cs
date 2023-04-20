@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Timers;
+using BierBockBackend.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -74,6 +75,10 @@ builder.Services.AddHttpLogging(logging =>
 builder.Services.AddDbContext<AppDatabaseContext>(); //(ServiceLifetime.Singleton);
 
 builder.Services.AddHostedService<ChallengeUpdateService>();
+
+
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+
 builder.Services.AddHostedService<DatabaseUpdateService>();
 
 builder.Services.AddAuthentication(options =>

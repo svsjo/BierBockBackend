@@ -18,15 +18,17 @@ namespace BierBockBackend.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly AppDatabaseContext _databaseContext;
+        private readonly IEmailSender _iEmailSender;
 
-        public AuthenticationController(IConfiguration configuration, AppDatabaseContext databaseContext)
+        public AuthenticationController(IConfiguration configuration, AppDatabaseContext databaseContext, IEmailSender iEmailSender)
         {
             _configuration = configuration;
             _databaseContext = databaseContext;
+            _iEmailSender = iEmailSender;
         }
 
         [AllowAnonymous]
-        [HttpPost("confirmEmail", Name = "ConfirmEmail")]
+        [HttpGet("confirmEmail", Name = "ConfirmEmail")]
         public string ConfirmEmail(string emailToken, string username)
         {
             var user = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == username);
@@ -88,6 +90,9 @@ namespace BierBockBackend.Controllers
                 FavouriteBeer = new Product()
             };
             _databaseContext.AddUser(user);
+
+            _iEmailSender.SendConfirmationMail(user.Email, user.EmailToken, user.UserName);
+
             return new RequestStatus<object>()
             {
                 Status = Status.Successful
@@ -191,7 +196,7 @@ namespace BierBockBackend.Controllers
             public bool IsPasswordValid => !string.IsNullOrEmpty(Password) && Password.Length is >= 8 and <= 20;
 
             public bool IsEmailValid =>
-                !string.IsNullOrEmpty(Email) && Email.Length is <= 15 and >= 4 && IsValidEmail(Email);
+                !string.IsNullOrEmpty(Email) && Email.Length is <= 100 and >= 4 && IsValidEmail(Email);
 
             public bool IsBirthdateValid => !string.IsNullOrEmpty(Birthdate) && Birthdate.Length == 10;
 

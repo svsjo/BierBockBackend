@@ -19,7 +19,8 @@ namespace BierBockBackend.Data
         {
             var allProducts = new List<Product>();
             var page = 1;
-            const int pageSize = 1000;
+            //const int pageSize = 1000;
+            const int pageSize = 1;
             const string category = "beers";
 
             while (true)
@@ -34,8 +35,10 @@ namespace BierBockBackend.Data
 
                     if (products?.Products == null) break;
 
-                    allProducts.AddRange(products.Products);
+          
 
+                    allProducts.AddRange(products.Products);
+                    break;
                     if (products.Products.Count < pageSize) // check if it is the last page
                         break;
                     else
