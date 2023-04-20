@@ -8,7 +8,7 @@ public class ErrorCodes
     public ErrorCodes(string message)
     {
         Message = message;
-    }//
+    }
 
     public static ErrorCodes invalid_username = new(nameof(invalid_username));
     public static ErrorCodes username_taken = new(nameof(username_taken));
