@@ -18,7 +18,7 @@ namespace BierBockBackend.Controllers;
 public class BierBockController : ControllerBase
 {
     private readonly AppDatabaseContext _dbAppDatabaseContext;
-    private readonly ChallengeValidtorSelector _challengeValidtorSelector = new ChallengeValidtorSelector();
+    private readonly ChallengeValidtorSelector _challengeValidtorSelector = new();
 
     public BierBockController(AppDatabaseContext dbAppDatabaseContext)
     {
@@ -144,8 +144,8 @@ public class BierBockController : ControllerBase
         var results = users.Select((value, index) => new
         {
             Rank = index + 1,
-            UserName = value?.UserName,
-            Points = value?.Points
+            value?.UserName,
+            value?.Points
         }).ToList();
 
         var ownRanking = results
@@ -170,7 +170,7 @@ public class BierBockController : ControllerBase
         var user = GetCurrentUser();
 
         var rank = _dbAppDatabaseContext.GetUsers()
-            .OrderBy(x => x.Points)
+            .OrderByDescending(x => x.Points)
             .ToList()
             .IndexOf(user) + 1;
 
@@ -178,7 +178,7 @@ public class BierBockController : ControllerBase
 
         var result = new { Rank = rank, UserCount = userCount };
 
-        var status = Status.Successful;
+        var status = (rank > 0 && rank < userCount + 1) ? Status.Successful : Status.Error;
 
         return new RequestStatus<object>
         {
@@ -201,6 +201,36 @@ public class BierBockController : ControllerBase
         {
             Status = status,
             Result = product
+        };
+    }
+
+    [HttpGet("TESTWEISE_nearestDrinkers", Name = "GetNearestDrinkers")]
+    public RequestStatus<IEnumerable<object>> GetNearestDrinkers(Coordinate actualLocation, string? beerCode = default)
+    {
+        var user = GetCurrentUser();
+        var users = _dbAppDatabaseContext.GetUsers();
+
+        var productCode = beerCode ?? user.AllDrinkingActions.Last().Product.Code;
+
+        var nearestDrinkActions = _dbAppDatabaseContext.GetUsers()
+            .SelectMany(x => x.AllDrinkingActions)
+            .Where(z => (DateTime.Now - z.Time).Minutes < 45)
+            .Where(y => y.Product.Code == productCode);
+
+        var results = nearestDrinkActions.Select(x => new
+        {
+            x.User.UserName,
+            x.Time,
+            x.Location,
+            Distance = actualLocation.GetDistance(x.Location)
+        });
+
+        var status = results.Any() ? Status.Successful : Status.NoResults;
+
+        return new RequestStatus<IEnumerable<object>>
+        {
+            Result = results,
+            Status = status,
         };
     }
 

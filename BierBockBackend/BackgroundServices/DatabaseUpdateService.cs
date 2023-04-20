@@ -13,17 +13,18 @@ public class DatabaseUpdateService : BackgroundService
     private readonly AppDatabaseContext _dbContext;
     private readonly OpenFoodFactsApi _foodFactsApi;
     private readonly IServiceScope scope;
+
     public DatabaseUpdateService(IServiceScopeFactory serviceScopeFactory)
     {
         scope = serviceScopeFactory.CreateScope();
-        this._dbContext =  scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
+        this._dbContext = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
         _logger = scope.ServiceProvider.GetService<ILogger<DatabaseUpdateService>>();
         _foodFactsApi = new OpenFoodFactsApi();
     }
 
     public override void Dispose()
     {
-        this.scope.Dispose();   
+        this.scope.Dispose();
         base.Dispose();
     }
 
@@ -44,7 +45,7 @@ public class DatabaseUpdateService : BackgroundService
 
     private async Task InsertNewProducts()
     {
-         var products = await _foodFactsApi.GetBeerData();
+        var products = await _foodFactsApi.GetBeerData();
 
         foreach (var product in products
                      .Where(product => _dbContext.GetProducts()
