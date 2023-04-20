@@ -41,6 +41,7 @@ namespace BierBockBackend.Controllers
             user.EmailConfirmed = true;
 
             _databaseContext.Update(user);
+            _databaseContext.SaveChanges();
             return "Success";
         }
 
