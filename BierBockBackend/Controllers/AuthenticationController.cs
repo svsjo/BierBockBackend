@@ -117,10 +117,8 @@ namespace BierBockBackend.Controllers
 
         [AllowAnonymous]
         [HttpPost("createToken", Name = "CreateToken")]
-
         public RequestStatus<object> CreateToken(AuthUser user)
         {
-
             var userMatch = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == user.UserName);
 
             if (userMatch == null)

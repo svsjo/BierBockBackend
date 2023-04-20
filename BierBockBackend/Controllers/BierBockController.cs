@@ -58,14 +58,13 @@ public class BierBockController : ControllerBase
     {
         var user = GetCurrentUser();
 
-        var challenges = user.UserChallenges;
+        var challenges = user.UserChallenges.Select(x => x.Challenge);
         var results = challenges.Select(x => new
         {
             Challenge = x,
             Progress = _challengeValidtorSelector.ValidateChallengeProgress(user.AllDrinkingActions, x.SearchString, x.NeededQuantity, x.ChallengeType)
         });
 
-    
         return new RequestStatus<IEnumerable<object>>
         {
             Status = Status.Successful,
@@ -86,8 +85,6 @@ public class BierBockController : ControllerBase
                             x.Product.ProductName.ToLower().Contains(searchString.ToLower()) ||
                             (x.Product.Categories != null && x.Product.Categories.ToLower().Contains(searchString.ToLower())))
                 .OrderByDescending(x => x.Time);
-
-
 
         return new RequestStatus<IEnumerable<object>>
         {
@@ -148,7 +145,6 @@ public class BierBockController : ControllerBase
         var ownRanking = results
             .First(x => x.UserName == user.UserName);
 
-   
         return new RequestStatus<object>
         {
             Status = Status.Successful,
@@ -248,7 +244,6 @@ public class BierBockController : ControllerBase
         if (toTime != default) results = results?.Where(x => x.Time < toTime).ToList();
         if (fromTime != default) results = results?.Where(x => x.Time > fromTime).ToList();
 
-    
         return new RequestStatus<IEnumerable<object>>
         {
             Status = Status.Successful,
@@ -279,7 +274,6 @@ public class BierBockController : ControllerBase
             _dbAppDatabaseContext.AddDrinkAction(drinkAction);
         }
 
-   
         return new RequestStatus<object>
         {
             Status = Status.Successful,
@@ -315,12 +309,12 @@ public class BierBockController : ControllerBase
         if (newFavouriteBeerCode != default)
         {
             var beer = _dbAppDatabaseContext.GetProducts().FirstOrDefault(x => x.Code == newFavouriteBeerCode);
-            if (beer == default) 
+            if (beer == default)
                 return new RequestStatus<object>
-            {
-                Status = Status.Error,
-               ErrorCode  = ErrorCodes.beer_not_found
-            };
+                {
+                    Status = Status.Error,
+                    ErrorCode = ErrorCodes.beer_not_found
+                };
             user.FavouriteBeer = beer;
         }
 
@@ -340,6 +334,5 @@ public class BierBockController : ControllerBase
 
         return _dbAppDatabaseContext.GetUsers()
             .FirstOrDefault(x => x.UserName == name)!;
-        // TODO: UserName?
     }
 }

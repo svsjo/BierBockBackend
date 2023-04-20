@@ -1,5 +1,6 @@
 ﻿#region
 
+using DataStorage.HelperClasses;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -29,7 +30,7 @@ public class User
     public int Points { get; set; } = 0;
 
     [JsonIgnore]
-    public ICollection<Challenge> UserChallenges { get; set; } = new List<Challenge>();
+    public virtual ICollection<ChallengeUser> UserChallenges { get; set; }
 
     [JsonIgnore]
     public virtual ICollection<DrinkAction> AllDrinkingActions { get; set; }
