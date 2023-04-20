@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using BierBockBackend.Auth;
 using BierBockBackend.Data;
@@ -24,6 +25,20 @@ namespace BierBockBackend.Controllers
             _databaseContext = databaseContext;
         }
 
+        [AllowAnonymous]
+        [HttpPost("confirmEmail", Name = "ConfirmEmail")]
+        public string ConfirmEmail(string emailToken, string username)
+        {
+            var user = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == username);
+            if (user == null) return "Invalid Username";
+
+            if (user.EmailConfirmed) return "User is already confirmed";
+
+            if (user.EmailToken != emailToken) return "Invalid Token";
+         
+            user.EmailConfirmed = true;
+            return "Success";
+        }
 
         [AllowAnonymous]
         [HttpPost("register", Name = "Register")]
@@ -68,6 +83,7 @@ namespace BierBockBackend.Controllers
                 PasswordSalt = pwdHash.Salt,
                 Email = registerUser.Email,
                 BirthDate = registerUser.Birthdate,
+                EmailToken = GenerateRandomToken(),
                 Location = new Coordinate(),
                 FavouriteBeer = new Product()
             };
@@ -78,6 +94,15 @@ namespace BierBockBackend.Controllers
             };
         }
 
+
+        private string GenerateRandomToken()
+        {
+            var g = Guid.NewGuid();
+            var GuidString = Convert.ToBase64String(g.ToByteArray());
+            GuidString = GuidString.Replace("=", "");
+            GuidString = GuidString.Replace("+", "");
+            return GuidString;
+        }
 
         [AllowAnonymous]
         [HttpPost("createToken", Name = "CreateToken")]
@@ -93,6 +118,12 @@ namespace BierBockBackend.Controllers
                     Status = Status.Error,
                     DetailledErrorMessage = "User not found"
                 };
+
+            if(!userMatch.EmailConfirmed) return new RequestStatus<object>()
+            {
+                Status = Status.Error,
+                DetailledErrorMessage = "E-Mail not confirmed"
+            };
 
             if (!PasswordHashing.VerifyPassword(user.Password, userMatch.PasswordHash, userMatch.PasswordSalt))
                 return new RequestStatus<object>()

@@ -17,6 +17,8 @@ public class User
     public string Name { get; set; } = string.Empty;
     public string VorName { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
+
+    public string EmailToken { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
 
     [MaxLength(32)]
@@ -38,4 +40,6 @@ public class User
     [JsonIgnore]
     [ForeignKey("BeerId")]
     public virtual Product FavouriteBeer { get; set; }
+
+    public bool EmailConfirmed { get; set; } = false;
 }
