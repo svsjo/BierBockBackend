@@ -319,7 +319,7 @@ public class BierBockController : ControllerBase
                 return new RequestStatus<object>
             {
                 Status = Status.Error,
-                DetailledErrorMessage = ErrorCodes.beer_not_found
+               ErrorCode  = ErrorCodes.beer_not_found
             };
             user.FavouriteBeer = beer;
         }
