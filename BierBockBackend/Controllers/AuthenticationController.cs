@@ -39,6 +39,8 @@ namespace BierBockBackend.Controllers
             if (user.EmailToken != emailToken) return "Invalid Token";
          
             user.EmailConfirmed = true;
+
+            _databaseContext.Update(user);
             return "Success";
         }
 
