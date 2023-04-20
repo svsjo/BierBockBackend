@@ -73,9 +73,14 @@ public class DatabaseUpdateService : BackgroundService
             InitDrinkActions(drinkActions);
         }
 
-        if (_dbContext.GetUsers().First().UserChallenges.Count() < challenges)
+        if (_dbContext.GetChallenges().Count() < challenges)
         {
             InitChallenges();
+        }
+        
+        if(_dbContext.GetUsers().First().UserChallenges.Count() < challenges)
+        {
+            AddChallengesToUsers();
         }
     }
 
@@ -240,8 +245,6 @@ public class DatabaseUpdateService : BackgroundService
         _dbContext.AddChallenge(challenge4);
         _dbContext.AddChallenge(challenge5);
         _dbContext.AddChallenge(challenge6);
-
-        AddChallengesToUsers();
     }
 
     private void AddChallengesToUsers()
