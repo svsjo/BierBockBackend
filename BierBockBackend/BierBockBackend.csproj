@@ -23,4 +23,8 @@
     <ProjectReference Include="..\DataStorage\DataStorage.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Identity\" />
+  </ItemGroup>
+
 </Project>

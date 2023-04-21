@@ -77,8 +77,8 @@ public class DatabaseUpdateService : BackgroundService
         {
             InitChallenges();
         }
-        
-        if(_dbContext.GetUsers().First().UserChallenges.Count() < challenges)
+
+        if (_dbContext.GetUsers().First().UserChallenges.Count() < challenges)
         {
             AddChallengesToUsers();
         }
@@ -147,6 +147,34 @@ public class DatabaseUpdateService : BackgroundService
 
         _dbContext.AddUser(user);
         products.ElementAt(0).UsersHavingThisAsFavouriteBeer.Add(user);
+
+        #endregion
+
+        #region admin
+
+        var admin = new User
+        {
+            Name = "Strator",
+            VorName = "Admin",
+            UserName = "admin",
+            PasswordHash = hash.Hash,
+            PasswordSalt = hash.Salt,
+            Email = "max.mustermann@example.com",
+            FavouriteBeer = products.ElementAt(0),
+            BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
+            Points = 10,
+            EmailConfirmed = true,
+            IsAdmin = true,
+            Location = new Coordinate()
+            {
+                Latitude = 48.1351,
+                Longitude = 11.5820,
+                Altitude = 100
+            }
+        };
+
+        _dbContext.AddUser(admin);
+        products.ElementAt(0).UsersHavingThisAsFavouriteBeer.Add(admin);
 
         #endregion
 

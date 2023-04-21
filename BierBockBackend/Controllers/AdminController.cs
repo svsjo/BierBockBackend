@@ -1,5 +1,7 @@
 using BierBockBackend.Data;
+using BierBockBackend.Identity;
 using DataStorage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BierBockBackend.Controllers;
@@ -15,6 +17,7 @@ public class AdminController
         _dbAppDatabaseContext = dbAppDatabaseContext;
     }
 
+    [Authorize(Policy = IdentityData.AdminUserPolicyName)]
     [HttpPost("newChallenge", Name = "AddNewChallenge")]
     public RequestStatus<object> AddNewChallenge(Challenge challenge)
     {

@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using BierBockBackend.Auth;
 using BierBockBackend.Data;
+using BierBockBackend.Identity;
 using DataStorage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BierBockBackend.Controllers
 {
-
     [ApiController]
     [Route("/security/")]
     public class AuthenticationController : ControllerBase
@@ -37,7 +37,7 @@ namespace BierBockBackend.Controllers
             if (user.EmailConfirmed) return "User is already confirmed";
 
             if (user.EmailToken != emailToken) return "Invalid Token";
-         
+
             user.EmailConfirmed = true;
 
             _databaseContext.Update(user);
@@ -49,7 +49,6 @@ namespace BierBockBackend.Controllers
         [HttpPost("register", Name = "Register")]
         public RequestStatus<object> Register(RegisterUser registerUser)
         {
-
             if (!registerUser.IsUserNameValid)
                 return new RequestStatus<object>()
                     { Status = Status.Error, ErrorCode = ErrorCodes.invalid_username };
@@ -128,11 +127,12 @@ namespace BierBockBackend.Controllers
                     ErrorCode = ErrorCodes.user_not_found
                 };
 
-            if(!userMatch.EmailConfirmed) return new RequestStatus<object>()
-            {
-                Status = Status.Error,
-                ErrorCode = ErrorCodes.mail_not_confirmed
-            };
+            if (!userMatch.EmailConfirmed)
+                return new RequestStatus<object>()
+                {
+                    Status = Status.Error,
+                    ErrorCode = ErrorCodes.mail_not_confirmed
+                };
 
             if (!PasswordHashing.VerifyPassword(user.Password, userMatch.PasswordHash, userMatch.PasswordSalt))
                 return new RequestStatus<object>()
@@ -151,7 +151,8 @@ namespace BierBockBackend.Controllers
                     new Claim("Id", Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                     new Claim(JwtRegisteredClaimNames.Email, user.UserName),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(IdentityData.AdminUserClaimName, userMatch.IsAdmin.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(60),
                 Issuer = issuer,
@@ -163,12 +164,12 @@ namespace BierBockBackend.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwtToken = tokenHandler.WriteToken(token);
             var stringToken = tokenHandler.WriteToken(token);
+
             return new RequestStatus<object>()
             {
                 Status = Status.Successful,
                 Result = stringToken
             };
-
         }
 
         public record AuthUser(string UserName, string Password);

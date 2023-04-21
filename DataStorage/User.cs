@@ -24,6 +24,7 @@ public class User
 
     [MaxLength(32)]
     public byte[] PasswordSalt { get; set; } = new byte[32];
+
     public string Email { get; set; } = string.Empty;
     public string BirthDate { get; set; } = string.Empty;
 
@@ -37,6 +38,8 @@ public class User
 
     public virtual Coordinate Location { get; set; }
     public string Wohnort { get; set; } = string.Empty;
+
+    public bool IsAdmin { get; set; } = false;
 
     [JsonIgnore]
     [ForeignKey("BeerId")]
