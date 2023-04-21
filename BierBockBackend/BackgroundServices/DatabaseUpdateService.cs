@@ -46,13 +46,17 @@ public class DatabaseUpdateService : BackgroundService
     private async Task InsertNewProducts()
     {
         var products = await _foodFactsApi.GetBeerData();
+        var newProducts = 0;
 
         foreach (var product in products
                      .Where(product => _dbContext.GetProducts()
                          .All(x => x.Code != product.Code)))
         {
             _dbContext.AddProduct(product);
+            newProducts++;
         }
+
+        _logger.LogInformation($"Added {newProducts} new Products: {DateTimeOffset.Now}");
     }
 
     private void InitBasicUserData()

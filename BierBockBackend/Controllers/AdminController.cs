@@ -21,6 +21,8 @@ public class AdminController
     [HttpPost("newChallenge", Name = "AddNewChallenge")]
     public RequestStatus<object> AddNewChallenge(Challenge challenge)
     {
+        // TODO: Abgespecktes Objekt ohne die Fremdschlüssel usw. als Parameter (oder Fremdschlüssel = New List<> ...?)
+
         return new RequestStatus<object>
         {
         };
