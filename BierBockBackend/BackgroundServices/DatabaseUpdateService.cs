@@ -66,21 +66,25 @@ public class DatabaseUpdateService : BackgroundService
         if (_dbContext.GetUsers().Count() < users)
         {
             InitUsers(users);
+            _logger.LogInformation("Added Testusers at: {time}", DateTimeOffset.Now);
         }
 
         if (_dbContext.GetDrinkActions().Count() < drinkActions)
         {
             InitDrinkActions(drinkActions);
+            _logger.LogInformation("Added Testdrinkactions at: {time}", DateTimeOffset.Now);
         }
 
         if (_dbContext.GetChallenges().Count() < challenges)
         {
             InitChallenges();
+            _logger.LogInformation("Added Testchallenges at: {time}", DateTimeOffset.Now);
         }
 
         if (_dbContext.GetUsers().First().UserChallenges.Count() < challenges)
         {
             AddChallengesToUsers();
+            _logger.LogInformation("Mapped Challenges to Users at: {time}", DateTimeOffset.Now);
         }
     }
 
