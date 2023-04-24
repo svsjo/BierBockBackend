@@ -272,12 +272,20 @@ public class BierBockController : ControllerBase
         {
             user.AllDrinkingActions.Add(drinkAction);
             _dbAppDatabaseContext.AddDrinkAction(drinkAction);
-        }
 
-        return new RequestStatus<object>
+            return new RequestStatus<object>
+            {
+                Status = Status.Successful,
+            };
+        }
+        else
         {
-            Status = Status.Successful,
-        };
+            return new RequestStatus<object>
+            {
+                Status = Status.Error,
+                ErrorCode = ErrorCodes.beer_not_found
+            };
+        }
     }
 
     [HttpPost("actualisateUserPosition", Name = "ActualisateUserPosition")]
