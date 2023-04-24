@@ -9,6 +9,7 @@ using System.Security;
 using Microsoft.AspNetCore.Http.Metadata;
 using System.Xml.Linq;
 using DataStorage.HelperClasses;
+using GeoCoordinatePortable;
 using Microsoft.AspNetCore.Authorization;
 
 namespace BierBockBackend.Controllers;
@@ -196,27 +197,37 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("TESTWEISE_nearestDrinkers", Name = "GetNearestDrinkers")]
-    public RequestStatus<IEnumerable<object>> GetNearestDrinkers(Coordinate actualLocation, string? beerCode = default)
+    public RequestStatus<IEnumerable<object>> GetNearestDrinkers([FromQuery] double latitude, [FromQuery] double longitude,
+        [FromQuery] double altitude, [FromQuery] string? beerCode = default)
     {
+        var coordinate = new Coordinate
+        {
+            Latitude = latitude,
+            Longitude = longitude,
+            Altitude = altitude
+        };
+
         var user = GetCurrentUser();
-        var users = _dbAppDatabaseContext.GetUsers();
+        var users = _dbAppDatabaseContext.GetUsers().ToList();
 
         var productCode = beerCode ?? user.AllDrinkingActions.Last().Product.Code;
 
         var nearestDrinkActions = _dbAppDatabaseContext.GetUsers()
             .SelectMany(x => x.AllDrinkingActions)
-            .Where(z => (DateTime.Now - z.Time).Minutes < 45)
-            .Where(y => y.Product.Code == productCode);
+            .ToList()
+            .Where(z => (DateTime.Now - z.Time).Days < 45)
+            .ToList()
+            .Where(y => y.Product.Code == productCode)
+            .ToList();
 
         var results = nearestDrinkActions.Select(x => new
         {
             x.User.UserName,
             x.Time,
             x.Location,
-            Distance = actualLocation.GetDistance(x.Location)
+            Distance = coordinate.GetDistance(x.Location)
         });
 
- 
         return new RequestStatus<IEnumerable<object>>
         {
             Result = results,
