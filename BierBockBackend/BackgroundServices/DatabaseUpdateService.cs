@@ -156,6 +156,29 @@ public class DatabaseUpdateService : BackgroundService
         _dbContext.AddUser(user);
         products.ElementAt(0).UsersHavingThisAsFavouriteBeer.Add(user);
 
+        var user77 = new User
+        {
+            Name = "Mustermann",
+            VorName = "Max",
+            UserName = "maximust",
+            PasswordHash = hash.Hash,
+            PasswordSalt = hash.Salt,
+            Email = "mustermann.max@example.com",
+            FavouriteBeer = products.ElementAt(0),
+            BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
+            Points = 500,
+            EmailConfirmed = true,
+            Location = new Coordinate()
+            {
+                Latitude = 48.1351,
+                Longitude = 11.5820,
+                Altitude = 100
+            }
+        };
+
+        _dbContext.AddUser(user77);
+        products.ElementAt(0).UsersHavingThisAsFavouriteBeer.Add(user77);
+
         #endregion
 
         #region admin
@@ -192,7 +215,7 @@ public class DatabaseUpdateService : BackgroundService
         {
             var vorname = Guid.NewGuid().ToString();
             var nachname = Guid.NewGuid().ToString();
-            var username = vorname[..17] + nachname[..17];
+            var username = vorname[..7] + nachname[..7];
             var mail = username + "@example.com";
 
             var user2 = new User
