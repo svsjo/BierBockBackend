@@ -247,7 +247,8 @@ public class BierBockController : ControllerBase
                 x.Time,
                 x.Product.Code,
                 x.Product.ProductName,
-                x.Product.Brands
+                x.Product.Brands,
+                x.Product.ImageUrl
             })
             .OrderByDescending(x => x.Time)
             .ToList();
