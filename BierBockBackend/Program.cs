@@ -142,5 +142,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-record JAuthUser(string UserName, string Password);
