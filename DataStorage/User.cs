@@ -3,6 +3,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #endregion
 
@@ -25,6 +26,9 @@ public class User
     public byte[] PasswordSalt { get; set; } = new byte[32];
     public string Email { get; set; } = string.Empty;
     public string BirthDate { get; set; } = string.Empty;
+
+
+    public bool AccountLocked { get; set; } = false;
 
     public int Points { get; set; } = 0;
 

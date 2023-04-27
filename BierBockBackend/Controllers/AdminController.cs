@@ -15,6 +15,20 @@ public class AdminController
         _dbAppDatabaseContext = dbAppDatabaseContext;
     }
 
+    [HttpPost("lockUser",Name = "LockUser")]
+    public RequestStatus<object> LockUser(string username)
+    {
+        var user =  _dbAppDatabaseContext.GetUsers()
+            .FirstOrDefault(x => x.UserName == username)!;
+        user.AccountLocked = true;
+        _dbAppDatabaseContext.Update(user);
+        _dbAppDatabaseContext.SaveChanges();
+        return new RequestStatus<object>()
+        {
+
+        };
+    }
+
     [HttpPost("newChallenge", Name = "AddNewChallenge")]
     public RequestStatus<object> AddNewChallenge(Challenge challenge)
     {
