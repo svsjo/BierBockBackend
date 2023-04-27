@@ -62,11 +62,16 @@ public class BierBockController : ControllerBase
 
         
 
-        var results = challenges.Select(x => new
+        var results = challenges.ToList().Select(x => new
         {
             Challenge = x,
-            Progress = _challengeValidtorSelector.ValidateChallengeProgress(user.AllDrinkingActions.Where(da=>x.StartDate>=da.Time&&x.EndDate<da.Time).ToList(), x.SearchString, x.NeededQuantity, x.ChallengeType)
-        });
+            Progress = _challengeValidtorSelector.ValidateChallengeProgress(
+                user.AllDrinkingActions.ToList().Where(da => x.StartDate >= da.Time && x.EndDate < da.Time).ToList(), 
+                x.SearchString, 
+                x.NeededQuantity, 
+                x.ChallengeType)
+        })
+            .ToList();
 
         return new RequestStatus<IEnumerable<object>>
         {
@@ -198,7 +203,7 @@ public class BierBockController : ControllerBase
         };
     }
 
-    [HttpGet("TESTWEISE_nearestDrinkers", Name = "GetNearestDrinkers")]
+    [HttpGet("nearestDrinkers", Name = "GetNearestDrinkers")]
     public RequestStatus<IEnumerable<object>> GetNearestDrinkers([FromQuery] double latitude, [FromQuery] double longitude,
         [FromQuery] double altitude, [FromQuery] string? beerCode = default)
     {

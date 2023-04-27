@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.ComponentModel;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -178,6 +179,7 @@ namespace BierBockBackend.Controllers
         }
 
 
+        
         public record AuthUser(string UserName, string Password);
 
         public class RegisterUser

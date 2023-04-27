@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataStorage.Migrations
 {
     [DbContext(typeof(AppDatabaseContext))]
-    [Migration("20230421095901_jonajonasaaaaaaaaaa")]
-    partial class jonajonasaaaaaaaaaa
+    [Migration("20230427114801_husoaa")]
+    partial class husoaa
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,29 +112,6 @@ namespace DataStorage.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("DrinkActions");
-                });
-
-            modelBuilder.Entity("DataStorage.HelperClasses.ChallengeUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChallengeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ChallengeUser");
                 });
 
             modelBuilder.Entity("DataStorage.Product", b =>
@@ -280,6 +257,9 @@ namespace DataStorage.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("AccountLocked")
+                        .HasColumnType("bit");
+
                     b.Property<int>("BeerId")
                         .HasColumnType("int");
 
@@ -368,25 +348,6 @@ namespace DataStorage.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DataStorage.HelperClasses.ChallengeUser", b =>
-                {
-                    b.HasOne("DataStorage.Challenge", "Challenge")
-                        .WithMany("Users")
-                        .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("DataStorage.User", "User")
-                        .WithMany("UserChallenges")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Challenge");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DataStorage.User", b =>
                 {
                     b.HasOne("DataStorage.Product", "FavouriteBeer")
@@ -406,11 +367,6 @@ namespace DataStorage.Migrations
                     b.Navigation("Location");
                 });
 
-            modelBuilder.Entity("DataStorage.Challenge", b =>
-                {
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("DataStorage.Product", b =>
                 {
                     b.Navigation("UsedInDrinkActions");
@@ -421,8 +377,6 @@ namespace DataStorage.Migrations
             modelBuilder.Entity("DataStorage.User", b =>
                 {
                     b.Navigation("AllDrinkingActions");
-
-                    b.Navigation("UserChallenges");
                 });
 #pragma warning restore 612, 618
         }

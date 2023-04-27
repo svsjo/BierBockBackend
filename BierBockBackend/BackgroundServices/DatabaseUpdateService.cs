@@ -106,12 +106,12 @@ public class DatabaseUpdateService : BackgroundService
                 var drinkAction = new DrinkAction
                 {
                     Product = product,
-                    Time = DateTime.Now,
+                    Time = DateTime.Now.AddMinutes(5),
                     Location = new Coordinate()
                     {
-                        Latitude = 48.1351 + random.Next(0, 400),
-                        Longitude = 11.5820 + random.Next(0, 400),
-                        Altitude = 100 + random.Next(0, 200),
+                        Latitude = 0 + random.Next(-90, 90),
+                        Longitude = 0 + random.Next(-180, 180),
+                        Altitude = 500 + random.Next(-100, 100),
                     },
                     User = user,
                 };
@@ -149,7 +149,7 @@ public class DatabaseUpdateService : BackgroundService
             {
                 Latitude = 48.1351,
                 Longitude = 11.5820,
-                Altitude = 100
+                Altitude = 600
             }
         };
 
@@ -172,7 +172,7 @@ public class DatabaseUpdateService : BackgroundService
             {
                 Latitude = 48.1351,
                 Longitude = 11.5820,
-                Altitude = 100
+                Altitude = 600
             }
         };
 
@@ -200,7 +200,7 @@ public class DatabaseUpdateService : BackgroundService
             {
                 Latitude = 48.1351,
                 Longitude = 11.5820,
-                Altitude = 100
+                Altitude = 600
             }
         };
 
@@ -228,13 +228,13 @@ public class DatabaseUpdateService : BackgroundService
                 Email = mail,
                 FavouriteBeer = product,
                 BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
-                Points = 10 + random.Next(0, 500),
+                Points = 0 + random.Next(0, 500),
                 EmailConfirmed = true,
                 Location = new Coordinate()
                 {
-                    Latitude = 48.1351 + random.Next(0, 400),
-                    Longitude = 11.5820 + random.Next(0, 400),
-                    Altitude = 100 + random.Next(0, 200)
+                    Latitude = 0 + random.Next(-90, 90),
+                    Longitude = 0 + random.Next(-180, 180),
+                    Altitude = 500 + random.Next(-100, 100),
                 }
             };
 
@@ -305,27 +305,4 @@ public class DatabaseUpdateService : BackgroundService
         _dbContext.AddChallenge(challenge5);
         _dbContext.AddChallenge(challenge6);
     }
-
-    //private void AddChallengesToUsers()
-    //{
-    //    var challenges = _dbContext.GetChallenges();
-    //    var users = _dbContext.GetUsers();
-
-    //    foreach (var user in users)
-    //    {
-    //        foreach (var challenge in challenges)
-    //        {
-    //            var challengeUser = new ChallengeUser()
-    //            {
-    //                Challenge = challenge,
-    //                User = user,
-    //            };
-
-    //            challenge.Users.Add(challengeUser);
-    //            //user.UserChallenges.Add(challengeUser);
-    //        }
-    //    }
-
-    //    _dbContext.SaveChanges();
-    //}
 }
