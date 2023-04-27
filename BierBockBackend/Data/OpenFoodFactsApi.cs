@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DataStorage;
 
@@ -30,7 +31,8 @@ namespace BierBockBackend.Data
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsStringAsync();
-                    var products = JsonConvert.DeserializeObject<ProductList>(result);
+                    //   var products = JsonConvert.DeserializeObject<ProductList>(result);
+                    var products = JsonSerializer.Deserialize<ProductList>(result);
 
                     if (products?.Products == null) break;
 

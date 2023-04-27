@@ -1,5 +1,7 @@
 using BierBockBackend.Data;
+using BierBockBackend.Identity;
 using DataStorage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BierBockBackend.Controllers;
@@ -15,6 +17,7 @@ public class AdminController
         _dbAppDatabaseContext = dbAppDatabaseContext;
     }
 
+<<<<<<< HEAD
     [HttpPost("lockUser",Name = "LockUser")]
     public RequestStatus<object> LockUser(string username)
     {
@@ -29,16 +32,28 @@ public class AdminController
         };
     }
 
+=======
+
+    [Authorize(Policy = IdentityData.AdminUserPolicyName)]
+>>>>>>> 497ddb2ec8c135bfc8e666ae982783bf1c74424d
     [HttpPost("newChallenge", Name = "AddNewChallenge")]
     public RequestStatus<object> AddNewChallenge(Challenge challenge)
     {
+        // TODO
+
         return new RequestStatus<object>
         {
         };
     }
 
-    /*
-     * Sperre User XY
-     * ...?
-     */
+    [Authorize(Policy = IdentityData.AdminUserPolicyName)]
+    [HttpPost("blockUser", Name = "BlockUser")]
+    public RequestStatus<object> BlockUser(string userName)
+    {
+        // TODO
+
+        return new RequestStatus<object>
+        {
+        };
+    }
 }

@@ -1,4 +1,4 @@
-//using OpenFoodDbAbfrage;
+#region Imports
 
 using BierBockBackend.Data;
 using DataStorage;
@@ -13,19 +13,27 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Timers;
+using BierBockBackend.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using BierBockBackend.BackgroundServices;
+using BierBockBackend.Identity;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Hosting;
 
+#endregion
+
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+#region Services
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+#region Swagger
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -56,6 +64,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+#endregion
+
+#region Logging
 
 builder.Services.AddHttpLogging(logging =>
 {
@@ -71,10 +82,21 @@ builder.Services.AddHttpLogging(logging =>
     logging.RequestHeaders.Add("Authorization");
 });
 
-builder.Services.AddDbContext<AppDatabaseContext>(); //(ServiceLifetime.Singleton);
+#endregion
 
-builder.Services.AddHostedService<ChallengeUpdateService>();
+
+builder.Services.AddDbContext<AppDatabaseContext>();
+
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+#region Background Services
+
 builder.Services.AddHostedService<DatabaseUpdateService>();
+builder.Services.AddHostedService<ChallengeUpdateService>();
+
+#endregion
+
+#region Authentification and Authorization
 
 builder.Services.AddAuthentication(options =>
 {
@@ -95,7 +117,15 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true
     };
 });
-builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(IdentityData.AdminUserPolicyName, policy => policy.RequireClaim(IdentityData.AdminUserClaimName, "True"));
+});
+
+#endregion
+
+#endregion
 
 var app = builder.Build();
 
@@ -105,38 +135,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
-//app.MapPost("/security/createToken", [AllowAnonymous](JAuthUser user) =>
-//{
-//    if (user.UserName == "mustimax" && user.Password == "Password123")
-//    {
-//        var issuer = builder.Configuration["Jwt:Issuer"];
-//        var audience = builder.Configuration["Jwt:Audience"];
-//        var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
-//        var tokenDescriptor = new SecurityTokenDescriptor
-//        {
-//            Subject = new ClaimsIdentity(new[]
-//            {
-//                new Claim("Id", Guid.NewGuid().ToString()),
-//                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-//                new Claim(JwtRegisteredClaimNames.Email, user.UserName),
-//                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-//            }),
-//            Expires = DateTime.UtcNow.AddMinutes(60),
-//            Issuer = issuer,
-//            Audience = audience,
-//            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
-//        };
-//        var tokenHandler = new JwtSecurityTokenHandler();
-//        var token = tokenHandler.CreateToken(tokenDescriptor);
-//        var jwtToken = tokenHandler.WriteToken(token);
-//        var stringToken = tokenHandler.WriteToken(token);
-//        return Results.Ok(stringToken);
-//    }
-
-//    return Results.Unauthorized();
-//});
-
 app.UseHttpLogging();
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -144,5 +142,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-record JAuthUser(string UserName, string Password);

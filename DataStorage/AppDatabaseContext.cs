@@ -1,4 +1,6 @@
 ﻿#region
+
+using DataStorage.HelperClasses;
 using Microsoft.EntityFrameworkCore;
 
 #endregion
@@ -10,10 +12,8 @@ public class AppDatabaseContext : DbContext
     private DbSet<DrinkAction> DrinkActions { get; set; }
     private DbSet<User> Users { get; set; }
     private DbSet<Product> Products { get; set; }
+    private DbSet<Challenge> Challenges { get; set; }
 
-    private readonly Mutex _mutexDrinkActions = new();
-    private readonly Mutex _mutexUsers = new();
-    private readonly Mutex _mutexProducts = new();
 
     //Add-Migration Name
     //Update-Database
@@ -21,6 +21,17 @@ public class AppDatabaseContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        /* n-m-Beziehung User zu Challenge */
+        modelBuilder.Entity<ChallengeUser>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.UserChallenges)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<ChallengeUser>()
+            .HasOne(x => x.Challenge)
+            .WithMany(x => x.Users)
+            .OnDelete(DeleteBehavior.NoAction);
 
         /* 1-n-Beziehung User zu DrinkAction */
         modelBuilder.Entity<DrinkAction>()
@@ -41,114 +52,67 @@ public class AppDatabaseContext : DbContext
             .OnDelete(DeleteBehavior.NoAction);
     }
 
+    public IQueryable<Challenge> GetChallenges()
+    {
+        return Challenges
+            .AsQueryable()
+            .Include(x => x.Users)
+            .AsSplitQuery();
+    }
+
+    public void AddChallenge(Challenge entry)
+    {
+        Challenges.Add(entry);
+        SaveChanges();
+    }
+
     public void AddUser(User entry)
     {
-        try
-        {
-            _mutexUsers.WaitOne();
-
-            Users.Add(entry);
-            SaveChanges();
-        }
-        finally
-        {
-            _mutexUsers.ReleaseMutex();
-        }
+        Users.Add(entry);
+        SaveChanges();
     }
 
     public IQueryable<User> GetUsers()
     {
-        try
-        {
-            _mutexUsers.WaitOne();
-
-            return Users
-                .AsQueryable()
-                .Include(x => x.AllDrinkingActions)
-                .ThenInclude(x => x.Product)
-                .Include(x => x.FavouriteBeer)
-                .AsSplitQuery();
-        }
-        finally
-        {
-            _mutexUsers.ReleaseMutex();
-        }
+        return Users
+            .AsQueryable()
+            .Include(x => x.UserChallenges)
+            .ThenInclude(x => x.Challenge)
+            .Include(x => x.AllDrinkingActions)
+            .ThenInclude(x => x.Product)
+            .Include(x => x.FavouriteBeer)
+            .AsSplitQuery();
     }
 
     public IQueryable<Product> GetProducts()
     {
-        try
-        {
-            _mutexProducts.WaitOne();
-
-            return Products.AsQueryable();
-        }
-        finally
-        {
-            _mutexProducts.ReleaseMutex();
-        }
+        return Products.AsQueryable();
     }
 
     public void AddProduct(Product entry)
     {
-        try
-        {
-            _mutexProducts.WaitOne();
-
-            Products.Add(entry);
-            SaveChanges();
-        }
-        finally
-        {
-            _mutexProducts.ReleaseMutex();
-        }
+        Products.Add(entry);
+        SaveChanges();
     }
 
     public void AddProducts(IEnumerable<Product> entries)
     {
-        try
-        {
-            _mutexProducts.WaitOne();
-
-            Products.AddRange(entries);
-            SaveChanges();
-        }
-        finally
-        {
-            _mutexProducts.ReleaseMutex();
-        }
+        Products.AddRange(entries);
+        SaveChanges();
     }
 
     public IQueryable<DrinkAction> GetDrinkActions()
     {
-        try
-        {
-            _mutexDrinkActions.WaitOne();
-
-            return DrinkActions
-                .AsQueryable()
-                .Include(x => x.Product)
-                .AsSplitQuery();
-        }
-        finally
-        {
-            _mutexDrinkActions.ReleaseMutex();
-        }
+        return DrinkActions
+            .AsQueryable()
+            .Include(x => x.Product)
+            .AsSplitQuery();
     }
 
     public void AddDrinkAction(DrinkAction entry)
     {
-        try
-        {
-            _mutexDrinkActions.WaitOne();
-
-            DrinkActions.Add(entry);
-            SaveChanges();
-        }
-        finally
-        {
-            _mutexDrinkActions.ReleaseMutex();
-        }
+        DrinkActions.Add(entry);
+        SaveChanges();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)

@@ -31,4 +31,7 @@ public class Challenge
 
     [JsonIgnore]
     public ChallengeType ChallengeType { get; set; }
+
+    [JsonIgnore]
+    public virtual ICollection<ChallengeUser> Users { get; set; }
 }

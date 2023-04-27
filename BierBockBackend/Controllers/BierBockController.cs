@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.InteropServices.ComTypes;
+using System.Runtime.InteropServices.JavaScript;
 using BierBockBackend.Data;
 using DataStorage;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ using System.Security;
 using Microsoft.AspNetCore.Http.Metadata;
 using System.Xml.Linq;
 using DataStorage.HelperClasses;
+using GeoCoordinatePortable;
 using Microsoft.AspNetCore.Authorization;
 
 namespace BierBockBackend.Controllers;
@@ -57,18 +59,16 @@ public class BierBockController : ControllerBase
     {
         var user = GetCurrentUser();
 
-        var challenges = user.UserChallenges;
+        var challenges = user.UserChallenges.Select(x => x.Challenge);
         var results = challenges.Select(x => new
         {
             Challenge = x,
             Progress = _challengeValidtorSelector.ValidateChallengeProgress(user.AllDrinkingActions, x.SearchString, x.NeededQuantity, x.ChallengeType)
         });
 
-        var status = (challenges.Any() ? Status.Successful : Status.NoResults);
-
         return new RequestStatus<IEnumerable<object>>
         {
-            Status = status,
+            Status = Status.Successful,
             Result = results
         };
     }
@@ -87,9 +87,6 @@ public class BierBockController : ControllerBase
                             (x.Product.Categories != null && x.Product.Categories.ToLower().Contains(searchString.ToLower())))
                 .OrderByDescending(x => x.Time);
 
-
-        var status = results.Any() ? Status.Successful : Status.NoResults;
-
         return new RequestStatus<IEnumerable<object>>
         {
             Result = results.Select(x => new
@@ -97,7 +94,7 @@ public class BierBockController : ControllerBase
                 x.Location,
                 x.Time
             }),
-            Status = status
+            Status = Status.Successful
         };
     }
 
@@ -109,12 +106,10 @@ public class BierBockController : ControllerBase
                         (x.Brands != default && x.Brands.ToLower().Contains(searchString.ToLower())))
             .Take(25);
 
-        var status = results.Any() ? Status.Successful : Status.NoResults;
-
         return new RequestStatus<IEnumerable<object>>
         {
             Result = results,
-            Status = status
+            Status = Status.Successful
         };
     }
 
@@ -151,11 +146,9 @@ public class BierBockController : ControllerBase
         var ownRanking = results
             .First(x => x.UserName == user.UserName);
 
-        var status = results.Any() ? Status.Successful : Status.NoResults;
-
         return new RequestStatus<object>
         {
-            Status = status,
+            Status = Status.Successful,
             Result = new
             {
                 Top25 = results.Take(25),
@@ -195,42 +188,50 @@ public class BierBockController : ControllerBase
         var product = _dbAppDatabaseContext.GetProducts()
             .FirstOrDefault(x => x.Code == barcode);
 
-        var status = (product != default ? Status.Successful : Status.NoResults);
-
+ 
         return new RequestStatus<Product>
         {
-            Status = status,
+            Status = Status.Successful,
             Result = product
         };
     }
 
     [HttpGet("TESTWEISE_nearestDrinkers", Name = "GetNearestDrinkers")]
-    public RequestStatus<IEnumerable<object>> GetNearestDrinkers(Coordinate actualLocation, string? beerCode = default)
+    public RequestStatus<IEnumerable<object>> GetNearestDrinkers([FromQuery] double latitude, [FromQuery] double longitude,
+        [FromQuery] double altitude, [FromQuery] string? beerCode = default)
     {
+        var coordinate = new Coordinate
+        {
+            Latitude = latitude,
+            Longitude = longitude,
+            Altitude = altitude
+        };
+
         var user = GetCurrentUser();
-        var users = _dbAppDatabaseContext.GetUsers();
+        var users = _dbAppDatabaseContext.GetUsers().ToList();
 
         var productCode = beerCode ?? user.AllDrinkingActions.Last().Product.Code;
 
         var nearestDrinkActions = _dbAppDatabaseContext.GetUsers()
             .SelectMany(x => x.AllDrinkingActions)
-            .Where(z => (DateTime.Now - z.Time).Minutes < 45)
-            .Where(y => y.Product.Code == productCode);
+            .ToList()
+            .Where(z => (DateTime.Now - z.Time).Days < 45)
+            .ToList()
+            .Where(y => y.Product.Code == productCode)
+            .ToList();
 
         var results = nearestDrinkActions.Select(x => new
         {
             x.User.UserName,
             x.Time,
             x.Location,
-            Distance = actualLocation.GetDistance(x.Location)
+            Distance = coordinate.GetDistance(x.Location)
         });
-
-        var status = results.Any() ? Status.Successful : Status.NoResults;
 
         return new RequestStatus<IEnumerable<object>>
         {
             Result = results,
-            Status = status,
+            Status = Status.Successful,
         };
     }
 
@@ -246,7 +247,8 @@ public class BierBockController : ControllerBase
                 x.Time,
                 x.Product.Code,
                 x.Product.ProductName,
-                x.Product.Brands
+                x.Product.Brands,
+                x.Product.ImageUrl
             })
             .OrderByDescending(x => x.Time)
             .ToList();
@@ -254,11 +256,9 @@ public class BierBockController : ControllerBase
         if (toTime != default) results = results?.Where(x => x.Time < toTime).ToList();
         if (fromTime != default) results = results?.Where(x => x.Time > fromTime).ToList();
 
-        var status = results != default && results.Any() ? Status.Successful : Status.NoResults;
-
         return new RequestStatus<IEnumerable<object>>
         {
-            Status = status,
+            Status = Status.Successful,
             Result = results
         };
     }
@@ -284,14 +284,20 @@ public class BierBockController : ControllerBase
         {
             user.AllDrinkingActions.Add(drinkAction);
             _dbAppDatabaseContext.AddDrinkAction(drinkAction);
+
+            return new RequestStatus<object>
+            {
+                Status = Status.Successful,
+            };
         }
-
-        var status = (product != default ? Status.Successful : Status.NoResults);
-
-        return new RequestStatus<object>
+        else
         {
-            Status = status,
-        };
+            return new RequestStatus<object>
+            {
+                Status = Status.Error,
+                ErrorCode = ErrorCodes.beer_not_found
+            };
+        }
     }
 
     [HttpPost("actualisateUserPosition", Name = "ActualisateUserPosition")]
@@ -323,8 +329,13 @@ public class BierBockController : ControllerBase
         if (newFavouriteBeerCode != default)
         {
             var beer = _dbAppDatabaseContext.GetProducts().FirstOrDefault(x => x.Code == newFavouriteBeerCode);
-            if (beer == default) status = Status.NoResults;
-            else user.FavouriteBeer = beer;
+            if (beer == default)
+                return new RequestStatus<object>
+                {
+                    Status = Status.Error,
+                    ErrorCode = ErrorCodes.beer_not_found
+                };
+            user.FavouriteBeer = beer;
         }
 
         return new RequestStatus<object>
@@ -343,8 +354,11 @@ public class BierBockController : ControllerBase
 
         var user =  _dbAppDatabaseContext.GetUsers()
             .FirstOrDefault(x => x.UserName == name)!;
+<<<<<<< HEAD
 
         if (user.AccountLocked) throw new Exception("Account Locked");
         return user;
+=======
+>>>>>>> 497ddb2ec8c135bfc8e666ae982783bf1c74424d
     }
 }

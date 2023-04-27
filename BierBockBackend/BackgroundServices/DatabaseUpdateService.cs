@@ -35,24 +35,28 @@ public class DatabaseUpdateService : BackgroundService
             _logger.LogInformation("Scheduled task started at: {time}", DateTimeOffset.Now);
 
             await this.InsertNewProducts();
-            this.InitBasicUserData(); // nur testweise - Mock Daten
+            this.InitBasicUserData();
 
             _logger.LogInformation("Scheduled task ended at: {time}", DateTimeOffset.Now);
 
-            await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromDays(3), stoppingToken);
         }
     }
 
     private async Task InsertNewProducts()
     {
         var products = await _foodFactsApi.GetBeerData();
+        var newProducts = 0;
 
         foreach (var product in products
                      .Where(product => _dbContext.GetProducts()
                          .All(x => x.Code != product.Code)))
         {
             _dbContext.AddProduct(product);
+            newProducts++;
         }
+
+        _logger.LogInformation($"Added {newProducts} new Products: {DateTimeOffset.Now}");
     }
 
     private void InitBasicUserData()
@@ -66,16 +70,25 @@ public class DatabaseUpdateService : BackgroundService
         if (_dbContext.GetUsers().Count() < users)
         {
             InitUsers(users);
+            _logger.LogInformation("Added Testusers at: {time}", DateTimeOffset.Now);
         }
 
         if (_dbContext.GetDrinkActions().Count() < drinkActions)
         {
             InitDrinkActions(drinkActions);
+            _logger.LogInformation("Added Testdrinkactions at: {time}", DateTimeOffset.Now);
+        }
+
+        if (_dbContext.GetChallenges().Count() < challenges)
+        {
+            InitChallenges();
+            _logger.LogInformation("Added Testchallenges at: {time}", DateTimeOffset.Now);
         }
 
         if (_dbContext.GetUsers().First().UserChallenges.Count() < challenges)
         {
-            InitChallenges();
+            AddChallengesToUsers();
+            _logger.LogInformation("Mapped Challenges to Users at: {time}", DateTimeOffset.Now);
         }
     }
 
@@ -131,6 +144,7 @@ public class DatabaseUpdateService : BackgroundService
             FavouriteBeer = products.ElementAt(0),
             BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
             Points = 10,
+            EmailConfirmed = true,
             Location = new Coordinate()
             {
                 Latitude = 48.1351,
@@ -142,6 +156,57 @@ public class DatabaseUpdateService : BackgroundService
         _dbContext.AddUser(user);
         products.ElementAt(0).UsersHavingThisAsFavouriteBeer.Add(user);
 
+        var user77 = new User
+        {
+            Name = "Mustermann",
+            VorName = "Max",
+            UserName = "maximust",
+            PasswordHash = hash.Hash,
+            PasswordSalt = hash.Salt,
+            Email = "mustermann.max@example.com",
+            FavouriteBeer = products.ElementAt(0),
+            BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
+            Points = 500,
+            EmailConfirmed = true,
+            Location = new Coordinate()
+            {
+                Latitude = 48.1351,
+                Longitude = 11.5820,
+                Altitude = 100
+            }
+        };
+
+        _dbContext.AddUser(user77);
+        products.ElementAt(0).UsersHavingThisAsFavouriteBeer.Add(user77);
+
+        #endregion
+
+        #region admin
+
+        var admin = new User
+        {
+            Name = "Strator",
+            VorName = "Admin",
+            UserName = "admin",
+            PasswordHash = hash.Hash,
+            PasswordSalt = hash.Salt,
+            Email = "max.mustermann@example.com",
+            FavouriteBeer = products.ElementAt(0),
+            BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
+            Points = 10,
+            EmailConfirmed = true,
+            IsAdmin = true,
+            Location = new Coordinate()
+            {
+                Latitude = 48.1351,
+                Longitude = 11.5820,
+                Altitude = 100
+            }
+        };
+
+        _dbContext.AddUser(admin);
+        products.ElementAt(0).UsersHavingThisAsFavouriteBeer.Add(admin);
+
         #endregion
 
         var random = new Random();
@@ -150,7 +215,7 @@ public class DatabaseUpdateService : BackgroundService
         {
             var vorname = Guid.NewGuid().ToString();
             var nachname = Guid.NewGuid().ToString();
-            var username = vorname[..17] + nachname[..17];
+            var username = vorname[..7] + nachname[..7];
             var mail = username + "@example.com";
 
             var user2 = new User
@@ -164,6 +229,7 @@ public class DatabaseUpdateService : BackgroundService
                 FavouriteBeer = product,
                 BirthDate = new DateOnly(1990, 1, 1).ToLongDateString(),
                 Points = 10 + random.Next(0, 500),
+                EmailConfirmed = true,
                 Location = new Coordinate()
                 {
                     Latitude = 48.1351 + random.Next(0, 400),
@@ -181,67 +247,83 @@ public class DatabaseUpdateService : BackgroundService
 
     private void InitChallenges()
     {
-        var users = _dbContext.GetUsers().ToList();
+        var challenge = new Challenge()
+        {
+            ChallengeType = ChallengeType.DifferentBrand,
+            Description = "Trinke von drei unterschiedlichen Marken",
+            PossiblePoints = 30,
+            NeededQuantity = 3
+        };
+
+        var challenge2 = new Challenge()
+        {
+            ChallengeType = ChallengeType.SameBrand,
+            Description = "Trinke drei Bier der Marke Alpirsbacher",
+            SearchString = "Alpirsbacher",
+            PossiblePoints = 50,
+            NeededQuantity = 3
+        };
+
+        var challenge3 = new Challenge()
+        {
+            ChallengeType = ChallengeType.DifferentBeer,
+            Description = "Trinke fünf unterschiedliche Bier",
+            PossiblePoints = 20,
+            NeededQuantity = 5
+        };
+
+        var challenge4 = new Challenge()
+        {
+            ChallengeType = ChallengeType.SameBeer,
+            Description = "Trinke fünf Alpirsbacher Spezial",
+            SearchString = "Alpirsbacher Spezial",
+            PossiblePoints = 30,
+            NeededQuantity = 5
+        };
+
+        var challenge5 = new Challenge()
+        {
+            ChallengeType = ChallengeType.DifferentSize,
+            Description = "Trinke drei Biere unterschiedlicher Größe",
+            PossiblePoints = 20,
+            NeededQuantity = 3
+        };
+
+        var challenge6 = new Challenge()
+        {
+            ChallengeType = ChallengeType.SameSize,
+            Description = "Trinke drei Bier der Größe 0,5L",
+            SearchString = "0,5L",
+            PossiblePoints = 50,
+            NeededQuantity = 3
+        };
+
+        _dbContext.AddChallenge(challenge);
+        _dbContext.AddChallenge(challenge2);
+        _dbContext.AddChallenge(challenge3);
+        _dbContext.AddChallenge(challenge4);
+        _dbContext.AddChallenge(challenge5);
+        _dbContext.AddChallenge(challenge6);
+    }
+
+    private void AddChallengesToUsers()
+    {
+        var challenges = _dbContext.GetChallenges();
+        var users = _dbContext.GetUsers();
 
         foreach (var user in users)
         {
-            var challenge = new Challenge()
+            foreach (var challenge in challenges)
             {
-                ChallengeType = ChallengeType.DifferentBrand,
-                Description = "Trinke von drei unterschiedlichen Marken",
-                PossiblePoints = 30,
-                NeededQuantity = 3
-            };
+                var challengeUser = new ChallengeUser()
+                {
+                    Challenge = challenge,
+                    User = user,
+                };
 
-            var challenge2 = new Challenge()
-            {
-                ChallengeType = ChallengeType.SameBrand,
-                Description = "Trinke drei Bier der Marke Alpirsbacher",
-                SearchString = "Alpirsbacher",
-                PossiblePoints = 50,
-                NeededQuantity = 3
-            };
-
-            var challenge3 = new Challenge()
-            {
-                ChallengeType = ChallengeType.DifferentBeer,
-                Description = "Trinke fünf unterschiedliche Bier",
-                PossiblePoints = 20,
-                NeededQuantity = 5
-            };
-
-            var challenge4 = new Challenge()
-            {
-                ChallengeType = ChallengeType.SameBeer,
-                Description = "Trinke fünf Alpirsbacher Spezial",
-                SearchString = "Alpirsbacher Spezial",
-                PossiblePoints = 30,
-                NeededQuantity = 5
-            };
-
-            var challenge5 = new Challenge()
-            {
-                ChallengeType = ChallengeType.DifferentSize,
-                Description = "Trinke drei Biere unterschiedlicher Größe",
-                PossiblePoints = 20,
-                NeededQuantity = 3
-            };
-
-            var challenge6 = new Challenge()
-            {
-                ChallengeType = ChallengeType.SameSize,
-                Description = "Trinke drei Bier der Größe 0,5L",
-                SearchString = "0,5L",
-                PossiblePoints = 50,
-                NeededQuantity = 3
-            };
-
-            user.UserChallenges.Add(challenge);
-            user.UserChallenges.Add(challenge2);
-            user.UserChallenges.Add(challenge3);
-            user.UserChallenges.Add(challenge4);
-            user.UserChallenges.Add(challenge5);
-            user.UserChallenges.Add(challenge6);
+                challenge.Users.Add(challengeUser);
+                user.UserChallenges.Add(challengeUser);
+            }
         }
 
         _dbContext.SaveChanges();

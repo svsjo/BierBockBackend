@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using BierBockBackend.Auth;
 using BierBockBackend.Data;
+using BierBockBackend.Identity;
 using DataStorage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,22 +12,23 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BierBockBackend.Controllers
 {
-
     [ApiController]
     [Route("/security/")]
     public class AuthenticationController : ControllerBase
     {
         private readonly IConfiguration _configuration;
         private readonly AppDatabaseContext _databaseContext;
+        private readonly IEmailSender _iEmailSender;
 
-        public AuthenticationController(IConfiguration configuration, AppDatabaseContext databaseContext)
+        public AuthenticationController(IConfiguration configuration, AppDatabaseContext databaseContext, IEmailSender iEmailSender)
         {
             _configuration = configuration;
             _databaseContext = databaseContext;
+            _iEmailSender = iEmailSender;
         }
 
         [AllowAnonymous]
-        [HttpPost("confirmEmail", Name = "ConfirmEmail")]
+        [HttpGet("confirmEmail", Name = "ConfirmEmail")]
         public string ConfirmEmail(string emailToken, string username)
         {
             var user = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == username);
@@ -35,8 +37,11 @@ namespace BierBockBackend.Controllers
             if (user.EmailConfirmed) return "User is already confirmed";
 
             if (user.EmailToken != emailToken) return "Invalid Token";
-         
+
             user.EmailConfirmed = true;
+
+            _databaseContext.Update(user);
+            _databaseContext.SaveChanges();
             return "Success";
         }
 
@@ -44,34 +49,36 @@ namespace BierBockBackend.Controllers
         [HttpPost("register", Name = "Register")]
         public RequestStatus<object> Register(RegisterUser registerUser)
         {
-
             if (!registerUser.IsUserNameValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid UserName" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_username };
 
             if (_databaseContext.GetUsers().Any(x => x.UserName == registerUser.UserName))
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "UserName taken" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.username_taken };
+
+            if(_databaseContext.GetUsers().Any(x=>x.Email==registerUser.Email)) return new RequestStatus<object>()
+                { Status = Status.Error, ErrorCode = ErrorCodes.mail_taken };
 
             if (!registerUser.IsVornameValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Vorname" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_firstname_format };
 
             if (!registerUser.IsNachnameValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Nachname" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_surname_format };
 
             if (!registerUser.IsPasswordValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Password" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_password_format };
 
             if (!registerUser.IsEmailValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Email" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_email_format };
 
             if (!registerUser.IsBirthdateValid)
                 return new RequestStatus<object>()
-                    { Status = Status.Error, DetailledErrorMessage = "Invalid Birthdate" };
+                    { Status = Status.Error, ErrorCode = ErrorCodes.invalid_birthdate_format};
 
             var pwdHash = PasswordHashing.HashPassword(registerUser.Password);
             var user = new User
@@ -88,6 +95,9 @@ namespace BierBockBackend.Controllers
                 FavouriteBeer = new Product()
             };
             _databaseContext.AddUser(user);
+
+            _iEmailSender.SendConfirmationMail(user.Email, user.EmailToken, user.UserName);
+
             return new RequestStatus<object>()
             {
                 Status = Status.Successful
@@ -104,33 +114,37 @@ namespace BierBockBackend.Controllers
             return GuidString;
         }
 
+
         [AllowAnonymous]
         [HttpPost("createToken", Name = "CreateToken")]
-
         public RequestStatus<object> CreateToken(AuthUser user)
         {
-
             var userMatch = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == user.UserName);
+
+            #region Validation
 
             if (userMatch == null)
                 return new RequestStatus<object>()
                 {
                     Status = Status.Error,
-                    DetailledErrorMessage = "User not found"
+                    ErrorCode = ErrorCodes.user_not_found
                 };
 
-            if(!userMatch.EmailConfirmed) return new RequestStatus<object>()
-            {
-                Status = Status.Error,
-                DetailledErrorMessage = "E-Mail not confirmed"
-            };
+            if (!userMatch.EmailConfirmed)
+                return new RequestStatus<object>()
+                {
+                    Status = Status.Error,
+                    ErrorCode = ErrorCodes.mail_not_confirmed
+                };
 
             if (!PasswordHashing.VerifyPassword(user.Password, userMatch.PasswordHash, userMatch.PasswordSalt))
                 return new RequestStatus<object>()
                 {
                     Status = Status.Error,
-                    DetailledErrorMessage = "Invalid Password"
+                    ErrorCode = ErrorCodes.invalid_password
                 };
+
+            #endregion
 
             var issuer = _configuration["Jwt:Issuer"];
             var audience = _configuration["Jwt:Audience"];
@@ -142,7 +156,8 @@ namespace BierBockBackend.Controllers
                     new Claim("Id", Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                     new Claim(JwtRegisteredClaimNames.Email, user.UserName),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(IdentityData.AdminUserClaimName, userMatch.IsAdmin.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(60),
                 Issuer = issuer,
@@ -154,13 +169,14 @@ namespace BierBockBackend.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwtToken = tokenHandler.WriteToken(token);
             var stringToken = tokenHandler.WriteToken(token);
+
             return new RequestStatus<object>()
             {
                 Status = Status.Successful,
                 Result = stringToken
             };
-
         }
+
 
         public record AuthUser(string UserName, string Password);
 
@@ -191,7 +207,7 @@ namespace BierBockBackend.Controllers
             public bool IsPasswordValid => !string.IsNullOrEmpty(Password) && Password.Length is >= 8 and <= 20;
 
             public bool IsEmailValid =>
-                !string.IsNullOrEmpty(Email) && Email.Length is <= 15 and >= 4 && IsValidEmail(Email);
+                !string.IsNullOrEmpty(Email) && Email.Length is <= 100 and >= 4 && IsValidEmail(Email);
 
             public bool IsBirthdateValid => !string.IsNullOrEmpty(Birthdate) && Birthdate.Length == 10;
 

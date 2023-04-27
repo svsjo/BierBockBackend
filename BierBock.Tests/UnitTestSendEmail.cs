@@ -7,7 +7,7 @@ public class UnitTestSendEmail
     [Fact]
     public void TestSendMail()
     {
-      var x=  EmailSender.SendEmailAsync("i20030@hb.dhbw-stuttgart-de", "Hi", "www.heise.de").Result;
-      Assert.True(x.IsSuccessStatusCode);
+      var x=  new EmailSender().SendConfirmationMail("jona.schwab@gmx.de",  "123","jona").IsCompleted;
+      Assert.True(x);
     }
 }
