@@ -114,6 +114,7 @@ namespace BierBockBackend.Controllers
             return GuidString;
         }
 
+
         [AllowAnonymous]
         [HttpPost("createToken", Name = "CreateToken")]
         public RequestStatus<object> CreateToken(AuthUser user)
