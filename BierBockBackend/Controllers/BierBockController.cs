@@ -57,13 +57,15 @@ public class BierBockController : ControllerBase
     [HttpGet("ownChallenges", Name = "GetOwnChallenges")]
     public RequestStatus<IEnumerable<object>> GetOwnChallenges()
     {
-        var user = GetCurrentUser();
+        var user = GetCurrentUser(); 
+        var challenges = _dbAppDatabaseContext.GetChallenges();
 
-        var challenges = user.UserChallenges.Select(x => x.Challenge);
+        
+
         var results = challenges.Select(x => new
         {
             Challenge = x,
-            Progress = _challengeValidtorSelector.ValidateChallengeProgress(user.AllDrinkingActions, x.SearchString, x.NeededQuantity, x.ChallengeType)
+            Progress = _challengeValidtorSelector.ValidateChallengeProgress(user.AllDrinkingActions.Where(da=>x.StartDate>=da.Time&&x.EndDate<da.Time).ToList(), x.SearchString, x.NeededQuantity, x.ChallengeType)
         });
 
         return new RequestStatus<IEnumerable<object>>

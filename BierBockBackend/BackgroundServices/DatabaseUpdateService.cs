@@ -85,11 +85,11 @@ public class DatabaseUpdateService : BackgroundService
             _logger.LogInformation("Added Testchallenges at: {time}", DateTimeOffset.Now);
         }
 
-        if (_dbContext.GetUsers().First().UserChallenges.Count() < challenges)
-        {
-            AddChallengesToUsers();
-            _logger.LogInformation("Mapped Challenges to Users at: {time}", DateTimeOffset.Now);
-        }
+        //if (_dbContext.GetUsers().First().UserChallenges.Count() < challenges)
+        //{
+        //    AddChallengesToUsers();
+        //    _logger.LogInformation("Mapped Challenges to Users at: {time}", DateTimeOffset.Now);
+        //}
     }
 
     private void InitDrinkActions(int numberDrinkActions)
@@ -306,26 +306,26 @@ public class DatabaseUpdateService : BackgroundService
         _dbContext.AddChallenge(challenge6);
     }
 
-    private void AddChallengesToUsers()
-    {
-        var challenges = _dbContext.GetChallenges();
-        var users = _dbContext.GetUsers();
+    //private void AddChallengesToUsers()
+    //{
+    //    var challenges = _dbContext.GetChallenges();
+    //    var users = _dbContext.GetUsers();
 
-        foreach (var user in users)
-        {
-            foreach (var challenge in challenges)
-            {
-                var challengeUser = new ChallengeUser()
-                {
-                    Challenge = challenge,
-                    User = user,
-                };
+    //    foreach (var user in users)
+    //    {
+    //        foreach (var challenge in challenges)
+    //        {
+    //            var challengeUser = new ChallengeUser()
+    //            {
+    //                Challenge = challenge,
+    //                User = user,
+    //            };
 
-                challenge.Users.Add(challengeUser);
-                user.UserChallenges.Add(challengeUser);
-            }
-        }
+    //            challenge.Users.Add(challengeUser);
+    //            //user.UserChallenges.Add(challengeUser);
+    //        }
+    //    }
 
-        _dbContext.SaveChanges();
-    }
+    //    _dbContext.SaveChanges();
+    //}
 }

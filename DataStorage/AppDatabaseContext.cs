@@ -23,15 +23,15 @@ public class AppDatabaseContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         /* n-m-Beziehung User zu Challenge */
-        modelBuilder.Entity<ChallengeUser>()
-            .HasOne(x => x.User)
-            .WithMany(x => x.UserChallenges)
-            .OnDelete(DeleteBehavior.NoAction);
+        //modelBuilder.Entity<ChallengeUser>()
+        //    .HasOne(x => x.User)
+        //    .WithMany(x => x.UserChallenges)
+        //    .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<ChallengeUser>()
-            .HasOne(x => x.Challenge)
-            .WithMany(x => x.Users)
-            .OnDelete(DeleteBehavior.NoAction);
+        //modelBuilder.Entity<ChallengeUser>()
+        //    .HasOne(x => x.Challenge)
+        //    .WithMany(x => x.Users)
+        //    .OnDelete(DeleteBehavior.NoAction);
 
         /* 1-n-Beziehung User zu DrinkAction */
         modelBuilder.Entity<DrinkAction>()
@@ -56,7 +56,7 @@ public class AppDatabaseContext : DbContext
     {
         return Challenges
             .AsQueryable()
-            .Include(x => x.Users)
+            //.Include(x => x.Users)
             .AsSplitQuery();
     }
 
@@ -76,8 +76,8 @@ public class AppDatabaseContext : DbContext
     {
         return Users
             .AsQueryable()
-            .Include(x => x.UserChallenges)
-            .ThenInclude(x => x.Challenge)
+            //.Include(x => x.UserChallenges)
+            //.ThenInclude(x => x.Challenge)
             .Include(x => x.AllDrinkingActions)
             .ThenInclude(x => x.Product)
             .Include(x => x.FavouriteBeer)
