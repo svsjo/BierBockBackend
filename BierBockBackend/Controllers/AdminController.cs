@@ -17,9 +17,21 @@ public class AdminController
         _dbAppDatabaseContext = dbAppDatabaseContext;
     }
 
+
     [Authorize(Policy = IdentityData.AdminUserPolicyName)]
     [HttpPost("newChallenge", Name = "AddNewChallenge")]
     public RequestStatus<object> AddNewChallenge(Challenge challenge)
+    {
+        // TODO
+
+        return new RequestStatus<object>
+        {
+        };
+    }
+
+    [Authorize(Policy = IdentityData.AdminUserPolicyName)]
+    [HttpPost("blockUser", Name = "BlockUser")]
+    public RequestStatus<object> BlockUser(string userName)
     {
         // TODO
 

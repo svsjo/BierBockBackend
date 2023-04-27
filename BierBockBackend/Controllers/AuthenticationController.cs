@@ -120,6 +120,8 @@ namespace BierBockBackend.Controllers
         {
             var userMatch = _databaseContext.GetUsers().FirstOrDefault(x => x.UserName == user.UserName);
 
+            #region Validation
+
             if (userMatch == null)
                 return new RequestStatus<object>()
                 {
@@ -140,6 +142,8 @@ namespace BierBockBackend.Controllers
                     Status = Status.Error,
                     ErrorCode = ErrorCodes.invalid_password
                 };
+
+            #endregion
 
             var issuer = _configuration["Jwt:Issuer"];
             var audience = _configuration["Jwt:Audience"];
@@ -171,6 +175,7 @@ namespace BierBockBackend.Controllers
                 Result = stringToken
             };
         }
+
 
         public record AuthUser(string UserName, string Password);
 
