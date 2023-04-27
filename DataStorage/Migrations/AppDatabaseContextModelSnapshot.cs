@@ -298,12 +298,8 @@ namespace DataStorage.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-<<<<<<< HEAD
-=======
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
-
->>>>>>> 497ddb2ec8c135bfc8e666ae982783bf1c74424d
                     b.Property<int>("LocationId")
                         .HasColumnType("int");
 

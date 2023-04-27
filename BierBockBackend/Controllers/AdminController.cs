@@ -17,7 +17,7 @@ public class AdminController
         _dbAppDatabaseContext = dbAppDatabaseContext;
     }
 
-<<<<<<< HEAD
+    [Authorize(Policy = IdentityData.AdminUserPolicyName)]
     [HttpPost("lockUser",Name = "LockUser")]
     public RequestStatus<object> LockUser(string username)
     {
@@ -32,10 +32,8 @@ public class AdminController
         };
     }
 
-=======
 
     [Authorize(Policy = IdentityData.AdminUserPolicyName)]
->>>>>>> 497ddb2ec8c135bfc8e666ae982783bf1c74424d
     [HttpPost("newChallenge", Name = "AddNewChallenge")]
     public RequestStatus<object> AddNewChallenge(Challenge challenge)
     {

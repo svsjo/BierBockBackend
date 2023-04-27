@@ -352,13 +352,11 @@ public class BierBockController : ControllerBase
             .FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?
             .Value;
 
-        var user =  _dbAppDatabaseContext.GetUsers()
-            .FirstOrDefault(x => x.UserName == name)!;
-<<<<<<< HEAD
+        var user = _dbAppDatabaseContext.GetUsers()
+            .FirstOrDefault(x => x.UserName == name);
 
         if (user.AccountLocked) throw new Exception("Account Locked");
         return user;
-=======
->>>>>>> 497ddb2ec8c135bfc8e666ae982783bf1c74424d
+
     }
 }
