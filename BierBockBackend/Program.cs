@@ -92,7 +92,6 @@ builder.Services.AddScoped<IEmailSender, EmailSender>();
 #region Background Services
 
 builder.Services.AddHostedService<DatabaseUpdateService>();
-builder.Services.AddHostedService<ChallengeUpdateService>();
 
 #endregion
 
