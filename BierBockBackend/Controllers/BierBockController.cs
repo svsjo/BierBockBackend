@@ -345,6 +345,8 @@ public class BierBockController : ControllerBase
             user.FavouriteBeer = beer;
         }
 
+        _dbAppDatabaseContext.SaveChanges();
+
         return new RequestStatus<object>
         {
             Status = status,
