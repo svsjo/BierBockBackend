@@ -1,10 +1,9 @@
-﻿using System.Drawing;
-
-namespace DataStorage.HelperClasses;
+﻿namespace DataStorage.HelperClasses;
 
 public class SameBeerChallenge : IChallengeValidator
 {
-    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString, int neededQuantity)
+    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString,
+        int neededQuantity)
     {
         int done;
 
@@ -22,10 +21,7 @@ public class SameBeerChallenge : IChallengeValidator
         }
 
         var partialProgress = new List<string?>();
-        for (int i = 0; i < done; i++)
-        {
-            partialProgress.Add(searchString);
-        }
+        for (var i = 0; i < done; i++) partialProgress.Add(searchString);
 
         return new ChallengeProgress
         {

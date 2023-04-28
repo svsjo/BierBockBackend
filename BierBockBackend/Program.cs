@@ -1,33 +1,20 @@
-#region Imports
+#region
 
-using BierBockBackend.Data;
-using DataStorage;
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
-using System.Timers;
 using BierBockBackend.Auth;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
 using BierBockBackend.BackgroundServices;
 using BierBockBackend.Identity;
+using DataStorage;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Hosting;
 
 #endregion
 
+#region Builder
 
 var builder = WebApplication.CreateBuilder(args);
-
-#region Services
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -40,7 +27,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "BierBockBackend",
         Version = "v1",
-        Description = "Backend full of Beer!"
+        Description = "Backend full of Beer!",
     });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -84,12 +71,11 @@ builder.Services.AddHttpLogging(logging =>
 
 #endregion
 
+#region Services
 
 builder.Services.AddDbContext<AppDatabaseContext>();
 
 builder.Services.AddScoped<IEmailSender, EmailSender>();
-
-#region Background Services
 
 builder.Services.AddHostedService<DatabaseUpdateService>();
 
@@ -119,7 +105,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy(IdentityData.AdminUserPolicyName, policy => policy.RequireClaim(IdentityData.AdminUserClaimName, "True"));
+    options.AddPolicy(IdentityData.AdminUserPolicy,
+        policy => policy.RequireClaim(IdentityData.AdminUserClaim, "True"));
 });
 
 #endregion

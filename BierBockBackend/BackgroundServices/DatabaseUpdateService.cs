@@ -1,30 +1,32 @@
-﻿using BierBockBackend.Data;
+﻿#region
+
+using BierBockBackend.Data;
 using DataStorage;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+
+#endregion
 
 namespace BierBockBackend.BackgroundServices;
 
 public class DatabaseUpdateService : BackgroundService
 {
-    private readonly ILogger<DatabaseUpdateService>? _logger;
     private readonly AppDatabaseContext _dbContext;
     private readonly OpenFoodFactsApi _foodFactsApi;
-    private readonly IServiceScope scope;
+    private readonly ILogger<DatabaseUpdateService>? _logger;
     private readonly TestDataHolder _testDataHolder;
+    private readonly IServiceScope _scope;
 
     public DatabaseUpdateService(IServiceScopeFactory serviceScopeFactory)
     {
-        scope = serviceScopeFactory.CreateScope();
-        this._dbContext = scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
-        _logger = scope.ServiceProvider.GetService<ILogger<DatabaseUpdateService>>();
+        _scope = serviceScopeFactory.CreateScope();
+        _dbContext = _scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
+        _logger = _scope.ServiceProvider.GetService<ILogger<DatabaseUpdateService>>();
         _foodFactsApi = new OpenFoodFactsApi();
-        _testDataHolder = new TestDataHolder(_dbContext, _logger);
+        _testDataHolder = new TestDataHolder(_dbContext);
     }
 
     public override void Dispose()
     {
-        this.scope.Dispose();
+        _scope.Dispose();
         base.Dispose();
     }
 
@@ -32,12 +34,12 @@ public class DatabaseUpdateService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("Scheduled task started at: {time}", DateTimeOffset.Now);
+            _logger?.LogInformation("Scheduled task started at: {time}", DateTimeOffset.Now);
 
-            await this.InsertNewProducts();
-            this.InitBasicUserData();
+            await InsertNewProducts();
+            InitBasicUserData();
 
-            _logger.LogInformation("Scheduled task ended at: {time}", DateTimeOffset.Now);
+            _logger?.LogInformation("Scheduled task ended at: {time}", DateTimeOffset.Now);
 
             await Task.Delay(TimeSpan.FromDays(3), stoppingToken);
         }
@@ -45,6 +47,8 @@ public class DatabaseUpdateService : BackgroundService
 
     private async Task InsertNewProducts()
     {
+        /* Nur fehlende Produkte */
+
         var products = await _foodFactsApi.GetBeerData();
         var newProducts = 0;
 
@@ -56,7 +60,7 @@ public class DatabaseUpdateService : BackgroundService
             newProducts++;
         }
 
-        _logger.LogInformation($"Added {newProducts} new Products: {DateTimeOffset.Now}");
+        _logger?.LogInformation($"Added {newProducts} new Products: {DateTimeOffset.Now}");
     }
 
     private void InitBasicUserData()
@@ -70,19 +74,19 @@ public class DatabaseUpdateService : BackgroundService
         if (_dbContext.GetUsers().Count() < users)
         {
             _testDataHolder.InitUsers(users);
-            _logger.LogInformation("Added Testusers at: {time}", DateTimeOffset.Now);
+            _logger?.LogInformation("Added Testusers at: {time}", DateTimeOffset.Now);
         }
 
         if (_dbContext.GetDrinkActions().Count() < drinkActions)
         {
             _testDataHolder.InitDrinkActions(drinkActions);
-            _logger.LogInformation("Added Testdrinkactions at: {time}", DateTimeOffset.Now);
+            _logger?.LogInformation("Added Testdrinkactions at: {time}", DateTimeOffset.Now);
         }
 
         if (_dbContext.GetChallenges().Count() < challenges)
         {
             _testDataHolder.InitChallenges();
-            _logger.LogInformation("Added Testchallenges at: {time}", DateTimeOffset.Now);
+            _logger?.LogInformation("Added Testchallenges at: {time}", DateTimeOffset.Now);
         }
     }
 }

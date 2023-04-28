@@ -1,15 +1,10 @@
-﻿using System.Runtime.InteropServices;
-using System.Transactions;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-
-namespace DataStorage.HelperClasses;
+﻿namespace DataStorage.HelperClasses;
 
 public class SameSizeChallenge : IChallengeValidator
 {
-    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString, int neededQuantity)
+    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString,
+        int neededQuantity)
     {
-        var unitNormalizer = new UnitNormalizer();
-
         int done;
 
         var drunkBeers = drinkActions.Select(x => x.Product);
@@ -18,13 +13,14 @@ public class SameSizeChallenge : IChallengeValidator
 
         if (!string.IsNullOrEmpty(searchString))
         {
-            var relatedBeer = drunkBeers.Where(x => unitNormalizer.NormalizeQuantity(x.Quantity) == searchString).ToList();
+            var relatedBeer = drunkBeers.Where(x => UnitNormalizer.NormalizeQuantity(x.Quantity) == searchString)
+                .ToList();
             done = relatedBeer?.Count() ?? 0;
             partialProgress = relatedBeer?.Select(x => x.ProductName) ?? new List<string>();
         }
         else /* Wenn nicht gesetzt, kann es jede beliebige Größe sein */
         {
-            var sizeGroups = drunkBeers.GroupBy(x => unitNormalizer.NormalizeQuantity(x.Quantity)).ToList();
+            var sizeGroups = drunkBeers.GroupBy(x => UnitNormalizer.NormalizeQuantity(x.Quantity)).ToList();
             done = sizeGroups.Select(x => x.Count()).Max();
             partialProgress = sizeGroups.First(x => x.Count() == done).Select(x => x.ProductName);
         }

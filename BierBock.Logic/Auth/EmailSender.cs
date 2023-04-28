@@ -1,8 +1,9 @@
-﻿using SendGrid;
-using SendGrid.Helpers.Mail;
-using System.Net.Mail;
+﻿#region
+
 using System.Net;
-using System.Xml.Linq;
+using System.Net.Mail;
+
+#endregion
 
 namespace BierBockBackend.Auth;
 
@@ -31,9 +32,10 @@ public class EmailSender : IEmailSender
         msg.Subject = "Bierbock E-Mail Adresse bestätigen";
 
         var url = $"https://www.beerbock.de/security/confirmEmail?emailToken={token}&username={username}";
-        
-        msg.Body = $"<h1>Willkommen bei Bierbock</h1>\r\n<h2>Bitte bestätigen Sie ihre E-Mail Adresse</h2>\r\n<a href=\"{url}\">Hier bestätigen</a>";
-        msg.IsBodyHtml = true ;
+
+        msg.Body =
+            $"<h1>Willkommen bei Bierbock</h1>\r\n<h2>Bitte bestätigen Sie ihre E-Mail Adresse</h2>\r\n<a href=\"{url}\">Hier bestätigen</a>";
+        msg.IsBodyHtml = true;
 
         MyServer.Send(msg);
         return Task.CompletedTask;
