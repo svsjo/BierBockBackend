@@ -14,4 +14,3 @@ public enum Status
     Successful,
     Error
 }
-

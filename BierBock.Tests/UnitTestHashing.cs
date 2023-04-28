@@ -4,12 +4,18 @@ namespace BierBock.Tests
 {
     public class UnitTestHashing
     {
-        [Fact]
-        public void TestHashing()
+        [Theory]
+        [InlineData("test1234_")]
+        public void GivenPwd_WhenGeneratingHash_ShouldVerify(string pwd)
         {
-            var pwd = "test1234_";
+            // Arrange
             var hash = PasswordHashing.HashPassword(pwd);
-            Assert.True(PasswordHashing.VerifyPassword(pwd, hash.Hash, hash.Salt));
+
+            // Act
+            var result = PasswordHashing.VerifyPassword(pwd, hash.Hash, hash.Salt);
+
+            // Assert
+            Assert.True(result);
         }
     }
 }

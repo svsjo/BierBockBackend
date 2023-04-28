@@ -1,13 +1,21 @@
+#region
+
 using BierBockBackend.Auth;
+
+#endregion
 
 namespace BierBock.Tests;
 
 public class UnitTestSendEmail
 {
-    [Fact]
-    public void TestSendMail()
+    [Theory]
+    [InlineData("jona.schwab@gmx.de", "123", "jona")]
+    public void GivenMail_WhenSending_ShouldComplete(string toEmail, string token, string username)
     {
-      var x=  new EmailSender().SendConfirmationMail("jona.schwab@gmx.de",  "123","jona").IsCompleted;
-      Assert.True(x);
+        // Act
+        var completed = new EmailSender().SendConfirmationMail(toEmail, token, username).IsCompleted;
+
+        // Assert
+        Assert.True(completed);
     }
 }

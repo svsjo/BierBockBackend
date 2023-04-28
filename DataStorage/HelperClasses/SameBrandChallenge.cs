@@ -2,7 +2,8 @@
 
 public class SameBrandChallenge : IChallengeValidator
 {
-    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString, int neededQuantity)
+    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString,
+        int neededQuantity)
     {
         int done;
 

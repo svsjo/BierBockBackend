@@ -1,16 +1,13 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.InteropServices.JavaScript;
+#region
+
+using System.Security.Claims;
 using BierBockBackend.Data;
 using DataStorage;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using System.Security;
-using Microsoft.AspNetCore.Http.Metadata;
-using System.Xml.Linq;
 using DataStorage.HelperClasses;
-using GeoCoordinatePortable;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+#endregion
 
 namespace BierBockBackend.Controllers;
 
@@ -19,15 +16,31 @@ namespace BierBockBackend.Controllers;
 [Route("[controller]")]
 public class BierBockController : ControllerBase
 {
-    private readonly AppDatabaseContext _dbAppDatabaseContext;
     private readonly ChallengeValidtorSelector _challengeValidtorSelector = new();
+    private readonly AppDatabaseContext _dbAppDatabaseContext;
 
     public BierBockController(AppDatabaseContext dbAppDatabaseContext)
     {
         _dbAppDatabaseContext = dbAppDatabaseContext;
     }
 
-    #region Echte Schnittstelle
+
+    private User GetCurrentUser()
+    {
+        var name = HttpContext.User.Claims
+            .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?
+            .Value;
+
+        var user = _dbAppDatabaseContext.GetUsers()
+            .FirstOrDefault(x => x.UserName == name);
+
+        if (user == null) throw new Exception("User not found");
+
+        if (user.AccountLocked) throw new Exception("Account Locked");
+        return user;
+    }
+
+    #region Get
 
     [HttpGet("ownUserData", Name = "GetOwnUserData")]
     public RequestStatus<object> GetOwnUserData()
@@ -57,20 +70,20 @@ public class BierBockController : ControllerBase
     [HttpGet("ownChallenges", Name = "GetOwnChallenges")]
     public RequestStatus<IEnumerable<object>> GetOwnChallenges()
     {
-        var user = GetCurrentUser(); 
+        var user = GetCurrentUser();
         var challenges = _dbAppDatabaseContext.GetChallenges();
 
-        
 
         var results = challenges.ToList().Select(x => new
-        {
-            Challenge = x,
-            Progress = _challengeValidtorSelector.ValidateChallengeProgress(
-                user.AllDrinkingActions.ToList().Where(da => x.StartDate >= da.Time && x.EndDate < da.Time).ToList(), 
-                x.SearchString, 
-                x.NeededQuantity, 
-                x.ChallengeType)
-        })
+            {
+                Challenge = x,
+                Progress = _challengeValidtorSelector.ValidateChallengeProgress(
+                    user.AllDrinkingActions.ToList().Where(da => x.StartDate >= da.Time && x.EndDate < da.Time)
+                        .ToList(),
+                    x.SearchString,
+                    x.NeededQuantity,
+                    x.ChallengeType)
+            })
             .ToList();
 
         return new RequestStatus<IEnumerable<object>>
@@ -81,7 +94,8 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("allDrinkActions", Name = "GetAllDrinkActions")]
-    public RequestStatus<IEnumerable<object>> GetAllDrinkActions(string? searchString = default, DateTime fromTime = default, DateTime toTime = default)
+    public RequestStatus<IEnumerable<object>> GetAllDrinkActions(string? searchString = default,
+        DateTime fromTime = default, DateTime toTime = default)
     {
         var results = _dbAppDatabaseContext.GetDrinkActions();
 
@@ -91,7 +105,8 @@ public class BierBockController : ControllerBase
             results = results
                 .Where(x => (x.Product.Brands != null && x.Product.Brands.ToLower().Contains(searchString.ToLower())) ||
                             x.Product.ProductName.ToLower().Contains(searchString.ToLower()) ||
-                            (x.Product.Categories != null && x.Product.Categories.ToLower().Contains(searchString.ToLower())))
+                            (x.Product.Categories != null &&
+                             x.Product.Categories.ToLower().Contains(searchString.ToLower())))
                 .OrderByDescending(x => x.Time);
 
         return new RequestStatus<IEnumerable<object>>
@@ -178,7 +193,7 @@ public class BierBockController : ControllerBase
 
         var result = new { Rank = rank, UserCount = userCount };
 
-        var status = (rank > 0 && rank < userCount + 1) ? Status.Successful : Status.Error;
+        var status = rank > 0 && rank < userCount + 1 ? Status.Successful : Status.Error;
 
         return new RequestStatus<object>
         {
@@ -195,7 +210,7 @@ public class BierBockController : ControllerBase
         var product = _dbAppDatabaseContext.GetProducts()
             .FirstOrDefault(x => x.Code == barcode);
 
- 
+
         return new RequestStatus<Product>
         {
             Status = Status.Successful,
@@ -204,7 +219,8 @@ public class BierBockController : ControllerBase
     }
 
     [HttpGet("nearestDrinkers", Name = "GetNearestDrinkers")]
-    public RequestStatus<IEnumerable<object>> GetNearestDrinkers([FromQuery] double latitude, [FromQuery] double longitude,
+    public RequestStatus<IEnumerable<object>> GetNearestDrinkers([FromQuery] double latitude,
+        [FromQuery] double longitude,
         [FromQuery] double altitude, [FromQuery] string? beerCode = default)
     {
         var coordinate = new Coordinate
@@ -238,12 +254,13 @@ public class BierBockController : ControllerBase
         return new RequestStatus<IEnumerable<object>>
         {
             Result = results,
-            Status = Status.Successful,
+            Status = Status.Successful
         };
     }
 
     [HttpGet("ownDrinkProgress", Name = "GetOwnDrinkProgress")]
-    public RequestStatus<IEnumerable<object>> GetOwnDrinkProgress(DateTime toTime = default, DateTime fromTime = default)
+    public RequestStatus<IEnumerable<object>> GetOwnDrinkProgress(DateTime toTime = default,
+        DateTime fromTime = default)
     {
         var user = GetCurrentUser();
 
@@ -270,6 +287,10 @@ public class BierBockController : ControllerBase
         };
     }
 
+    #endregion
+
+    #region Post
+
     [HttpPost("newDrinkAction", Name = "SetNewDrinkAction")]
     public RequestStatus<object> SetNewDrinkAction(Coordinate coordinate, string beerCode)
     {
@@ -283,7 +304,7 @@ public class BierBockController : ControllerBase
             {
                 Location = coordinate,
                 User = user,
-                Product = product,
+                Product = product
             }
             : default;
 
@@ -294,17 +315,15 @@ public class BierBockController : ControllerBase
 
             return new RequestStatus<object>
             {
-                Status = Status.Successful,
+                Status = Status.Successful
             };
         }
-        else
+
+        return new RequestStatus<object>
         {
-            return new RequestStatus<object>
-            {
-                Status = Status.Error,
-                ErrorCode = ErrorCodes.beer_not_found
-            };
-        }
+            Status = Status.Error,
+            ErrorCode = ErrorCodes.beer_not_found
+        };
     }
 
     [HttpPost("actualisateUserPosition", Name = "ActualisateUserPosition")]
@@ -317,12 +336,13 @@ public class BierBockController : ControllerBase
 
         return new RequestStatus<object>
         {
-            Status = status,
+            Status = status
         };
     }
 
     [HttpPost("actualisateUserBasicData", Name = "ActualisateUserBasicData")]
-    public RequestStatus<object> ActualisateUserBasicData(string? newName = default, string? newVorname = default, string? newWohnort = default, 
+    public RequestStatus<object> ActualisateUserBasicData(string? newName = default, string? newVorname = default,
+        string? newWohnort = default,
         string? newBirthDate = default, string? newFavouriteBeerCode = default, string? newMail = default)
     {
         var user = GetCurrentUser();
@@ -347,25 +367,9 @@ public class BierBockController : ControllerBase
 
         return new RequestStatus<object>
         {
-            Status = status,
+            Status = status
         };
     }
 
     #endregion
-
-    private User GetCurrentUser()
-    {
-        var name = HttpContext.User.Claims
-            .FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?
-            .Value;
-
-        var user = _dbAppDatabaseContext.GetUsers()
-            .FirstOrDefault(x => x.UserName == name);
-
-        if (user == null) throw new Exception("User not found");
-
-        if (user.AccountLocked) throw new Exception("Account Locked");
-        return user;
-
-    }
 }

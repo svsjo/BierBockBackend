@@ -2,6 +2,6 @@
 
 public class IdentityData
 {
-    public const string AdminUserClaimName = "admin";
-    public const string AdminUserPolicyName = "Admin";
+    public const string AdminUserClaim = "admin";
+    public const string AdminUserPolicy = "Admin";
 }

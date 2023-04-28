@@ -1,10 +1,9 @@
-﻿using DataStorage;
-
-namespace DataStorage.HelperClasses;
+﻿namespace DataStorage.HelperClasses;
 
 public class DiffrentBrandChallenge : IChallengeValidator
 {
-    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString, int neededQuantity)
+    public ChallengeProgress ValidateChallengeProgress(ICollection<DrinkAction> drinkActions, string searchString,
+        int neededQuantity)
     {
         var drunkBeers = drinkActions.Select(x => x.Product);
 
