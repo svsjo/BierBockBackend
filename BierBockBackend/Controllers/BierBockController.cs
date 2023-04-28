@@ -362,6 +362,8 @@ public class BierBockController : ControllerBase
         var user = _dbAppDatabaseContext.GetUsers()
             .FirstOrDefault(x => x.UserName == name);
 
+        if (user == null) throw new Exception("User not found");
+
         if (user.AccountLocked) throw new Exception("Account Locked");
         return user;
 
