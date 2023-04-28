@@ -73,12 +73,11 @@ public class BierBockController : ControllerBase
         var user = GetCurrentUser();
         var challenges = _dbAppDatabaseContext.GetChallenges();
 
-
         var results = challenges.ToList().Select(x => new
             {
                 Challenge = x,
                 Progress = _challengeValidtorSelector.ValidateChallengeProgress(
-                    user.AllDrinkingActions.ToList().Where(da => x.StartDate >= da.Time && x.EndDate < da.Time)
+                    user.AllDrinkingActions.ToList().Where(da => da.Time >= x.StartDate && da.Time <= x.EndDate)
                         .ToList(),
                     x.SearchString,
                     x.NeededQuantity,
@@ -210,12 +209,22 @@ public class BierBockController : ControllerBase
         var product = _dbAppDatabaseContext.GetProducts()
             .FirstOrDefault(x => x.Code == barcode);
 
-
-        return new RequestStatus<Product>
+        if (product == default)
         {
-            Status = Status.Successful,
-            Result = product
-        };
+            return new RequestStatus<Product>
+            {
+                Status = Status.Error,
+                ErrorCode = ErrorCodes.beer_not_found,
+            };
+        }
+        else
+        {
+            return new RequestStatus<Product>
+            {
+                Status = Status.Successful,
+                Result = product
+            };
+        }
     }
 
     [HttpGet("nearestDrinkers", Name = "GetNearestDrinkers")]

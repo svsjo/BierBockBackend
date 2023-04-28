@@ -6,23 +6,21 @@ namespace BierBockBackend.BackgroundServices;
 
 public class TestDataHolder
 {
-    private readonly ILogger<DatabaseUpdateService>? _logger;
     private readonly AppDatabaseContext _dbContext;
 
-    private Coordinate _horberCoords = new Coordinate()
+    private readonly Coordinate _horberCoords = new Coordinate()
     {
         Latitude = 48.442078,
         Longitude = 8.68488512,
         Altitude = 421.0
     };
 
-    private int _offsetMin = 2;
-    private int _offsetMax = 100;
+    private const int OffsetMin = 2;
+    private const int OffsetMax = 100;
 
-    public TestDataHolder(AppDatabaseContext dbContext, ILogger<DatabaseUpdateService>? logger)
+    public TestDataHolder(AppDatabaseContext dbContext)
     {
         _dbContext = dbContext;
-        _logger = logger;
     }
 
     #region Horber Init
@@ -44,8 +42,8 @@ public class TestDataHolder
                     Time = DateTime.Now.AddMinutes(5),
                     Location = new Coordinate()
                     {
-                        Latitude = _horberCoords.Latitude + random.Next(_offsetMin, _offsetMax)/1000.0,
-                        Longitude = _horberCoords.Longitude + random.Next(_offsetMin, _offsetMax) / 1000.0,
+                        Latitude = _horberCoords.Latitude + random.Next(OffsetMin, OffsetMax) / 1000.0,
+                        Longitude = _horberCoords.Longitude + random.Next(OffsetMin, OffsetMax) / 1000.0,
                         Altitude = _horberCoords.Altitude + random.Next(-10, 30),
                     },
                     User = user,

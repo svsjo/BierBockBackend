@@ -1,10 +1,13 @@
 #region
 
+using BierBockBackend.BackgroundServices;
 using BierBockBackend.Data;
 using BierBockBackend.Identity;
 using DataStorage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 #endregion
 
@@ -68,6 +71,21 @@ public class AdminController
         {
             Status = Status.Successful,
             Result = users
+        };
+    }
+
+    [Authorize(Policy = IdentityData.AdminUserPolicy)]
+    [HttpGet("newTestData", Name = "InsertNewTestData")]
+    public RequestStatus<object> InsertNewTestData()
+    {
+        var testData = new TestDataHolder(_dbAppDatabaseContext);
+
+        /* Folgende Methode kann nach belieben ausgetauscht werden -> sollte auch mit Hot Reload funktionieren */
+        testData.InitHorberDrinkActions(30);
+
+        return new RequestStatus<object>()
+        {
+            Status = Status.Successful,
         };
     }
 }

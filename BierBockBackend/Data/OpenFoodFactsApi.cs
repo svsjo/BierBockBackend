@@ -30,7 +30,6 @@ public class OpenFoodFactsApi
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadAsStringAsync();
-                //   var products = JsonConvert.DeserializeObject<ProductList>(result);
                 var products = JsonSerializer.Deserialize<ProductList>(result);
 
                 if (products?.Products == null) break;

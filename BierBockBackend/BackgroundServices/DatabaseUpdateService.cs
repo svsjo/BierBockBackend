@@ -21,7 +21,7 @@ public class DatabaseUpdateService : BackgroundService
         _dbContext = _scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
         _logger = _scope.ServiceProvider.GetService<ILogger<DatabaseUpdateService>>();
         _foodFactsApi = new OpenFoodFactsApi();
-        _testDataHolder = new TestDataHolder(_dbContext, _logger);
+        _testDataHolder = new TestDataHolder(_dbContext);
     }
 
     public override void Dispose()

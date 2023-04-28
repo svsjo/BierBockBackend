@@ -14,7 +14,7 @@ public class DiffrentSizeChallenge : IChallengeValidator
         {
             Done = done,
             Total = neededQuantity,
-            AllPartialProgresses = sizeGroups.Select(x => x.First().Quantity)
+            AllPartialProgresses = sizeGroups.Select(x => UnitNormalizer.NormalizeQuantity(x.First().Quantity))
         };
     }
 }

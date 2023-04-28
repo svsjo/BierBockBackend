@@ -8,7 +8,7 @@ using UnitsNet.Units;
 
 namespace DataStorage.HelperClasses;
 
-public class UnitNormalizer
+public static class UnitNormalizer
 {
     private static readonly Regex Regex = new(@"([0-9]*)(\D*)", RegexOptions.Compiled);
 
