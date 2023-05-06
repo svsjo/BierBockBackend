@@ -27,7 +27,7 @@ public class AdminController
 
     [Authorize(Policy = IdentityData.AdminUserPolicy)]
     [HttpPost("lockUser", Name = "LockUser")]
-    public RequestStatus<object> LockUser([FromBody]string username)
+    public RequestStatus<object> LockUser(string username)
     {
         var user = _dbAppDatabaseContext.GetUsers()
             .FirstOrDefault(x => x.UserName == username)!;
