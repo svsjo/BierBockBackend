@@ -96,7 +96,7 @@ public class TestDataHolder
     }
 
     public void InitUsers(int numberUsers)
-    {
+    { 
         var products = _dbContext.GetProducts().Take(numberUsers).ToList();
 
         var hash = PasswordHashing.HashPassword("Password123");
