@@ -32,6 +32,11 @@ public class AdminController
         var user = _dbAppDatabaseContext.GetUsers()
             .FirstOrDefault(x => x.UserName == username)!;
 
+        if (user == null) return new RequestStatus<object>()
+        {
+            Status = Status.Error,
+            ErrorCode = ErrorCodes.user_not_found
+        };
         user.AccountLocked = true;
         _dbAppDatabaseContext.Update(user);
         _dbAppDatabaseContext.SaveChanges();
