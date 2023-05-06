@@ -10,7 +10,7 @@ namespace BierBockBackend.BackgroundServices;
 public class DatabaseUpdateService : BackgroundService
 {
     private readonly AppDatabaseContext _dbContext;
-    private readonly OpenFoodFactsApi _foodFactsApi;
+    private readonly OpenFoodFactsClient _foodFactsClient;
     private readonly ILogger<DatabaseUpdateService>? _logger;
     private readonly TestDataHolder _testDataHolder;
     private readonly IServiceScope _scope;
@@ -20,7 +20,7 @@ public class DatabaseUpdateService : BackgroundService
         _scope = serviceScopeFactory.CreateScope();
         _dbContext = _scope.ServiceProvider.GetRequiredService<AppDatabaseContext>();
         _logger = _scope.ServiceProvider.GetService<ILogger<DatabaseUpdateService>>();
-        _foodFactsApi = new OpenFoodFactsApi();
+        _foodFactsClient = new OpenFoodFactsClient();
         _testDataHolder = new TestDataHolder(_dbContext);
     }
 
@@ -49,7 +49,7 @@ public class DatabaseUpdateService : BackgroundService
     {
         /* Nur fehlende Produkte */
 
-        var products = await _foodFactsApi.GetBeerData();
+        var products = await _foodFactsClient.GetBeerData();
         var newProducts = 0;
 
         foreach (var product in products

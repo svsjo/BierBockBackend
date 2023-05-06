@@ -7,7 +7,7 @@ using DataStorage;
 
 namespace BierBockBackend.Data;
 
-public class OpenFoodFactsApi
+public class OpenFoodFactsClient
 {
     public async Task<List<Product>> GetBeerData()
     {
