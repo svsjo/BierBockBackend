@@ -86,7 +86,7 @@ public class AdminController
         var testData = new TestDataHolder(_dbAppDatabaseContext);
 
         /* Folgende Methode kann nach belieben ausgetauscht werden -> sollte auch mit Hot Reload funktionieren */
-        testData.InitHorberDrinkActions(30);
+        testData.InitHorberDrinkActions(2);
 
         return new RequestStatus<object>()
         {
