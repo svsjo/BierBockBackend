@@ -114,7 +114,7 @@ public class AppDatabaseContext : DbContext
     }
     public IEnumerable<(Challenge challenge, ChallengeProgress challengeProgress)> CalculateChallengeProgresses(User user)
     {
-        var challenges = GetChallenges().Where(x => x.IsActive);
+        var challenges = GetChallenges().ToList().Where(x => x.IsActive);
         return challenges.ToList().Select(x =>
         (
             challenge: x,

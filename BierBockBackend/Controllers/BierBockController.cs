@@ -75,7 +75,7 @@ public class BierBockController : ControllerBase
         return new RequestStatus<IEnumerable<object>>
         {
             Status = Status.Successful,
-            Result = results.Select(x=>new { Challenge = x.challenge, ChallengeProgress = x.challengeProgress })
+            Result = results.Select(x=>new { Challenge = x.challenge, Progress = x.challengeProgress })
         };
     }
 
