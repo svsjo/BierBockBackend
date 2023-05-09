@@ -71,7 +71,7 @@ public class BierBockController : ControllerBase
     public RequestStatus<IEnumerable<object>> GetOwnChallenges()
     {
         var user = GetCurrentUser();
-        var challenges = _dbAppDatabaseContext.GetChallenges();
+        var challenges = _dbAppDatabaseContext.GetChallenges().Where(x => x.IsActive);
 
         var results = challenges.ToList().Select(x => new
             {
