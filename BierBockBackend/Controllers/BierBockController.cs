@@ -325,6 +325,9 @@ public class BierBockController : ControllerBase
             };
 
 
+        GetOwnChallenges()
+
+
         user.AllDrinkingActions.Add(drinkAction);
         _dbAppDatabaseContext.AddDrinkAction(drinkAction);
 
