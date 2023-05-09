@@ -16,7 +16,7 @@ namespace BierBockBackend.Controllers;
 [Route("[controller]")]
 public class BierBockController : ControllerBase
 {
-    private readonly ChallengeValidtorSelector _challengeValidtorSelector = new();
+
     private readonly AppDatabaseContext _dbAppDatabaseContext;
 
     public BierBockController(AppDatabaseContext dbAppDatabaseContext)
@@ -70,27 +70,16 @@ public class BierBockController : ControllerBase
     [HttpGet("ownChallenges", Name = "GetOwnChallenges")]
     public RequestStatus<IEnumerable<object>> GetOwnChallenges()
     {
-        var user = GetCurrentUser();
-        var challenges = _dbAppDatabaseContext.GetChallenges().Where(x => x.IsActive);
-
-        var results = challenges.ToList().Select(x => new
-            {
-                Challenge = x,
-                Progress = _challengeValidtorSelector.ValidateChallengeProgress(
-                    user.AllDrinkingActions.ToList().Where(da => da.Time >= x.StartDate && da.Time <= x.EndDate)
-                        .ToList(),
-                    x.SearchString,
-                    x.NeededQuantity,
-                    x.ChallengeType)
-            })
-            .ToList();
+        var results = _dbAppDatabaseContext.CalculateChallengeProgresses(GetCurrentUser());
 
         return new RequestStatus<IEnumerable<object>>
         {
             Status = Status.Successful,
-            Result = results
+            Result = results.Select(x=>new { Challenge = x.challenge, ChallengeProgress = x.challengeProgress })
         };
     }
+
+ 
 
     [HttpGet("allDrinkActions", Name = "GetAllDrinkActions")]
     public RequestStatus<IEnumerable<object>> GetAllDrinkActions(string? searchString = default,
@@ -325,12 +314,7 @@ public class BierBockController : ControllerBase
             };
 
 
-        GetOwnChallenges()
-
-
-        user.AllDrinkingActions.Add(drinkAction);
-        _dbAppDatabaseContext.AddDrinkAction(drinkAction);
-
+        _dbAppDatabaseContext.InsertDrinkAction(user, drinkAction);
 
 
         return new RequestStatus<object>
@@ -339,6 +323,7 @@ public class BierBockController : ControllerBase
         };
 
     }
+
 
     [HttpPost("actualisateUserPosition", Name = "ActualisateUserPosition")]
     public RequestStatus<object> ActualisateUserPosition(Coordinate coordinate)

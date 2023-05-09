@@ -14,6 +14,7 @@ public class AppDatabaseContext : DbContext
     private DbSet<Product> Products { get; set; }
     private DbSet<Challenge> Challenges { get; set; }
 
+    private readonly ChallengeValidtorSelector _challengeValidatorSelector = new();
 
     //Add-Migration Name
     //Update-Database
@@ -110,5 +111,36 @@ public class AppDatabaseContext : DbContext
         //sqllocaldb.exe start
         options
             .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=bierbockdb;Trusted_Connection=True;MultipleActiveResultSets=true");
+    }
+    public IEnumerable<(Challenge challenge, ChallengeProgress challengeProgress)> CalculateChallengeProgresses(User user)
+    {
+        var challenges = GetChallenges().Where(x => x.IsActive);
+        return challenges.ToList().Select(x =>
+        (
+            challenge: x,
+            challengeProgress: _challengeValidatorSelector.ValidateChallengeProgress(
+                user.AllDrinkingActions.ToList().Where(da => da.Time >= x.StartDate && da.Time <= x.EndDate)
+                    .ToList(),
+                x.SearchString,
+                x.NeededQuantity,
+                x.ChallengeType)
+        )).ToList();
+    }
+    public void InsertDrinkAction(User user, DrinkAction drinkAction)
+    {
+            var oldProgress = CalculateChallengeProgresses(user).Where(x => x.challengeProgress.Done == x.challengeProgress.Total);
+
+
+            user.AllDrinkingActions.Add(drinkAction);
+            AddDrinkAction(drinkAction);
+
+            var newProgress = CalculateChallengeProgresses(user).Where(x => x.challengeProgress.Done == x.challengeProgress.Total);
+
+
+            var diff = newProgress.Except(oldProgress);
+            var newPoints = diff.Sum(x => x.challenge.PossiblePoints);
+            user.Points += newPoints;
+            this.Update(user);
+            SaveChanges();
     }
 }
