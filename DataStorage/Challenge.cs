@@ -29,6 +29,6 @@ public class Challenge
     public int NeededQuantity { get; set; } = 0;
     public string SearchString { get; set; } = string.Empty;
 
-    [JsonIgnore]
+   // [JsonIgnore]
     public ChallengeType ChallengeType { get; set; }
-}
+}   
