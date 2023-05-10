@@ -1,6 +1,8 @@
-﻿using BierBockBackend.Auth;
+﻿using System.Security.AccessControl;
+using BierBockBackend.Auth;
 using DataStorage;
 using DataStorage.HelperClasses;
+using UnitsNet;
 
 namespace BierBockBackend.BackgroundServices;
 
@@ -274,6 +276,22 @@ public class TestDataHolder
         _dbContext.AddChallenge(challenge4);
         _dbContext.AddChallenge(challenge5);
         _dbContext.AddChallenge(challenge6);
+    }
+
+    public void InitSpezi()
+    {
+        var product = new Product
+        {
+            Code = "4066600603405",
+            ProductName = "Paulaner Sepzi",
+            Brands = "Paulaner",
+            ImageUrl = "https://images.openfoodfacts.org/images/products/406/660/060/3405/front_de.73.400.jpg",
+            Categories = "Pflanzliche Lebensmittel und Getränke, Getränke, Pflanzliche Getränke, Kohlensäurehaltige Getränke, Fruchtgetränke, Erfrischungsgetränke, Fruchtlimonaden, Cola, Cola Mix, Gezuckerte Getränke",
+            Quantity = "0,5l",
+        };
+
+        _dbContext.AddProduct(product);
+        _dbContext.SaveChanges();
     }
 
     #endregion
