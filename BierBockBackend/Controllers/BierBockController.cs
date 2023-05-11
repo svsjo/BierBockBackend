@@ -3,7 +3,6 @@
 using System.Security.Claims;
 using BierBockBackend.Data;
 using DataStorage;
-using DataStorage.HelperClasses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +15,6 @@ namespace BierBockBackend.Controllers;
 [Route("[controller]")]
 public class BierBockController : ControllerBase
 {
-
     private readonly AppDatabaseContext _dbAppDatabaseContext;
 
     public BierBockController(AppDatabaseContext dbAppDatabaseContext)
@@ -75,11 +73,10 @@ public class BierBockController : ControllerBase
         return new RequestStatus<IEnumerable<object>>
         {
             Status = Status.Successful,
-            Result = results.Select(x=>new { Challenge = x.challenge, Progress = x.challengeProgress })
+            Result = results.Select(x => new { Challenge = x.challenge, Progress = x.challengeProgress })
         };
     }
 
- 
 
     [HttpGet("allDrinkActions", Name = "GetAllDrinkActions")]
     public RequestStatus<IEnumerable<object>> GetAllDrinkActions(string? searchString = default,
@@ -199,21 +196,16 @@ public class BierBockController : ControllerBase
             .FirstOrDefault(x => x.Code == barcode);
 
         if (product == default)
-        {
             return new RequestStatus<Product>
             {
                 Status = Status.Error,
-                ErrorCode = ErrorCodes.beer_not_found,
+                ErrorCode = ErrorCodes.beer_not_found
             };
-        }
-        else
+        return new RequestStatus<Product>
         {
-            return new RequestStatus<Product>
-            {
-                Status = Status.Successful,
-                Result = product
-            };
-        }
+            Status = Status.Successful,
+            Result = product
+        };
     }
 
     [HttpGet("nearestDrinkers", Name = "GetNearestDrinkers")]
@@ -321,7 +313,6 @@ public class BierBockController : ControllerBase
         {
             Status = Status.Successful
         };
-
     }
 
 

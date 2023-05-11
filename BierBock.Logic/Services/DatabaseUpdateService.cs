@@ -15,8 +15,8 @@ public class DatabaseUpdateService : BackgroundService
     private readonly AppDatabaseContext _dbContext;
     private readonly OpenFoodFactsClient _foodFactsClient;
     private readonly ILogger<DatabaseUpdateService>? _logger;
-    private readonly TestDataHolder _testDataHolder;
     private readonly IServiceScope _scope;
+    private readonly TestDataHolder _testDataHolder;
 
     public DatabaseUpdateService(IServiceScopeFactory serviceScopeFactory)
     {

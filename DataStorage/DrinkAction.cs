@@ -1,26 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using DataStorage;
 
-namespace DataStorage
+namespace DataStorage;
+
+public class DrinkAction
 {
-    public class DrinkAction
-    {
-        [JsonIgnore]
-        [Key]
-        public int Id { get; set; }
+    [JsonIgnore] [Key] public int Id { get; set; }
 
-        public DateTime Time { get; set; } = DateTime.Now;
+    public DateTime Time { get; set; } = DateTime.Now;
 
-        public Coordinate Location { get; set; }
+    public Coordinate Location { get; set; }
 
-        [JsonIgnore]
-        [ForeignKey("UserId")]
-        public virtual User User { get; set; }
+    [JsonIgnore] [ForeignKey("UserId")] public virtual User User { get; set; }
 
-        [JsonIgnore]
-        [ForeignKey("ProductId")]
-        public virtual Product Product { get; set; }
-    }
+    [JsonIgnore] [ForeignKey("ProductId")] public virtual Product Product { get; set; }
 }

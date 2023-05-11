@@ -6,8 +6,6 @@ using BierBockBackend.Identity;
 using DataStorage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 #endregion
 
@@ -32,11 +30,12 @@ public class AdminController
         var user = _dbAppDatabaseContext.GetUsers()
             .FirstOrDefault(x => x.UserName == username)!;
 
-        if (user == null) return new RequestStatus<object>()
-        {
-            Status = Status.Error,
-            ErrorCode = ErrorCodes.user_not_found
-        };
+        if (user == null)
+            return new RequestStatus<object>
+            {
+                Status = Status.Error,
+                ErrorCode = ErrorCodes.user_not_found
+            };
         user.AccountLocked = true;
         _dbAppDatabaseContext.Update(user);
         _dbAppDatabaseContext.SaveChanges();
@@ -72,7 +71,7 @@ public class AdminController
             })
             .ToList();
 
-        return new RequestStatus<IEnumerable<object>>()
+        return new RequestStatus<IEnumerable<object>>
         {
             Status = Status.Successful,
             Result = users
@@ -88,9 +87,9 @@ public class AdminController
         /* Folgende Methode kann nach belieben ausgetauscht werden -> sollte auch mit Hot Reload funktionieren */
         testData.InitSpezi();
 
-        return new RequestStatus<object>()
+        return new RequestStatus<object>
         {
-            Status = Status.Successful,
+            Status = Status.Successful
         };
     }
 }

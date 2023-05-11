@@ -37,9 +37,7 @@ public class OpenFoodFactsClient
                 allProducts.AddRange(products.Products);
 
                 if (products.Products.Count < pageSize) // check if it is the last page
-                {
                     break;
-                }
 
                 page++;
                 Console.WriteLine($"++1000 -> Gesamt: {allProducts.Count}");

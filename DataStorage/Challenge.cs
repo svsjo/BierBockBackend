@@ -1,9 +1,7 @@
 ﻿#region
 
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using DataStorage;
 using DataStorage.HelperClasses;
 
 #endregion
@@ -12,9 +10,7 @@ namespace DataStorage;
 
 public class Challenge
 {
-    [JsonIgnore]
-    [Key]
-    public int Id { get; set; }
+    [JsonIgnore] [Key] public int Id { get; set; }
 
     public int PossiblePoints { get; set; } = 0;
 
@@ -29,6 +25,6 @@ public class Challenge
     public int NeededQuantity { get; set; } = 0;
     public string SearchString { get; set; } = string.Empty;
 
-   // [JsonIgnore]
+    // [JsonIgnore]
     public ChallengeType ChallengeType { get; set; }
-}   
+}

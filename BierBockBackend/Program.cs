@@ -27,7 +27,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "BierBockBackend",
         Version = "v1",
-        Description = "Backend full of Beer!",
+        Description = "Backend full of Beer!"
     });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {

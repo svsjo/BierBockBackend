@@ -183,12 +183,12 @@ public class AuthenticationController : ControllerBase
         public RegisterUser(string userName, string vorname, string nachname, string password, string email,
             string birthdate)
         {
-            this.UserName = userName;
-            this.Vorname = vorname;
-            this.Nachname = nachname;
-            this.Password = password;
-            this.Email = email;
-            this.Birthdate = birthdate;
+            UserName = userName;
+            Vorname = vorname;
+            Nachname = nachname;
+            Password = password;
+            Email = email;
+            Birthdate = birthdate;
         }
 
         public string UserName { get; init; }
